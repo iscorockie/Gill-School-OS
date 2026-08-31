@@ -255,6 +255,24 @@ check("admissions notified of new application", r.db.messages.some((m) => m.to =
 const mukasaSms = r.db.deliveries.filter((d) => d.ref === mukasaApp.id && d.channel === "SMS");
 check("both parents SMS'd on submission", mukasaSms.length === 2 && mukasaSms.some((d) => d.to === "+256707555666"));
 
+// 24b) Parents' dashboard — apply again while the admission awaits review
+r = await action("reopenApplication", { applicationId: mukasaApp.id });
+check("apply-again reopens application awaiting review", r.ok && r.result.application.status === "in_progress" && !!r.result.application.previousSubmit);
+const reopenedInvCount = r.db.invoices.length;
+const reopenedDocCount = r.db.documents.filter((d) => d.studentId === mukasaKid).length;
+r = await action("saveApplication", { familyId: mukasaFam, step: "documents", data: { files: [
+  { type: "Birth certificate", name: "amani_birth_v2.pdf", size: "1.0 MB" },
+  { type: "Immunisation record", name: "amani_immunisation.jpg", size: "760 KB" },
+  { type: "Passport photographs", name: "amani_photos.jpg", size: "420 KB" },
+] } });
+check("reopened application accepts edits", r.ok && r.result.application.documents.length === 3);
+r = await action("submitApplication", { applicationId: mukasaApp.id });
+check("resubmit keeps ONE invoice + vault docs (no duplicates)", r.ok && r.db.invoices.length === reopenedInvCount && r.db.documents.filter((d) => d.studentId === mukasaKid).length === reopenedDocCount);
+check("resubmit SMS says 'updated', not new", r.db.deliveries.some((d) => d.ref === mukasaApp.id && d.subject.includes("Application updated")));
+check("submit after resubmit still guarded", (await action("submitApplication", { applicationId: mukasaApp.id })).ok === false);
+r = await action("updateApplicationSettings", { applicationId: mukasaApp.id, settings: { updatesChannel: "sms", intake: "January 2027" } });
+check("application settings saved on the application", r.ok && r.result.application.settings?.updatesChannel === "sms" && r.result.application.settings?.intake === "January 2027");
+
 // 25) Registrar verification → account auto-activates + STUDENT PORTAL LINK sent
 r = await action("verifyDocument", { docId: r.db.documents.find((d) => d.studentId === mukasaKid).id, status: "verified" });
 let doc = r.db.documents.find((d) => d.studentId === mukasaKid && d.status !== "verified");

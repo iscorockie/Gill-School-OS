@@ -2,14 +2,10 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Icon from "@/components/icons.jsx";
-import { StudentProvider, useStudent } from "@/components/StudentProvider.jsx";
+import { useStudent } from "@/components/StudentProvider.jsx";
 
 export default function StudentLoginPage() {
-  return (
-    <StudentProvider>
-      <StudentLogin />
-    </StudentProvider>
-  );
+  return <StudentLogin />;
 }
 
 function StudentLogin() {

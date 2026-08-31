@@ -1,5 +1,7 @@
 "use client";
+import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useApp, Badge, Stat, Progress } from "@/components/ui.jsx";
 import { useParent } from "@/components/ParentProvider.jsx";
 import Icon from "@/components/icons.jsx";
@@ -7,7 +9,7 @@ import { currentFamily, balances, notificationsFor } from "@/lib/client.js";
 import { fmtUGX, fmtDate } from "@/components/ui.jsx";
 
 export default function PortalHome() {
-  const { db } = useApp();
+  const { db, act } = useApp();
   const { session } = useParent();
   if (!db) return <div className="card">Loading…</div>;
 
@@ -28,7 +30,7 @@ export default function PortalHome() {
   // the Admissions registrar verifies records + tuition → account "active".
   const fa = db.familyAccountByFamily[family.id];
   if (fa?.status === "pending" || (fa?.status === "active" && kids.every((k) => !k.enrolled))) {
-    return <ApplicationHome db={db} session={session} family={family} />;
+    return <ApplicationHome db={db} session={session} family={family} act={act} />;
   }
 
   return (
@@ -156,11 +158,12 @@ export default function PortalHome() {
   );
 }
 
-function ApplicationHome({ db, session, family }) {
+function ApplicationHome({ db, session, family, act }) {
   // The OS dashboard for a newly registered family: follows the old school
   // /parent/dashboard behaviour for new parents, adapted to the OS —
   // application status, wizard progress, documents and fees, then the
   // child-portal link once the Admission registrar completes verification.
+  const router = useRouter();
   const app = db.applications.find(
     (a) => a.studentId && db.studentIndex[a.studentId]?.familyId === family.id
   );
@@ -172,6 +175,17 @@ function ApplicationHome({ db, session, family }) {
   const inv = db.invoices.find((i) => i.familyId === family.id && i.term === db.meta.currentTerm);
   const tuitionOK = !!(inv && inv.total > 0 && inv.paid >= inv.total && inv.balance === 0);
   const sa = kid && db.accountByStudent?.[kid.id];
+  const [reopenErr, setReopenErr] = useState("");
+  const applyAgain = async () => {
+    if (!app) return;
+    setReopenErr("");
+    try {
+      await act("reopenApplication", { applicationId: app.id });
+      router.push("/apply");
+    } catch (e) {
+      setReopenErr(e.message || "Could not re-open the application.");
+    }
+  };
 
   const steps = [
     { key: "Basic Information", done: app?.steps?.basic, ico: "user" },
@@ -207,10 +221,14 @@ function ApplicationHome({ db, session, family }) {
           {!app && <Link className="btn gold" href="/apply">Start the application →</Link>}
           {app && !isActive && app.status === "in_progress" && <Link className="btn gold" href="/apply">Continue application →</Link>}
           {app && !isActive && app.status === "applied" && (<>
-            <span className="btn-hero-ghost" style={{ padding: "0.7rem 1.5rem", pointerEvents: "none" }}>
-              <Icon name="clock" size={16} /> Awaiting Admission review
-            </span>
+            <button className="btn gold" onClick={applyAgain}>
+              <Icon name="refresh" size={16} /> Apply again — edit & resubmit
+            </button>
+            <Badge tone="gold" style={{ alignSelf: "center" }}>
+              <Icon name="clock" size={14} style={{ verticalAlign: "-2px", marginRight: "0.3rem" }} /> Awaiting Admission review
+            </Badge>
           </>)}
+          {reopenErr && <span className="small" style={{ color: "var(--red)", width: "100%" }}>{reopenErr}</span>}
           {isActive && sa && (
             <Link className="btn gold" href={`/student/login?u=${encodeURIComponent(sa.username)}`}>
               <Icon name="user" size={16} /> Open {kid.name.split(" ")[0]}'s portal
@@ -227,6 +245,8 @@ function ApplicationHome({ db, session, family }) {
         </div>
       ) : (
         <>
+          <ApplicationSettings app={app} act={act} />
+
           <div className="grid grid-2" style={{ marginBottom: "1.2rem" }}>
             <div className="card">
               <h3 style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}><Icon name="clipboard" size={19} /> Application progress</h3>
@@ -278,6 +298,87 @@ function ApplicationHome({ db, session, family }) {
             </div>
           )}
         </>
+      )}
+    </div>
+  );
+}
+
+function ApplicationSettings({ app, act }) {
+  // Parents' dashboard → Application settings. These choices are kept on the
+  // application record so the Admissions office sees the family's latest
+  // preferences; nothing here changes the 6-step application itself.
+  const [open, setOpen] = useState(false);
+  const [s, setS] = useState({
+    updatesChannel: app.settings?.updatesChannel || "both",
+    notifyBothParents: app.settings?.notifyBothParents !== false,
+    smsPortalLink: app.settings?.smsPortalLink !== false,
+    intake: app.settings?.intake || app.intake || "Term 3 2026",
+  });
+  const [saving, setSaving] = useState(false);
+
+  async function save() {
+    setSaving(true);
+    try {
+      await act("updateApplicationSettings", { applicationId: app.id, settings: s }, "Application settings saved");
+      setOpen(false);
+    } catch (e) {
+      /* provider toasts */
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="card" style={{ marginBottom: "1.2rem", padding: 0, overflow: "hidden" }}>
+      <div className="row-inline" style={{ padding: "0.85rem 1.1rem" }}>
+        <div className="row" style={{ gap: "0.7rem", textAlign: "left" }}>
+          <Icon name="settings" size={20} style={{ color: "var(--maroon)" }} />
+          <div>
+            <b>Application settings</b>
+            <div className="small muted">Preferences for how Admissions contacts your family and when the portal link goes out.</div>
+          </div>
+        </div>
+        <button className="btn secondary sm" onClick={() => setOpen((v) => !v)}>
+          {open ? "Close" : "Manage settings"}
+        </button>
+      </div>
+
+      {open && (
+        <div className="app-settings" style={{ borderTop: "1px solid var(--line)", padding: "1rem 1.1rem 1.15rem" }}>
+          <div className="row-inline">
+            <div className="field" style={{ margin: 0, maxWidth: 320 }}>
+              <span className="small fw700" style={{ display: "block", marginBottom: "0.3rem" }}>Admission updates sent by</span>
+              <select value={s.updatesChannel} onChange={(e) => setS((x) => ({ ...x, updatesChannel: e.target.value }))}>
+                <option value="sms">SMS only</option>
+                <option value="email">Email only</option>
+                <option value="both">SMS + email</option>
+              </select>
+            </div>
+            <div className="field" style={{ margin: 0, minWidth: 240, flex: 1 }}>
+              <span className="small fw700" style={{ display: "block", marginBottom: "0.3rem" }}>Applicant intake</span>
+              <select value={s.intake} onChange={(e) => setS((x) => ({ ...x, intake: e.target.value }))}>
+                <option>Term 3 2026</option>
+                <option>January 2027</option>
+                <option>April 2027</option>
+                <option>September 2027</option>
+              </select>
+            </div>
+          </div>
+
+          <label className="perm">
+            <input type="checkbox" checked={s.notifyBothParents} onChange={(e) => setS((x) => ({ ...x, notifyBothParents: e.target.checked }))} style={{ width: "auto" }} />
+            <span className="small">Notify <b>both parents</b> on the admission form about every update (one shared login)</span>
+          </label>
+          <label className="perm">
+            <input type="checkbox" checked={s.smsPortalLink} onChange={(e) => setS((x) => ({ ...x, smsPortalLink: e.target.checked }))} style={{ width: "auto" }} />
+            <span className="small">SMS the <b>child's portal link</b> the moment Admission verifies the records</span>
+          </label>
+
+          <div className="row" style={{ marginTop: "0.35rem", justifyContent: "flex-end", gap: "0.6rem" }}>
+            <button className="btn ghost sm" onClick={() => setOpen(false)}>Cancel</button>
+            <button className="btn sm" onClick={save} disabled={saving}>{saving ? "Saving…" : "Save settings"}</button>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -1,6 +1,6 @@
 "use client";
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Shell from "@/components/Shell.jsx";
 import { AppProvider } from "@/components/ui.jsx";
 import { StudentProvider, useStudent } from "@/components/StudentProvider.jsx";
@@ -8,12 +8,18 @@ import { StudentProvider, useStudent } from "@/components/StudentProvider.jsx";
 function Gate({ children }) {
   const { session, ready } = useStudent();
   const router = useRouter();
+  const pathname = usePathname();
+  const publicPath = pathname === "/student/login";
 
   useEffect(() => {
-    if (ready && !session) router.replace("/student/login");
-  }, [ready, session, router]);
+    if (!ready) return;
+    if (publicPath && session) router.replace("/student");
+    if (!publicPath && !session) router.replace("/student/login");
+  }, [ready, session, publicPath, router]);
 
-  if (!ready || !session) return <div className="auth-wrap"><div className="auth-card">Loading your portal…</div></div>;
+  if (!ready) return <div className="auth-wrap"><div className="auth-card">Loading your portal…</div></div>;
+  if (publicPath) return children; // login page renders without a session
+  if (!session) return null; // redirect effect handles the bounce
   return children;
 }
 

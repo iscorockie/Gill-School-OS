@@ -2,14 +2,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Icon from "@/components/icons.jsx";
-import { ParentProvider, useParent } from "@/components/ParentProvider.jsx";
+import { useParent } from "@/components/ParentProvider.jsx";
 
 export default function ParentLoginPage() {
-  return (
-    <ParentProvider>
-      <ParentLogin />
-    </ParentProvider>
-  );
+  return <ParentLogin />;
 }
 
 function ParentLogin() {

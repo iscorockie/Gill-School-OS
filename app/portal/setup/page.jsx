@@ -2,15 +2,15 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Icon from "@/components/icons.jsx";
-import { ParentProvider, useParent } from "@/components/ParentProvider.jsx";
+import { useParent } from "@/components/ParentProvider.jsx";
+
+const STEP_ORDER = ["welcome", "password", "verify"];
 
 export default function SetupLanding() {
   return (
-    <ParentProvider>
-      <Suspense fallback={<div className="auth-wrap"><div className="auth-card">Opening your invite…</div></div>}>
-        <Setup />
-      </Suspense>
-    </ParentProvider>
+    <Suspense fallback={<div className="auth-wrap"><div className="auth-card">Opening your invite…</div></div>}>
+      <Setup />
+    </Suspense>
   );
 }
 
@@ -19,7 +19,7 @@ function Setup() {
   const router = useRouter();
   const { login } = useParent();
   const [token, setToken] = useState(search.get("invite") || "");
-  const [step, setStep] = useState("welcome"); // welcome → password → verify → done
+  const [step, setStep] = useState("welcome"); // welcome → password → verify
   const [info, setInfo] = useState(null);
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -106,38 +106,64 @@ function Setup() {
   }
 
   const mask = (v) => (v ? v.replace(/.(?=.{4})/g, "•") : "");
+  const stepIdx = STEP_ORDER.indexOf(step);
+  const steps = [
+    { key: "welcome", label: "Open invite", ico: "key" },
+    { key: "password", label: "Shared password", ico: "lock" },
+    { key: "verify", label: "Verify code", ico: "phoneCard" },
+  ];
 
   return (
     <div className="auth-wrap">
-      <div className="auth-card" style={{ maxWidth: 480 }}>
+      <div className="auth-card" style={{ maxWidth: 500 }}>
         <div className="logo-row">
           <a href="https://www.gill.ac.ug/#home" aria-label="Back to gill.ac.ug" style={{ textDecoration: "none" }}>
-          <img src="/logo.png" alt="Gill International School logo" />
-        </a>
+            <img src="/logo.png" alt="Gill International School logo" />
+          </a>
           <div>
-            <h1>Your family portal</h1>
+            <h1>Welcome to your family portal</h1>
             <div className="sub">Gill International School · Najjera</div>
           </div>
         </div>
 
+        {/* Design-system step tracker */}
+        <nav className="steps-mini" aria-label="Setup progress">
+          {steps.map((s, i) => (
+            <span key={s.key} className={`steps-mini-item ${stepIdx === i ? "active" : ""} ${stepIdx > i ? "done" : ""}`}>
+              <span className="steps-mini-ico">{stepIdx > i ? <Icon name="check" size={13} /> : <Icon name={s.ico} size={15} />}</span>
+              <span className="steps-mini-label">{s.label}</span>
+            </span>
+          ))}
+        </nav>
+
         {/* STEP 0 — open the invite */}
         {step === "welcome" && (
           <>
+            <div className="card" style={{ background: "var(--peri-l)", borderColor: "var(--peri-2)", boxShadow: "none", padding: "0.85rem 1rem", marginBottom: "1rem" }}>
+              <div className="row" style={{ gap: "0.7rem" }}>
+                <Icon name="users" size={20} style={{ color: "var(--maroon)" }} />
+                <div>
+                  <b className="small">One login per family — shared by every parent</b>
+                  <p className="small muted" style={{ margin: "0.15rem 0 0" }}>
+                    Both parents on the admission form received this invite. Open it, then create your shared password
+                    and confirm it with the code we send.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             <form onSubmit={openInvite}>
-              <label style={{ display: "block", marginBottom: "0.9rem" }}>
-                <span className="small" style={{ fontWeight: 700, display: "block", marginBottom: "0.3rem" }}>Invite code from your SMS</span>
-                <input value={token} onChange={(e) => setToken(e.target.value)} placeholder="e.g. INV-SSEM-3F7B" />
+              <label className="field" style={{ marginBottom: "0.9rem" }}>
+                <span className="small fw700" style={{ display: "block", marginBottom: "0.3rem" }}>Invite code from your SMS</span>
+                <input value={token} onChange={(e) => setToken(e.target.value)} placeholder="e.g. INV-SSEM-3F7B" autoComplete="off" />
               </label>
-              <p className="small muted" style={{ margin: "0 0 0.9rem" }}>
-                Both parents on the admission form received this link. Open it to create your shared password —
-                one login for the whole family.
-              </p>
               {error && <p className="small" style={{ color: "var(--red)", margin: "0 0 0.7rem" }}>{error}</p>}
               <button className="btn" style={{ width: "100%" }} disabled={busy || !token}>
                 {busy ? "Opening…" : "Open my invite"}
               </button>
             </form>
-            <div className="demo-hint" style={{ marginTop: "1rem" }}>
+
+            <div className="demo-hint">
               <b>Demo</b> — pay the Ssemwanga invoice in Admin → Fees, then use{" "}
               <span className="mono">INV-SSEM-XXXX</span> from the invite SMS. Already set up?{" "}
               <a href="/portal/login">Sign in →</a>
@@ -145,10 +171,10 @@ function Setup() {
           </>
         )}
 
-        {/* STEP 1 — create password */}
+        {/* STEP 1 — create shared password */}
         {step === "password" && info && (
           <>
-            <div className="card" style={{ background: "var(--peri-l)", borderColor: "var(--peri-2)", boxShadow: "none", padding: "0.8rem 1rem", marginBottom: "1rem" }}>
+            <div className="card" style={{ background: "var(--peri-l)", borderColor: "var(--peri-2)", boxShadow: "none", padding: "0.85rem 1rem", marginBottom: "1rem" }}>
               <div className="row" style={{ gap: "0.7rem" }}>
                 <Icon name="users" size={20} style={{ color: "var(--maroon)" }} />
                 <div>
@@ -162,16 +188,16 @@ function Setup() {
             </div>
 
             <form onSubmit={createPassword}>
-              <label style={{ display: "block", marginBottom: "0.8rem" }}>
-                <span className="small" style={{ fontWeight: 700, display: "block", marginBottom: "0.3rem" }}>Create your family password</span>
+              <label className="field" style={{ marginBottom: "0.8rem" }}>
+                <span className="small fw700" style={{ display: "block", marginBottom: "0.3rem" }}>Create your family password</span>
                 <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 8 characters" autoComplete="new-password" />
               </label>
-              <label style={{ display: "block", marginBottom: "1rem" }}>
-                <span className="small" style={{ fontWeight: 700, display: "block", marginBottom: "0.3rem" }}>Confirm password</span>
+              <label className="field" style={{ marginBottom: "1rem" }}>
+                <span className="small fw700" style={{ display: "block", marginBottom: "0.3rem" }}>Confirm password</span>
                 <input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} placeholder="Repeat the password" autoComplete="new-password" />
               </label>
 
-              <span className="small" style={{ fontWeight: 700, display: "block", marginBottom: "0.5rem" }}>Where should we send your verification code?</span>
+              <span className="small fw700" style={{ display: "block", marginBottom: "0.5rem" }}>Where should we send your verification code?</span>
               <div className="grid grid-2" style={{ gap: "0.5rem", marginBottom: "1rem" }}>
                 {[
                   ["sms", "phone", "SMS", info.members[0]?.phone ? mask(info.members[0].phone) : ""],
@@ -198,7 +224,7 @@ function Setup() {
         {/* STEP 2 — enter verification code */}
         {step === "verify" && info && (
           <>
-            <div className="card" style={{ background: "var(--peri-l)", borderColor: "var(--peri-2)", boxShadow: "none", padding: "0.8rem 1rem", marginBottom: "1rem" }}>
+            <div className="card" style={{ background: "var(--peri-l)", borderColor: "var(--peri-2)", boxShadow: "none", padding: "0.85rem 1rem", marginBottom: "1rem" }}>
               <div className="row" style={{ gap: "0.7rem" }}>
                 <Icon name={sender?.channel === "email" ? "mail" : "phoneCard"} size={20} style={{ color: "var(--maroon)" }} />
                 <div>
@@ -211,8 +237,8 @@ function Setup() {
             </div>
 
             <form onSubmit={verify}>
-              <label style={{ display: "block", marginBottom: "0.9rem" }}>
-                <span className="small" style={{ fontWeight: 700, display: "block", marginBottom: "0.3rem" }}>Verification code</span>
+              <label className="field" style={{ marginBottom: "0.9rem" }}>
+                <span className="small fw700" style={{ display: "block", marginBottom: "0.3rem" }}>Verification code</span>
                 <input value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
                   placeholder="••••••" inputMode="numeric" className="mono" style={{ letterSpacing: "0.5rem", fontSize: "1.1rem" }} />
               </label>
