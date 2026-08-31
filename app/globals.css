@@ -172,23 +172,23 @@ tr:last-child td { border-bottom: none; }
 }
 
 .portal-card {
-  position: relative; display: flex; flex-direction: column; min-height: 380px;
-  border-radius: 20px; overflow: hidden; box-shadow: var(--shadow); text-decoration: none; color: inherit;
+  position: relative; display: flex; flex-direction: column; min-height: 268px;
+  border-radius: 18px; overflow: hidden; box-shadow: var(--shadow-s); text-decoration: none; color: inherit;
   transition: transform .16s ease, box-shadow .16s ease;
 }
-.portal-card:hover { transform: translateY(-4px); box-shadow: 0 18px 40px rgba(59, 13, 16, 0.22); }
+.portal-card:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgba(59, 13, 16, 0.2); }
 .pc-photo { position: absolute; inset: 0; background-size: cover; background-position: center; transition: transform .6s ease; }
-.pc-parents .pc-photo { background-image: linear-gradient(180deg, rgba(59,13,16,0.18), rgba(59,13,16,0.82)), url(/photos/three-kids.jpg); }
-.pc-staff .pc-photo { background-image: linear-gradient(180deg, rgba(59,13,16,0.18), rgba(59,13,16,0.82)), url(/photos/staff.jpg); }
-.pc-students .pc-photo { background-image: linear-gradient(180deg, rgba(59,13,16,0.18), rgba(59,13,16,0.82)), url(/photos/science-teens.jpg); }
+.pc-parents .pc-photo { background-image: linear-gradient(180deg, rgba(59,13,16,0.2), rgba(59,13,16,0.84)), url(/photos/three-kids.jpg); }
+.pc-staff .pc-photo { background-image: linear-gradient(180deg, rgba(59,13,16,0.2), rgba(59,13,16,0.84)), url(/photos/staff.jpg); }
+.pc-students .pc-photo { background-image: linear-gradient(180deg, rgba(59,13,16,0.2), rgba(59,13,16,0.84)), url(/photos/science-teens.jpg); }
 .portal-card:hover .pc-photo { transform: scale(1.05); }
 .pc-photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 40%, rgba(59,13,16,0.45)); }
-.pc-content { position: relative; z-index: 1; margin-top: auto; padding: 1.4rem; display: flex; flex-direction: column; gap: 0.6rem; color: #fff; }
-.portal-card .ico { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; background: rgba(255, 255, 255, 0.14); border: 1px solid rgba(255, 255, 255, 0.28); color: var(--sun2); backdrop-filter: blur(4px); }
-.portal-card h3 { margin: 0; color: #fff; font-size: 1.25rem; }
-.portal-card p { margin: 0; font-size: 0.9rem; color: rgba(255, 255, 255, 0.85); flex: 1; }
-.portal-card .btn { width: fit-content; }
-.pc-note { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.78rem; color: rgba(255, 255, 255, 0.78); }
+.pc-content { position: relative; z-index: 1; margin-top: auto; padding: 1rem 1.15rem 1.05rem; display: flex; flex-direction: column; gap: 0.42rem; color: #fff; }
+.portal-card .ico { width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; background: rgba(255, 255, 255, 0.14); border: 1px solid rgba(255, 255, 255, 0.28); color: var(--sun2); backdrop-filter: blur(4px); }
+.portal-card h3 { margin: 0; color: #fff; font-size: 1.08rem; }
+.portal-card p { margin: 0; font-size: 0.83rem; line-height: 1.5; color: rgba(255, 255, 255, 0.85); flex: 1; }
+.portal-card .btn { width: fit-content; font-size: 0.8rem; padding: 0.42rem 0.9rem; }
+.pc-note { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.73rem; color: rgba(255, 255, 255, 0.78); }
 .stat-label { color: var(--muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; }
 .stat-value {
   font-size: 1.55rem; font-weight: 800; font-family: var(--fd); color: var(--deep);
