@@ -82,6 +82,7 @@ const heroPhotos = [
 
 export default function Landing() {
   const [openReq, setOpenReq] = useState(0);
+  const [openFeat, setOpenFeat] = useState(0);
   return (
     <main>
       {/* ------- Top nav, like the school site ------- */}
@@ -181,23 +182,32 @@ export default function Landing() {
             </span>
           </div>
           <div className="platform-grid">
-            {features.map((f, i) => (
-              <div className={`feature ${f.hero ? "feature-hero" : ""}`} key={f.t} style={{ "--ft": f.accent }}>
-                <div className={`ico ico-${i % 5}`}><Icon name={f.ico} size={22} /></div>
-                <div className="ft-top">
-                  <h3>{f.t}</h3>
-                  {f.tag && <span className="ft-chip">{f.tag}</span>}
-                </div>
-                <p>{f.d}</p>
-                {f.hero && (
-                  <div className="ft-pills">
-                    {[["users", "Parents' Portal"], ["grad", "Staff Portal"], ["user", "Student Portal"]].map(([ico, label]) => (
-                      <span key={label}><Icon name={ico} size={15} /> {label}</span>
-                    ))}
+            {features.map((f, i) => {
+              const open = openFeat === i;
+              return (
+                <div className={`feature ${f.hero ? "feature-hero" : ""} ${open ? "open" : ""}`} key={f.t} style={{ "--ft": f.accent }}>
+                  <button className="feature-btn" onClick={() => setOpenFeat(open ? -1 : i)} aria-expanded={open}>
+                    <span className="feature-label">
+                      <span className={`ico ico-${i % 5}`}><Icon name={f.ico} size={22} /></span>
+                      <span className="ft-title">{f.t}</span>
+                      {f.hero && !open && <span className="ft-chip">{f.tag}</span>}
+                    </span>
+                    <span className="acc-plus"><Icon name="plus" size={17} /></span>
+                  </button>
+                  <div className="feature-body" hidden={!open}>
+                    <p>{f.d}</p>
+                    {f.tag && !f.hero && <span className="ft-chip">{f.tag}</span>}
+                    {f.hero && (
+                      <div className="ft-pills">
+                        {[["users", "Parents' Portal"], ["grad", "Staff Portal"], ["user", "Student Portal"]].map(([ico, label]) => (
+                          <span key={label}><Icon name={ico} size={15} /> {label}</span>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            ))}
+                </div>
+              );
+            })}
           </div>
         </section>
 
