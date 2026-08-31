@@ -38,7 +38,7 @@ const ROLES = [
 const STAFF_DB = {
   "t-aisha": { id: "t-aisha", role: "staff", name: "Ms. Aisha Hassan", title: "English & Class Teacher — Year 5", email: "a.hassan@gill.sch" },
   "t-brian": { id: "t-brian", role: "staff", name: "Mr. Brian Mugisha", title: "Mathematics & Science — Year 5", email: "b.mugisha@gill.sch" },
-  "t-sharon": { id: "t-sharon", role: "staff", name: "Ms. Sharon Namukasa", title: "Pre-School Lead — Nursery 2", email: "s.namukasa@gill.sch" },
+  "t-sharon": { id: "t-sharon", role: "staff", name: "Ms. Sharon Namukasa", title: "Pre-School Lead — Nursery", email: "s.namukasa@gill.sch" },
   "u-admissions": { id: "u-admissions", role: "staff", name: "Mrs. Mary Kyomukama", title: "Head of Admissions", email: "m.kyomukama@gill.sch" },
   "u-bursar": { id: "u-bursar", role: "staff", name: "Mr. Isaac Twesigye", title: "Bursar", email: "i.twesigye@gill.sch" },
   "u-gate": { id: "u-gate", role: "staff", name: "Mr. Peter Othieno", title: "Security & Gate Officer", email: "p.othieno@gill.sch" },

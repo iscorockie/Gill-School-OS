@@ -206,6 +206,82 @@ const setupPage = await (await fetch(`${BASE}/portal/setup?invite=${token}`)).st
 check("parent login page serves", loginPage === 200);
 check("invite setup landing serves", setupPage === 200);
 
+// 23) PUBLIC REGISTRATION — new family creates an OS account (parents only)
+const registerHtml = await (await fetch(`${BASE}/register`)).text();
+check("register page serves, old-school style", registerHtml.includes("Join Our Community") && registerHtml.includes("Create Account"));
+check("register page rules out Staff Portal", registerHtml.includes("no Staff Portal") && !registerHtml.includes("staff-can-register"));
+r = await action("registerFamily", {
+  familyName: "Mukasa", parentName: "Joy Mukasa", relation: "Mother / Guardian",
+  phone: "+256702333444", email: "joy@example.com", password: "mukasa2026!", terms: true,
+});
+check("register creates pending family account", r.ok && r.result.account.status === "pending" && r.result.account.username === "mukasa.family");
+const mukasaFam = r.result.familyId;
+const mukasaUserId = r.result.userId;
+check("register rejects short password", (await action("registerFamily", { familyName: "Bad", parentName: "X", phone: "+256700000000", password: "short", terms: true })).ok === false);
+check("register requires terms", (await action("registerFamily", { familyName: "Bad2", parentName: "X", phone: "+256700000001", password: "longenough123", terms: false })).ok === false);
+
+const mukasaLogin = await (await fetch(`${BASE}/api/parent-login`, {
+  method: "POST", headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ username: "mukasa.family", password: "mukasa2026!" }),
+})).json();
+check("pending family can sign in to track the application", mukasaLogin.ok && mukasaLogin.session.status === "pending" && mukasaLogin.session.familyId === mukasaFam);
+
+// 24) 6-step wizard → application submitted (Basic → Parent → Emergency → Docs → Payment → Review)
+r = await action("saveApplication", { familyId: mukasaFam, step: "basic", data: { firstName: "Amani", lastName: "Mukasa", dob: "2022-06-15", gender: "F", campus: "preschool", class: "Nursery (3–4 yrs)", intake: "Term 3 2026" } });
+const mukasaApp = r.result.application;
+const mukasaKid = r.result.application.studentId;
+check("wizard creates child + application (Basic)", r.ok && mukasaApp.status === "in_progress" && mukasaApp.steps.basic === true && r.db.studentIndex[mukasaKid]?.campus === "preschool");
+r = await action("saveApplication", { familyId: mukasaFam, step: "parent", data: { contacts: [
+  { name: "Joy Mukasa", relation: "Mother / Guardian", phone: "+256702333444", email: "joy@example.com", alive: true },
+  { name: "Sam Mukasa", relation: "Father", phone: "+256707555666", email: "sam@example.com", alive: true },
+] } });
+check("parent details saved → both parents on ONE account", r.ok && r.result.application.parentContacts.length === 2, `(members: ${r.result.application.parentContacts.map((p) => p.name).join(", ")})`);
+const mukasaAccount = r.db.familyAccountByFamily[mukasaFam];
+check("shared login grows to both parents", mukasaAccount.members.length === 2 && mukasaAccount.members.includes(mukasaUserId));
+r = await action("saveApplication", { familyId: mukasaFam, step: "emergency", data: { contacts: [{ name: "Grace Achieng", relation: "Aunt", phone: "+256701333444" }] } });
+check("emergency contacts saved", r.ok && r.result.application.emergencyContacts.length === 1);
+r = await action("saveApplication", { familyId: mukasaFam, step: "documents", data: { files: [
+  { type: "Birth certificate", name: "amani_birth.pdf", size: "1.1 MB" },
+  { type: "Immunisation record", name: "amani_immunisation.jpg", size: "760 KB" },
+  { type: "Passport photographs", name: "amani_photos.jpg", size: "420 KB" },
+] } });
+check("documents attached", r.ok && r.result.application.documents.length === 3);
+r = await action("saveApplication", { familyId: mukasaFam, step: "payment", data: { method: "payNow", channel: "MTN Mobile Money", phone: "+256702333444" } });
+check("payment step saved (pay now)", r.ok && r.result.application.payment.method === "payNow");
+r = await action("submitApplication", { applicationId: mukasaApp.id });
+check("application submitted + invoice opened", r.ok && r.result.application.status === "applied" && r.result.invoice.total === 500000 && r.result.invoice.status === "paid");
+check("docs land in vault as pending review", r.db.documents.filter((d) => d.studentId === mukasaKid).length === 3 && r.db.documents.filter((d) => d.studentId === mukasaKid).every((d) => d.status === "pending review"));
+check("admissions notified of new application", r.db.messages.some((m) => m.to === "u-admissions" && m.subject.includes("New application received")));
+const mukasaSms = r.db.deliveries.filter((d) => d.ref === mukasaApp.id && d.channel === "SMS");
+check("both parents SMS'd on submission", mukasaSms.length === 2 && mukasaSms.some((d) => d.to === "+256707555666"));
+
+// 25) Registrar verification → account auto-activates + STUDENT PORTAL LINK sent
+r = await action("verifyDocument", { docId: r.db.documents.find((d) => d.studentId === mukasaKid).id, status: "verified" });
+let doc = r.db.documents.find((d) => d.studentId === mukasaKid && d.status !== "verified");
+let guard = 0;
+while (doc && guard++ < 5) {
+  r = await action("verifyDocument", { docId: doc.id, status: "verified" });
+  doc = r.db.documents.find((d) => d.studentId === mukasaKid && d.status !== "verified");
+}
+r = await state();
+const mukasaNow = r.familyAccountByFamily[mukasaFam];
+const mukasaAppNow = r.applications.find((a) => a.id === mukasaApp.id);
+check("registered family auto-activates after verification+payment", mukasaNow?.status === "active" && mukasaAppNow?.status === "activated");
+const childPortalSms = r.deliveries.filter((d) => d.ref === mukasaApp.id && d.channel === "SMS" && d.subject.includes("Admission verified"));
+check("verification SMS carries the child's portal link", childPortalSms.length === 2 && childPortalSms.every((d) => d.subject.includes("/student/login?u=") && d.subject.includes(mukasaAccount.username)), `(sample: ${childPortalSms[0]?.subject?.slice(0, 90)})`);
+const kidSa = r.accountByStudent?.[mukasaKid];
+check("child's supervised account auto-provisioned", !!kidSa && kidSa.supervisedBy === mukasaUserId && kidSa.status === "active");
+const kidLogin = await (await fetch(`${BASE}/api/student-login`, {
+  method: "POST", headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ username: kidSa.username, password: kidSa.password }),
+})).json();
+check("child can sign in with the provisioned credentials", kidLogin.ok && kidLogin.session.studentId === mukasaKid);
+
+// 26) Guard rails on the wizard
+check("cannot submit before completing steps", (await action("submitApplication", { applicationId: (await action("saveApplication", { familyId: "fam-2", step: "basic", data: { firstName: "Test", lastName: "Kid", campus: "preschool", class: "Nursery (3–4 yrs)", dob: "2022-06-15", intake: "Term 3 2026" } })).result.application.id })).ok === false);
+const applyPage = await (await fetch(`${BASE}/apply`)).status;
+check("application wizard route serves", applyPage === 200);
+
 // Reset so the demo starts from a clean seed
 await fetch(`${BASE}/api/reset`, { method: "POST" });
 const clean = await state();

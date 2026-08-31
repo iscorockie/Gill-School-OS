@@ -102,7 +102,7 @@ export default function StaffHome() {
               ) : (
                 <div className="list-item">
                   <div className="spread">
-                    <div><b>{staff.id === "t-sharon" ? "Nursery 2 — full day programme" : "Year 5 class programme"}</b>
+                    <div><b>{staff.id === "t-sharon" ? "Nursery — full day programme" : "Year 5 class programme"}</b>
                       <div className="small muted">{staff.id === "t-sharon" ? "Pre-School Lead · morning circle, phonics, play-based learning" : "English & Mathematics cycles"}</div>
                     </div>
                     <Badge tone="green">ready</Badge>

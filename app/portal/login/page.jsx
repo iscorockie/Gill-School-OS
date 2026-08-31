@@ -117,9 +117,10 @@ function ParentLogin() {
 
         <div className="card" style={{ marginTop: "1.1rem", background: "var(--peri-l)", borderColor: "var(--peri-2)", boxShadow: "none", padding: "0.7rem 0.9rem" }}>
           <b className="small">New family?</b>
-          <span className="small muted"> Open your invite link from the SMS — it starts with creating a password, then a verification code is sent to your phone or email.</span>
-          <div style={{ marginTop: "0.5rem" }}>
-            <a className="btn secondary sm" href="/portal/setup">Open the invite setup →</a>
+          <span className="small muted"> Start your application online — create the family account and follow the 6-step application, or open your invite link from the SMS (set a password, then verify with a code sent to your phone).</span>
+          <div className="row" style={{ marginTop: "0.5rem", gap: "0.5rem", flexWrap: "wrap" }}>
+            <a className="btn secondary sm" href="/register">Register &amp; apply →</a>
+            <a className="btn ghost sm" href="/portal/setup">Open the invite setup →</a>
           </div>
         </div>
 

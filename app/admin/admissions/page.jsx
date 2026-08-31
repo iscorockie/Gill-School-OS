@@ -198,17 +198,46 @@ export default function AdmissionsPage() {
 
       {tab === "applicants" && (
         <div className="card">
-          <h3> Pre-School & Main School pipeline</h3>
-          {presKids.map((k) => (
-            <div className="list-item spread" key={k.id}>
-              <div>
-                <b style={{ fontFamily: "var(--fpd)" }}>{k.name}</b> · <span className="small muted">{k.class} · {k.family.name} family</span>
-                <div className="small muted">Documents: {db.documents.filter((d) => d.studentId === k.id).length} on file</div>
+          <h3>Admissions pipeline — applications & enrolments</h3>
+          {[...db.applications].reverse().map((app) => {
+            const kid = db.studentIndex[app.studentId];
+            const fam = db.families.find((f) => f.id === kid?.familyId);
+            const appDocs = db.documents.filter((d) => d.studentId === kid?.id);
+            const docsOK = appDocs.length > 0 && appDocs.every((d) => d.status === "verified");
+            const inv = db.invoices.find((i) => i.familyId === fam?.id && i.term === db.meta.currentTerm);
+            const tuitionOK = inv && inv.total > 0 && inv.paid >= inv.total && inv.balance === 0;
+            return (
+              <div className="list-item spread" key={app.id} style={{ alignItems: "flex-start", gap: "1rem" }}>
+                <div style={{ minWidth: 0, flex: "1 1 auto" }}>
+                  <div className="row" style={{ gap: "0.4rem", flexWrap: "wrap" }}>
+                    <b style={kid?.campus === "preschool" ? { fontFamily: "var(--fpd)" } : undefined}>{kid?.name}</b>
+                    <span className="badge gray">{kid?.campus === "preschool" ? "Pre-School" : "Main School"}</span>
+                    {app.channel === "register" && <span className="badge blue">OS application</span>}
+                    <Badge tone={app.status === "activated" ? "green" : app.status === "applied" ? "gold" : "gray"}>{app.status}</Badge>
+                  </div>
+                  <div className="small muted">{kid?.schoolId} · {kid?.class} · {app.intake} · {fam?.name} family</div>
+                  <div className="row" style={{ marginTop: "0.4rem", gap: "0.4rem", flexWrap: "wrap" }}>
+                    <span className={`badge ${docsOK ? "green" : "gold"}`}>{docsOK ? "✓ Documents verified" : `${appDocs.filter((d) => d.status === "verified").length}/${appDocs.length} documents verified`}</span>
+                    <span className={`badge ${tuitionOK ? "green" : "gold"}`}>{tuitionOK ? "✓ Tuition cleared" : inv ? `${(inv.total - inv.paid).toLocaleString()} UGX outstanding` : "No invoice yet"}</span>
+                  </div>
+                </div>
+                <div style={{ textAlign: "right", flexShrink: 0 }}>
+                  <div className="row" style={{ justifyContent: "flex-end", gap: "0.5rem" }}>
+                    {appDocs.some((d) => d.status !== "verified") && (
+                      <button className="btn secondary sm" onClick={() => setTab("docs")} title="Open the Document vault to verify records">Verify documents</button>
+                    )}
+                    {app.status === "in_progress" && <span className="small muted">Wizard in progress — family is still filling the form</span>}
+                    {app.status === "applied" && !tuitionOK && inv && (
+                      <a className="btn ghost sm" href="/admin/fees" title="Open fees to record payment">Collect fees</a>
+                    )}
+                  </div>
+                </div>
               </div>
-              <Badge tone="green">enrolled</Badge>
-            </div>
-          ))}
-          <p className="small muted" style={{ marginTop: "0.6rem" }}> New applications arrive here with automatic profile creation — parents fill the form once and the platform builds the records.
+            );
+          })}
+          <p className="small muted" style={{ marginTop: "0.6rem" }}>
+            New applications arrive here with automatic profile creation — parents fill the form once and the platform builds the records.
+            Verify the document vault, then clear tuition: the family account and the child's portal link activate automatically (see Auto onboarding).
           </p>
         </div>
       )}

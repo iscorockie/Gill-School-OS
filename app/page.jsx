@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Icon from "@/components/icons.jsx";
+import CampusMap, { CAMPUSES } from "@/components/CampusMap.jsx";
 
 const features = [
   { ico: "users", t: "One family, every child", d: "Siblings at Gill Pre-School and the International School share a single login — progress, fees and notices in one place.", accent: "var(--maroon)", tag: "Family first", hero: true },
@@ -15,14 +16,14 @@ const features = [
 ];
 
 const steps = [
-  { ico: "users", t: "Your family is set up", d: "Admissions registers your child's records. You sign in to Gill School OS with one family account.", who: "Admissions", meta: "Records ready on day one", metaIco: "file", photo: "/photos/three-kids.jpg" },
+  { ico: "users", t: "Your family is set up", d: "Register online and complete the 6-step application, or let Admissions set you up. Either way you sign in with one family account.", who: "Register or Admissions", meta: "One shared family login", metaIco: "file", photo: "/photos/three-kids.jpg" },
   { ico: "key", t: "Create your child's account", d: "Choose the username, password and what your child can see. The account is supervised by you.", who: "You, the parent", meta: "You choose the visibility", metaIco: "shield", photo: "/photos/reading-girl.jpg" },
   { ico: "grad", t: "Child signs in and learns", d: "Their own portal: today's classes, homework, progress, library and calendar — before they even report to school.", who: "Your child", meta: "Supervised, always", metaIco: "eye", photo: "/photos/science-teens.jpg" },
 ];
 
 const requirements = [
   {
-    stage: "Early Years (Ages 3–5)",
+    stage: "Early Years (Ages 1–6)",
     tag: "Gill Pre-School",
     items: [
       "Completed application form — one per family",
@@ -30,8 +31,9 @@ const requirements = [
       "Immunisation record (UPEP / health card)",
       "Two passport photographs",
       "Assessment visit & settling-in session at Gill Pre-School",
+      "Programmes: Daycare (1–2) · Toddlers (2–3) · Nursery (3–4) · Reception (4–5)",
     ],
-    note: "Rolling intake during the term",
+    note: "20 pupils per class · rolling intake during the term",
   },
   {
     stage: "Cambridge Primary (Ages 5–11)",
@@ -95,6 +97,7 @@ export default function Landing() {
             <a href="#platform">Platform</a>
             <a href="#journey">For Families</a>
             <a href="#gallery">Our School</a>
+            <a href="#find-us">Find Us</a>
           </div>
           <div className="cta">
             <a href="#portals" className="btn gold" style={{ padding: "0.55rem 1.3rem", fontSize: "0.85rem" }}>Sign in</a>
@@ -117,9 +120,9 @@ export default function Landing() {
 
           <div className="hero-strip">
             {[
-              [<Icon key="1" name="grad" size={20} />, "Ages 3–19", "Pre-School to A Levels"],
+              [<Icon key="1" name="grad" size={20} />, "Ages 1–19", "Pre-School Daycare to A Levels"],
               [<Icon key="2" name="globe" size={20} />, "Cambridge", "CAIE pathway"],
-              [<Icon key="3" name="pin" size={20} />, "Najjera", "Plot 8, Block 228"],
+              [<Icon key="3" name="pin" size={20} />, "Najjera", "Two campuses · Mbogo Rd + White Close"],
               [<Icon key="4" name="clock" size={20} />, "7:45 am – 5:00 pm", "School day"],
             ].map(([ico, t, d]) => (
               <div className="chip" key={t}>
@@ -136,6 +139,16 @@ export default function Landing() {
         <div className="section-head">
           <h2><Icon name="users" size={24} /> Choose your portal</h2>
           <span className="muted small">Sign in to the portal that belongs to you — each one opens with its own account.</span>
+        </div>
+        <div className="card" style={{ marginBottom: "1.2rem", background: "var(--peri-l)", borderColor: "var(--peri-2)", display: "flex", flexWrap: "wrap", gap: "0.8rem", alignItems: "center", justifyContent: "space-between" }}>
+          <div className="row" style={{ gap: "0.7rem" }}>
+            <Icon name="key" size={20} style={{ color: "var(--maroon)" }} />
+            <div>
+              <b>New family joining Gill?</b>
+              <div className="small muted">Create your family account and apply in the same 6 steps as the school admission form — Pre-School to Year 13.</div>
+            </div>
+          </div>
+          <a href="/register" className="btn gold sm">Register &amp; start application →</a>
         </div>
         <div className="grid grid-3">
           <a className="portal-card pc-parents" href="/portal/login">
@@ -326,7 +339,7 @@ export default function Landing() {
             <span className="kicker-sm">Najjera · Kampala</span>
             <h2><Icon name="camera" size={24} /> Our school</h2>
           </div>
-          <span className="muted small">One campus, two schools — Pre-School to A Levels</span>
+          <span className="muted small">Two campuses in Najjera — Pre-School & International School</span>
         </div>
         <div className="mosaic">
           {[
@@ -345,6 +358,63 @@ export default function Landing() {
             </div>
           ))}
         </div>
+      </section>
+
+      {/* ------- Find us: two campuses, two landmarks ------- */}
+      <section className="container" id="find-us" style={{ paddingTop: "3.2rem", paddingBottom: "2.2rem" }}>
+        <div className="section-head">
+          <div>
+            <span className="kicker-sm">Najjera · Kira Municipality</span>
+            <h2><Icon name="pin" size={24} /> Find us — two campuses</h2>
+          </div>
+          <span className="muted small">Two distinct landmarks about 1 km apart, both on Mbogo Road</span>
+        </div>
+
+        <div className="find-grid">
+          <div className="find-card gips">
+            <div className="find-top">
+              <span className="find-dot" style={{ background: "var(--gold)" }} />
+              <div>
+                <h3 style={{ fontFamily: "var(--fpd)", color: "var(--gips-deep)", margin: 0 }}>Gill Pre-School</h3>
+                <span className="small muted">Early Years · ages 1–5</span>
+              </div>
+            </div>
+            <ul className="find-list">
+              <li><Icon name="pin" size={15} /> White Close, Plot 341 — opposite <b>Hass Petrol Station</b></li>
+              <li><Icon name="file" size={15} /> Plus code 6GGJ9JGF+FQ</li>
+              <li><Icon name="phone" size={15} /> {CAMPUSES[0].phone}</li>
+              <li><Icon name="globe" size={15} /> Coordinates 0.3762226, 32.6244347</li>
+            </ul>
+            <a className="btn secondary sm" href={`https://www.google.com/maps?q=${CAMPUSES[0].lat},${CAMPUSES[0].lng}`} target="_blank" rel="noreferrer">
+              Open in Google Maps →
+            </a>
+          </div>
+
+          <div className="find-card main">
+            <div className="find-top">
+              <span className="find-dot" style={{ background: "var(--maroon)" }} />
+              <div>
+                <h3 style={{ color: "var(--maroon)", margin: 0 }}>Main School — Gill International School</h3>
+                <span className="small muted">Cambridge Primary to A Level</span>
+              </div>
+            </div>
+            <ul className="find-list">
+              <li><Icon name="pin" size={15} /> <b>Mbogo Road 1</b>, Najjera A–Bulabira, Kira Ward</li>
+              <li><Icon name="file" size={15} /> Plus code <b>9JMG+XH</b> Kampala (6GGJ9JMG+XH)</li>
+              <li><Icon name="phone" size={15} /> {CAMPUSES[1].phone}</li>
+              <li><Icon name="globe" size={15} /> Coordinates 0.384875, 32.626375</li>
+            </ul>
+            <a className="btn secondary sm" href={`https://www.google.com/maps?q=${CAMPUSES[1].lat},${CAMPUSES[1].lng}`} target="_blank" rel="noreferrer">
+              Open in Google Maps →
+            </a>
+          </div>
+        </div>
+
+        <CampusMap />
+        <p className="small muted" style={{ marginTop: "0.6rem" }}>
+          Landmark pins match the school's own Google Maps listings — Pre-School at White Close opposite Hass Petrol Station,
+          Main School at Mbogo Road 1 (plus code 9JMG+XH). Tours run weekdays, 8:00 am – 4:00 pm; call ahead for the gate.
+        </p>
       </section>
 
       {/* ------- Footer, like the school site ------- */}

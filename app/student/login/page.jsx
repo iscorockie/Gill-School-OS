@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Icon from "@/components/icons.jsx";
 import { StudentProvider, useStudent } from "@/components/StudentProvider.jsx";
@@ -20,6 +20,12 @@ function StudentLogin() {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [show, setShow] = useState(false);
+
+  // The activation SMS links straight here with ?u=<username> (child portal).
+  useEffect(() => {
+    const u = new URLSearchParams(window.location.search).get("u");
+    if (u) setUsername(u);
+  }, []);
 
   async function submit(e) {
     e.preventDefault();
