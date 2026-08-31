@@ -1,18 +1,20 @@
 "use client";
 import Link from "next/link";
 import { useApp, Badge, Stat, Progress } from "@/components/ui.jsx";
+import { useParent } from "@/components/ParentProvider.jsx";
 import Icon from "@/components/icons.jsx";
 import { currentFamily, balances, notificationsFor } from "@/lib/client.js";
 import { fmtUGX, fmtDate } from "@/components/ui.jsx";
 
 export default function PortalHome() {
   const { db } = useApp();
+  const { session } = useParent();
   if (!db) return <div className="card">Loading…</div>;
 
-  const family = currentFamily(db, "u-parent-1");
+  const family = currentFamily(db, session.primaryUserId);
   const kids = family.children;
   const bal = balances(db);
-  const notes = notificationsFor(db, "u-parent-1").filter((m) => !m.read);
+  const notes = notificationsFor(db, session.primaryUserId).filter((m) => !m.read);
   const pres = kids.find((c) => c.campus === "preschool");
   const main = kids.find((c) => c.campus === "main");
   const inv = db.invoices.find((i) => i.familyId === family.id && i.term === db.meta.currentTerm);
@@ -49,6 +51,9 @@ export default function PortalHome() {
           )}
         </div>
       </div>
+
+      <FamilyLoginCard db={db} session={session} />
+
 
       <div className="grid grid-4" style={{ marginBottom: "1.2rem" }}>
         <Stat label="Sibling discount applied" value={fmtUGX(bal.siblingDiscounts)} sub="10% off Pre-School tuition — automatic" tone="gold" />
@@ -117,6 +122,38 @@ export default function PortalHome() {
             <div className="small muted">Uniforms (sports kit, house T-shirts) and Cambridge book packs for {db.meta.currentTerm}. Pay online and collect on day one.</div>
           </div>
           <Link className="btn sm" href="/portal/orders">Pre-order now</Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FamilyLoginCard({ db, session }) {
+  const fa = db.familyAccountByFamily[session.familyId];
+  if (!fa) return null;
+  const app = db.applications.find(
+    (a) => a.studentId && db.studentIndex[a.studentId]?.familyId === session.familyId
+  );
+  const invites = db.deliveries.filter((d) => d.channel === "SMS" && app && d.ref === app.id);
+  return (
+    <div className="card" style={{ marginBottom: "1.2rem", background: "var(--peri-l)", borderColor: "var(--peri-2)" }}>
+      <div className="spread">
+        <div className="row" style={{ gap: "0.7rem", alignItems: "flex-start" }}>
+          <Icon name="users" size={22} style={{ color: "var(--maroon)", marginTop: "0.2rem" }} />
+          <div>
+            <b>Family account · shared by every parent on the admission form</b>
+            <p className="small muted" style={{ margin: "0.25rem 0 0" }}>
+              Username <span className="mono">@{fa.username}</span> — one login for{" "}
+              {session.members.map((m) => m.name).join(" & ")}. Invite link sent by SMS to{" "}
+              {(invites.length ? invites.map((d) => d.to) : session.smsInvitesTo || []).join(", ")}{" "}
+              when admission was completed.
+            </p>
+          </div>
+        </div>
+        <div className="row">
+          {session.members.map((m) => (
+            <span className="chip-pre" key={m.id}>{m.relation.split(" / ")[0]} · {m.name.split(" ")[0]}</span>
+          ))}
         </div>
       </div>
     </div>

@@ -1,11 +1,13 @@
 "use client";
 import { useState } from "react";
 import { useApp, Badge, Tabs, Field, Modal, fmtUGX } from "@/components/ui.jsx";
+import { useParent } from "@/components/ParentProvider.jsx";
 import { currentFamily, studentAssessments } from "@/lib/client.js";
 import { fmtDate } from "@/components/ui.jsx";
 
 function KidPanel({ db, kid }) {
   const { act } = useApp();
+  const { session } = useParent();
   const [uploading, setUploading] = useState(false);
   const [docType, setDocType] = useState("Birth certificate");
   const [file, setFile] = useState("");
@@ -16,7 +18,7 @@ function KidPanel({ db, kid }) {
     if (!file) return alert("Choose a file first");
     setUploading(true);
     try {
-      await act("uploadDocument", { studentId: kid.id, type: docType, name: file.name, size: `${(file.size / 1024).toFixed(0)} KB`, by: "u-parent-1" }, `${file.name} uploaded for ${kid.name} — Admissions will verify it.`);
+      await act("uploadDocument", { studentId: kid.id, type: docType, name: file.name, size: `${(file.size / 1024).toFixed(0)} KB`, by: session.primaryUserId }, `${file.name} uploaded for ${kid.name} — Admissions will verify it.`);
     } catch (e) {
       alert(e.message);
     } finally {
@@ -119,10 +121,11 @@ function KidPanel({ db, kid }) {
 
 export default function ChildrenPage() {
   const { db } = useApp();
+  const { session } = useParent();
   const [kidId, setKidId] = useState(null);
   if (!db) return <div className="card">Loading…</div>;
 
-  const family = currentFamily(db, "u-parent-1");
+  const family = currentFamily(db, session.primaryUserId);
   const kid = db.studentIndex[kidId || family.children[0].id];
 
   return (

@@ -14,8 +14,11 @@ const action = async (type, payload) =>
     body: JSON.stringify({ type, payload }),
   })).json();
 
+// Start from a clean seed so the test is idempotent
+await fetch(`${BASE}/api/reset`, { method: "POST" });
+
 let s = await state();
-check("seed loads", !!s.meta && s.families.length === 3);
+check("seed loads", !!s.meta && s.families.length === 4);
 
 // 1) Automated sibling discount (family with children in BOTH campuses)
 let inv = s.invoices.find((i) => i.id === "inv-fam1-t3");
@@ -96,10 +99,49 @@ check("wrong password rejected", badLogin.ok === false);
 r = await action("updateStudentAccount", { accountId: r.db.studentAccounts[0].id, status: "paused" });
 check("parent can pause account", r.result.status === "paused");
 
+// 13) AUTO ONBOARDING — negative: Okello (fam-3) has a pending doc + unpaid tuition
+const preState = await state();
+const okello = Object.values(preState.familyAccountByFamily || {}).find((a) => a.familyId === "fam-3");
+check("fam-3 not on-boarded (doc pending + tuition unpaid)", !okello && preState.applications.find((a) => a.studentId === "s-pres-3")?.status === "applied");
+
+// 14) AUTO ONBOARDING — positive: clear inv-fam4-t3 → family account + SMS to BOTH parents, one shared login
+r = await action("payInvoice", { invoiceId: "inv-fam4-t3", amount: 500000, channel: "MTN Mobile Money" });
+check("full tuition cleared (inv-fam4-t3)", r.ok && r.db.invoices.find((i) => i.id === "inv-fam4-t3").status === "paid");
+const fam4Acc = Object.values(r.db.familyAccountByFamily || {}).find((a) => a.familyId === "fam-4");
+const app1 = r.db.applications.find((a) => a.id === "app-1");
+check("fam-4 account auto-created on reconcile", !!fam4Acc && fam4Acc.username === "ssemwanga.family" && fam4Acc.status === "active");
+check("one shared login for BOTH parents", app1?.status === "activated" && fam4Acc?.members.length === 2 && fam4Acc.members.includes("u-parent-4") && fam4Acc.members.includes("u-parent-4b"), `(members: ${fam4Acc?.members?.join(",")})`);
+const inviteSms = r.db.deliveries.filter((d) => d.ref === "app-1" && d.channel === "SMS");
+check("SMS sent to every parent number", inviteSms.length === 2 && inviteSms.some((d) => d.to === "+256771444555") && inviteSms.some((d) => d.to === "+256756666777"), `(to: ${inviteSms.map((d) => d.to).join(", ")})`);
+check("invite SMS carries the OS link + shared login", inviteSms.every((d) => d.subject.includes(r.db.meta.inviteLink) && d.subject.includes("ssemwanga.family")));
+check("audit trail records the activation", r.db.feesAudit[0]?.action.includes("Auto-onboarded Ssemwanga") && r.db.activatedNow?.some((a) => a.familyId === "fam-4"));
+
+// 15) The shared family login works for the parent portal
+const parentLogin = await (await fetch(`${BASE}/api/parent-login`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ username: "ssemwanga.family", password: "gill2026" }),
+})).json();
+check("shared family login works", parentLogin.ok && parentLogin.session.members.length === 2 && parentLogin.session.familyName === "Ssemwanga");
+const badParent = await (await fetch(`${BASE}/api/parent-login`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ username: "ssemwanga.family", password: "wrong" }),
+})).json();
+check("wrong family password rejected", badParent.ok === false);
+
+// 16) Admissions can re-send the invite SMS to both parents
+r = await action("resendFamilyInvite", { applicationId: "app-1" });
+check("invite re-send hits both parent numbers", r.ok && r.result.parents === 2 && r.db.deliveries.filter((d) => d.ref === "app-1" && d.channel === "SMS").length === 4);
+
+// Portal routes respond
+const loginPage = await (await fetch(`${BASE}/portal/login`)).status;
+check("parent login page serves", loginPage === 200);
+
 // Reset so the demo starts from a clean seed
 await fetch(`${BASE}/api/reset`, { method: "POST" });
 const clean = await state();
-check("demo data reset", clean.invoices.length === 4 && clean.pickups.length === 4);
+check("demo data reset", clean.invoices.length === 5 && clean.pickups.length === 4);
 
 console.log(failures ? `\n${failures} check(s) failed.` : "\nAll business rules verified ✔");
 process.exit(failures ? 1 : 0);

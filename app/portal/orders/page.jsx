@@ -1,16 +1,18 @@
 "use client";
 import { useState } from "react";
 import { useApp, Badge, Field, fmtUGX } from "@/components/ui.jsx";
+import { useParent } from "@/components/ParentProvider.jsx";
 import { currentFamily } from "@/lib/client.js";
 
 export default function OrdersPage() {
   const { db, act } = useApp();
+  const { session } = useParent();
   const [studentId, setStudentId] = useState("");
   const [cart, setCart] = useState({});
   const [busy, setBusy] = useState(false);
   if (!db) return <div className="card">Loading…</div>;
 
-  const family = currentFamily(db, "u-parent-1");
+  const family = currentFamily(db, session.primaryUserId);
   const student = db.studentIndex[studentId || family.children[0]?.id];
   const items = Object.values(cart);
   const total = items.reduce((s, i) => s + i.price * i.qty, 0);

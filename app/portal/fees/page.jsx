@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useApp, Badge, Modal, Field, fmtUGX } from "@/components/ui.jsx";
 import { currentFamily, familyInvoices, balances } from "@/lib/client.js";
 import Icon from "@/components/icons.jsx";
+import { useParent } from "@/components/ParentProvider.jsx";
 
 const CHANNELS = [
   { id: "MTN Mobile Money", logo: "MoMo", bg: "#ffcc00", color: "#1b1b1b", hint: "You'll receive a prompt on your phone" },
@@ -61,10 +62,11 @@ function PayModal({ inv, onClose }) {
 
 export default function FeesPage() {
   const { db } = useApp();
+  const { session } = useParent();
   const [payInv, setPayInv] = useState(null);
   if (!db) return <div className="card">Loading…</div>;
 
-  const family = currentFamily(db, "u-parent-1");
+  const family = currentFamily(db, session.primaryUserId);
   const invs = familyInvoices(db, family.id);
   const bal = balances(db);
   const current = invs[0];

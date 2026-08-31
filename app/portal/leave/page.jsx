@@ -1,10 +1,12 @@
 "use client";
 import { useState } from "react";
 import { useApp, Badge, Field, fmtDate } from "@/components/ui.jsx";
+import { useParent } from "@/components/ParentProvider.jsx";
 import { currentFamily, familyLeaves } from "@/lib/client.js";
 
 export default function LeavePage() {
   const { db, act } = useApp();
+  const { session } = useParent();
   const [studentId, setStudentId] = useState("");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
@@ -12,7 +14,7 @@ export default function LeavePage() {
   const [busy, setBusy] = useState(false);
 
   if (!db) return <div className="card">Loading…</div>;
-  const family = currentFamily(db, "u-parent-1");
+  const family = currentFamily(db, session.primaryUserId);
   const leaves = familyLeaves(db, family);
   const selected = studentId || family.children[0]?.id;
 

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useApp, Badge, Field, Modal, fmtDate } from "@/components/ui.jsx";
 import { currentFamily } from "@/lib/client.js";
 import Icon from "@/components/icons.jsx";
+import { useParent } from "@/components/ParentProvider.jsx";
 
 const DEFAULT_PERMS = {
   progress: true,
@@ -24,10 +25,11 @@ const PERM_LABELS = [
 
 export default function AccountsPage() {
   const { db, act } = useApp();
+  const { session } = useParent();
   const [open, setOpen] = useState(null);
 
   if (!db) return <div className="card">Loading…</div>;
-  const family = currentFamily(db, "u-parent-1");
+  const family = currentFamily(db, session.primaryUserId);
 
   return (
     <div>
@@ -135,7 +137,8 @@ export default function AccountsPage() {
 
 function CreateAccountModal({ childId, onClose }) {
   const { db, act } = useApp();
-  const family = currentFamily(db, "u-parent-1");
+  const { session } = useParent();
+  const family = currentFamily(db, session.primaryUserId);
   const child = family.children.find((c) => c.id === childId);
   const [username, setUsername] = useState(child.name.toLowerCase().replace(/\s+/g, "."));
   const [password, setPassword] = useState("gill" + Math.floor(1000 + Math.random() * 9000));

@@ -38,6 +38,7 @@ export default function AdmissionsPage() {
       <div className="tabs">
         <button className={tab === "transitions" ? "on" : ""} onClick={() => setTab("transitions")}>Transitions</button>
         <button className={tab === "docs" ? "on" : ""} onClick={() => setTab("docs")}>Document vault</button>
+        <button className={tab === "onboarding" ? "on" : ""} onClick={() => setTab("onboarding")}>Auto onboarding</button>
         <button className={tab === "applicants" ? "on" : ""} onClick={() => setTab("applicants")}>New applicants</button>
         <button className={tab === "accounts" ? "on" : ""} onClick={() => setTab("accounts")}>Student portal accounts</button>
       </div>
@@ -118,6 +119,77 @@ export default function AdmissionsPage() {
           </table>
           <p className="small muted" style={{ marginTop: "0.6rem" }}> Previously these lived in folders and a filing cabinet. Verified records migrate with the pupil at transition — parents never re-submit.
           </p>
+        </div>
+      )}
+
+      {tab === "onboarding" && (
+        <div className="card">
+          <div className="spread" style={{ marginBottom: "0.7rem" }}>
+            <div>
+              <h3>Automatic parent onboarding</h3>
+              <p className="small muted" style={{ margin: "0.2rem 0 0" }}>
+                When an application's documents are verified <b>and</b> full term tuition is cleared, the family is uploaded
+                to the OS automatically and every parent number on the form is sent the portal link by SMS. All parents share one login.
+              </p>
+            </div>
+            <Badge tone={db.activatedNow?.length ? "green" : "gray"}>
+              {db.activatedNow?.length ? `Just activated: ${db.activatedNow.map((a) => db.families.find((f) => f.id === db.studentIndex[a.studentId]?.familyId)?.name).join(", ")}` : "Waiting for payments"}
+            </Badge>
+          </div>
+
+          {db.applications.map((app) => {
+            const kid = db.studentIndex[app.studentId];
+            const fam = db.families.find((f) => f.id === kid?.familyId);
+            const appDocs = db.documents.filter((d) => d.studentId === kid?.id);
+            const docsOK = appDocs.length > 0 && appDocs.every((d) => d.status === "verified");
+            const inv = db.invoices.find((i) => i.studentId === kid?.id) || db.invoices.find((i) => i.familyId === fam?.id);
+            const tuitionOK = inv && inv.total > 0 && inv.paid >= inv.total && inv.balance === 0;
+            const fa = db.familyAccountByFamily[fam?.id];
+            const parents = (app.parentContacts || []).filter((p) => p.alive !== false);
+            return (
+              <div className="list-item spread" key={app.id} style={{ alignItems: "flex-start", gap: "1rem" }}>
+                <div style={{ minWidth: 0, flex: "1 1 auto" }}>
+                  <div className="row" style={{ gap: "0.4rem", flexWrap: "wrap" }}>
+                    <b>{fam?.children?.find((c) => c.id === kid?.id)?.name}</b>
+                    <span className="badge gray">{kid?.campus === "preschool" ? "Pre-School" : "Main School"}</span>
+                    <span className="badge gray">{app.status}</span>
+                    {fa && <Badge tone="green">account created</Badge>}
+                  </div>
+                  <div className="small muted">
+                    {kid?.class} · {fam?.name} family · parents: {parents.map((p) => `${p.name} (${p.phone})`).join(" + ")}
+                  </div>
+                  <div className="row" style={{ marginTop: "0.4rem", gap: "0.4rem", flexWrap: "wrap" }}>
+                    <span className={`badge ${docsOK ? "green" : "gold"}`}>{docsOK ? "✓ Documents verified" : `${appDocs.length} doc(s), ${appDocs.filter((d) => d.status === "verified").length} verified`}</span>
+                    <span className={`badge ${tuitionOK ? "green" : "gold"}`}>{tuitionOK ? "✓ Tuition cleared" : inv ? `Tuition ${(inv.total - inv.paid).toLocaleString()} UGX outstanding` : "No invoice"}</span>
+                    {fa && <span className="badge blue">@{fa.username} · one shared login</span>}
+                  </div>
+                </div>
+                <div style={{ textAlign: "right", flexShrink: 0 }}>
+                  {fa ? (
+                    <div className="small muted" style={{ maxWidth: 280 }}>
+                      <b className="small">SMS sent to {parents.length} parent number(s)</b>
+                      {parents.map((p) => (
+                        <div key={p.phone} className="mono" style={{ fontSize: "0.82rem" }}>{p.phone}</div>
+                      ))}
+                      <button className="btn ghost sm" style={{ marginTop: "0.4rem" }}
+                        onClick={async () => {
+                          try {
+                            await act("resendFamilyInvite", { applicationId: app.id }, `Invite SMS re-sent to ${parents.length} parent number(s).`);
+                          } catch (err) {
+                            alert(err.message);
+                          }
+                        }}
+                      >Re-send invite SMS</button>
+                    </div>
+                  ) : (
+                    <div className="small muted" style={{ maxWidth: 240 }}>
+                      {docsOK && tuitionOK ? "Ready — reconcile will create the account." : "Will auto-activate once docs are verified and tuition is cleared."}
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
 

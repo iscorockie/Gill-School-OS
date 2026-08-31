@@ -1,10 +1,12 @@
 "use client";
 import { useState } from "react";
 import { useApp, Badge, Field, fmtDate } from "@/components/ui.jsx";
+import { useParent } from "@/components/ParentProvider.jsx";
 import { notificationsFor } from "@/lib/client.js";
 
 export default function NewsPage() {
   const { db, act } = useApp();
+  const { session } = useParent();
   const [tab, setTab] = useState("notices");
   const [to, setTo] = useState("t-aisha");
   const [subject, setSubject] = useState("");
@@ -12,13 +14,13 @@ export default function NewsPage() {
   const [busy, setBusy] = useState(false);
 
   if (!db) return <div className="card">Loading…</div>;
-  const inbox = notificationsFor(db, "u-parent-1");
+  const inbox = notificationsFor(db, session.primaryUserId);
 
   async function send(e) {
     e.preventDefault();
     setBusy(true);
     try {
-      await act("sendMessage", { from: "u-parent-1", to, subject, body, channel: "app" }, "Message sent — the teacher is notified instantly. (SMS & email not needed for this one.)");
+      await act("sendMessage", { from: session.primaryUserId, to, subject, body, channel: "app" }, "Message sent — the teacher is notified instantly. (SMS & email not needed for this one.)");
       setSubject(""); setBody("");
     } catch (err) {
       alert(err.message);
