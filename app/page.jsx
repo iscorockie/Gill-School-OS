@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import Icon from "@/components/icons.jsx";
 
 const features = [
@@ -19,6 +20,57 @@ const steps = [
   { ico: "grad", t: "Child signs in and learns", d: "Their own portal: today's classes, homework, progress, library and calendar — before they even report to school.", who: "Your child", meta: "Supervised, always", metaIco: "eye", photo: "/photos/science-teens.jpg" },
 ];
 
+const requirements = [
+  {
+    stage: "Early Years (Ages 3–5)",
+    tag: "Gill Pre-School",
+    items: [
+      "Completed application form — one per family",
+      "Birth certificate or affidavit of birth",
+      "Immunisation record (UPEP / health card)",
+      "Two passport photographs",
+      "Assessment visit & settling-in session at Gill Pre-School",
+    ],
+    note: "Rolling intake during the term",
+  },
+  {
+    stage: "Cambridge Primary (Ages 5–11)",
+    tag: "Gill International School",
+    items: [
+      "Completed application form",
+      "Last two termly school reports",
+      "Birth certificate & immunisation record",
+      "Transfer assessment in English & Mathematics (Year 3 and above)",
+      "Reference from the previous school",
+    ],
+    note: "Cambridge Checkpoint sits at the end of Year 6",
+  },
+  {
+    stage: "Lower Secondary (Ages 12–14)",
+    tag: "Gill International School",
+    items: [
+      "Completed application form",
+      "Last two termly reports plus transcript",
+      "Entry assessment — English, Mathematics & Science",
+      "Passport photograph & birth certificate",
+      "Short interview with the Academic Office",
+    ],
+    note: "Ongoing Checkpoint & project assessments",
+  },
+  {
+    stage: "Upper Secondary & Advanced (Ages 15–18)",
+    tag: "Cambridge Pathway",
+    items: [
+      "Completed application form",
+      "IGCSE / Checkpoint transcript for A Level entry",
+      "Entry assessment and subject-choice interview",
+      "Head of School interview",
+      "Two references from the previous school",
+    ],
+    note: "A Levels across Sciences, Humanities & Arts",
+  },
+];
+
 const heroPhotos = [
   { src: "/photos/three-kids.jpg", alt: "Gill pupils in uniform" },
   { src: "/photos/reading-girl.jpg", alt: "Pupil reading" },
@@ -29,6 +81,7 @@ const heroPhotos = [
 ];
 
 export default function Landing() {
+  const [openReq, setOpenReq] = useState(0);
   return (
     <main>
       {/* ------- Top nav, like the school site ------- */}
@@ -115,35 +168,76 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ------- Platform ------- */}
-      <section className="container" id="platform" style={{ paddingTop: "3.4rem" }}>
-        <div className="section-head">
-          <div>
-            <span className="kicker-sm">The platform</span>
-            <h2><Icon name="layers" size={24} /> Everything in one place</h2>
-          </div>
-          <span className="muted small">One portal for parents · one for every student · one console for the school</span>
-        </div>
-        <div className="platform-grid">
-          {features.map((f, i) => (
-            <div className={`feature ${f.hero ? "feature-hero" : ""}`} key={f.t} style={{ "--ft": f.accent }}>
-              <div className={`ico ico-${i % 5}`}><Icon name={f.ico} size={22} /></div>
-              <div className="ft-top">
-                <h3>{f.t}</h3>
-                {f.tag && <span className="ft-chip">{f.tag}</span>}
-              </div>
-              <p>{f.d}</p>
-              {f.hero && (
-                <div className="ft-pills">
-                  {[["users", "Parents' Portal"], ["grad", "Staff Portal"], ["user", "Student Portal"]].map(([ico, label]) => (
-                    <span key={label}><Icon name={ico} size={15} /> {label}</span>
-                  ))}
-                </div>
-              )}
+      {/* ------- Platform + entry requirements — uniform glass zone ------- */}
+      <div className="zone-dark" id="platform">
+        <section className="container" style={{ paddingTop: "3.2rem" }}>
+          <div className="sec-head-dark spread">
+            <div>
+              <span className="kicker-line">The platform</span>
+              <h2><Icon name="layers" size={26} /> Everything in one place</h2>
             </div>
-          ))}
-        </div>
-      </section>
+            <span className="small" style={{ color: "rgba(255,255,255,0.7)", maxWidth: 300, textAlign: "right" }}>
+              One portal for parents · one for every student · one console for the school
+            </span>
+          </div>
+          <div className="platform-grid">
+            {features.map((f, i) => (
+              <div className={`feature ${f.hero ? "feature-hero" : ""}`} key={f.t} style={{ "--ft": f.accent }}>
+                <div className={`ico ico-${i % 5}`}><Icon name={f.ico} size={22} /></div>
+                <div className="ft-top">
+                  <h3>{f.t}</h3>
+                  {f.tag && <span className="ft-chip">{f.tag}</span>}
+                </div>
+                <p>{f.d}</p>
+                {f.hero && (
+                  <div className="ft-pills">
+                    {[["users", "Parents' Portal"], ["grad", "Staff Portal"], ["user", "Student Portal"]].map(([ico, label]) => (
+                      <span key={label}><Icon name={ico} size={15} /> {label}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="container" id="requirements" style={{ paddingTop: "2.6rem", paddingBottom: "3.2rem" }}>
+          <div className="sec-head-dark" style={{ marginBottom: "1.3rem" }}>
+            <span className="kicker-line">Entry requirements</span>
+            <h2>What each stage needs</h2>
+            <span className="small" style={{ color: "rgba(255,255,255,0.7)", maxWidth: 520, marginTop: "0.2rem" }}>
+              The same records you upload once carry your child through every stage — verified by the OS admissions pipeline, never re-typed.
+            </span>
+          </div>
+          <div className="req-grid">
+            {requirements.map((r, i) => {
+              const open = openReq === i;
+              return (
+                <div className={`acc ${open ? "open" : ""}`} key={r.stage}>
+                  <button className="acc-head" onClick={() => setOpenReq(open ? -1 : i)} aria-expanded={open}>
+                    <span>{r.stage}</span>
+                    <span className="acc-plus"><Icon name="plus" size={17} /></span>
+                  </button>
+                  <div className="acc-body" hidden={!open}>
+                    <span className="ft-chip">{r.tag}</span>
+                    <ul>
+                      {r.items.map((it) => (
+                        <li key={it}><Icon name="check" size={15} /> {it}</li>
+                      ))}
+                    </ul>
+                    <span className="acc-note"><Icon name="info" size={14} /> {r.note}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="row" style={{ marginTop: "1.2rem", gap: "0.6rem", flexWrap: "wrap" }}>
+            <span className="ft-chip"><Icon name="checkCircle" size={14} /> No paper re-submissions between stages</span>
+            <span className="ft-chip"><Icon name="checkCircle" size={14} /> Documents verified once in the OS</span>
+            <span className="ft-chip"><Icon name="checkCircle" size={14} /> Entry assessments arranged by Admissions</span>
+          </div>
+        </section>
+      </div>
 
       {/* ------- Journey ------- */}
       <section className="container" id="journey" style={{ paddingTop: "3.4rem" }}>
