@@ -14,9 +14,9 @@ const features = [
 ];
 
 const steps = [
-  { ico: "users", t: "Your family is set up", d: "Admissions registers your child's records. You sign in to Gill School OS with one family account.", who: "Admissions", meta: "Records ready on day one", metaIco: "file" },
-  { ico: "key", t: "Create your child's account", d: "Choose the username, password and what your child can see. The account is supervised by you.", who: "You, the parent", meta: "You choose the visibility", metaIco: "shield" },
-  { ico: "grad", t: "Child signs in and learns", d: "Their own portal: today's classes, homework, progress, library and calendar — before they even report to school.", who: "Your child", meta: "Supervised, always", metaIco: "eye" },
+  { ico: "users", t: "Your family is set up", d: "Admissions registers your child's records. You sign in to Gill School OS with one family account.", who: "Admissions", meta: "Records ready on day one", metaIco: "file", photo: "/photos/three-kids.jpg" },
+  { ico: "key", t: "Create your child's account", d: "Choose the username, password and what your child can see. The account is supervised by you.", who: "You, the parent", meta: "You choose the visibility", metaIco: "shield", photo: "/photos/reading-girl.jpg" },
+  { ico: "grad", t: "Child signs in and learns", d: "Their own portal: today's classes, homework, progress, library and calendar — before they even report to school.", who: "Your child", meta: "Supervised, always", metaIco: "eye", photo: "/photos/science-teens.jpg" },
 ];
 
 const heroPhotos = [
@@ -82,26 +82,35 @@ export default function Landing() {
           <span className="muted small">Sign in to the portal that belongs to you — each one opens with its own account.</span>
         </div>
         <div className="grid grid-3">
-          <a className="portal-card" href="/portal/login">
-            <div className="ico"><Icon name="users" size={24} /></div>
-            <h3>Parents' Portal</h3>
-            <p>One shared family login for every parent on the admission form — children & progress, fees, notices, group chats and supervised student accounts.</p>
-            <span className="btn sm">Open Parents' Portal →</span>
-            <div className="small muted"><Icon name="checkCircle" size={14} style={{ verticalAlign: "-3px" }} /> One login per family · verified by sms code</div>
+          <a className="portal-card pc-parents" href="/portal/login">
+            <div className="pc-photo" aria-hidden="true" />
+            <div className="pc-content">
+              <div className="ico"><Icon name="users" size={24} /></div>
+              <h3>Parents' Portal</h3>
+              <p>One shared family login for every parent on the admission form — children & progress, fees, notices, group chats and supervised student accounts.</p>
+              <span className="btn gold sm">Open Parents' Portal →</span>
+              <div className="pc-note"><Icon name="checkCircle" size={14} style={{ verticalAlign: "-3px" }} /> One login per family · verified by sms code</div>
+            </div>
           </a>
-          <a className="portal-card" href="/staff">
-            <div className="ico"><Icon name="grad" size={24} /></div>
-            <h3>Staff Portal</h3>
-            <p>Teachers, admissions, bursar and gate staff: classes, pupils, assessment remarks, family group chats and daily operations.</p>
-            <span className="btn sm">Open Staff Portal →</span>
-            <div className="small muted"><Icon name="checkCircle" size={14} style={{ verticalAlign: "-3px" }} /> Role-based sign-in · named accounts</div>
+          <a className="portal-card pc-staff" href="/staff">
+            <div className="pc-photo" aria-hidden="true" />
+            <div className="pc-content">
+              <div className="ico"><Icon name="grad" size={24} /></div>
+              <h3>Staff Portal</h3>
+              <p>Teachers, admissions, bursar and gate staff: classes, pupils, assessment remarks, family group chats and daily operations.</p>
+              <span className="btn gold sm">Open Staff Portal →</span>
+              <div className="pc-note"><Icon name="checkCircle" size={14} style={{ verticalAlign: "-3px" }} /> Role-based sign-in · named accounts</div>
+            </div>
           </a>
-          <a className="portal-card" href="/student/login">
-            <div className="ico"><Icon name="user" size={24} /></div>
-            <h3>Student Portal</h3>
-            <p>Each child's supervised account — today's classes, homework, progress, library and calendar. Parents decide what they can see.</p>
-            <span className="btn sm">Open Student Portal →</span>
-            <div className="small muted"><Icon name="checkCircle" size={14} style={{ verticalAlign: "-3px" }} /> Created & supervised by parents</div>
+          <a className="portal-card pc-students" href="/student/login">
+            <div className="pc-photo" aria-hidden="true" />
+            <div className="pc-content">
+              <div className="ico"><Icon name="user" size={24} /></div>
+              <h3>Student Portal</h3>
+              <p>Each child's supervised account — today's classes, homework, progress, library and calendar. Parents decide what they can see.</p>
+              <span className="btn gold sm">Open Student Portal →</span>
+              <div className="pc-note"><Icon name="checkCircle" size={14} style={{ verticalAlign: "-3px" }} /> Created & supervised by parents</div>
+            </div>
           </a>
         </div>
       </section>
@@ -148,7 +157,7 @@ export default function Landing() {
         <div className="steps">
           {steps.map((s, i) => (
             <div className="step" key={s.t}>
-              <div className="step-head">
+              <div className="step-head" style={{ backgroundImage: `url(${s.photo})` }}>
                 <span className="num">{i + 1}</span>
                 <span className="ico"><Icon name={s.ico} size={26} /></span>
               </div>

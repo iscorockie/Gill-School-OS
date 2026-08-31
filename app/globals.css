@@ -171,12 +171,24 @@ tr:last-child td { border-bottom: none; }
   border-radius: 999px; padding: 0.2rem 0.65rem;
 }
 
-.portal-card { display: flex; flex-direction: column; gap: 0.55rem; background: var(--white); border: 1px solid var(--line); border-radius: 18px; padding: 1.3rem 1.2rem; box-shadow: var(--shadow-sm, 0 1px 2px rgba(59,13,16,0.06)); text-decoration: none; color: inherit; transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease; }
-.portal-card:hover { transform: translateY(-3px); border-color: var(--maroon-2); box-shadow: var(--shadow); }
-.portal-card .ico { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: linear-gradient(160deg, var(--peri-l), #fff); border: 1px solid var(--peri-2); color: var(--maroon); }
-.portal-card h3 { margin: 0; }
-.portal-card p { margin: 0; font-size: 0.9rem; color: var(--muted); flex: 1; }
+.portal-card {
+  position: relative; display: flex; flex-direction: column; min-height: 380px;
+  border-radius: 20px; overflow: hidden; box-shadow: var(--shadow); text-decoration: none; color: inherit;
+  transition: transform .16s ease, box-shadow .16s ease;
+}
+.portal-card:hover { transform: translateY(-4px); box-shadow: 0 18px 40px rgba(59, 13, 16, 0.22); }
+.pc-photo { position: absolute; inset: 0; background-size: cover; background-position: center; transition: transform .6s ease; }
+.pc-parents .pc-photo { background-image: linear-gradient(180deg, rgba(59,13,16,0.18), rgba(59,13,16,0.82)), url(/photos/three-kids.jpg); }
+.pc-staff .pc-photo { background-image: linear-gradient(180deg, rgba(59,13,16,0.18), rgba(59,13,16,0.82)), url(/photos/staff.jpg); }
+.pc-students .pc-photo { background-image: linear-gradient(180deg, rgba(59,13,16,0.18), rgba(59,13,16,0.82)), url(/photos/science-teens.jpg); }
+.portal-card:hover .pc-photo { transform: scale(1.05); }
+.pc-photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 40%, rgba(59,13,16,0.45)); }
+.pc-content { position: relative; z-index: 1; margin-top: auto; padding: 1.4rem; display: flex; flex-direction: column; gap: 0.6rem; color: #fff; }
+.portal-card .ico { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; background: rgba(255, 255, 255, 0.14); border: 1px solid rgba(255, 255, 255, 0.28); color: var(--sun2); backdrop-filter: blur(4px); }
+.portal-card h3 { margin: 0; color: #fff; font-size: 1.25rem; }
+.portal-card p { margin: 0; font-size: 0.9rem; color: rgba(255, 255, 255, 0.85); flex: 1; }
 .portal-card .btn { width: fit-content; }
+.pc-note { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.78rem; color: rgba(255, 255, 255, 0.78); }
 .stat-label { color: var(--muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; }
 .stat-value {
   font-size: 1.55rem; font-weight: 800; font-family: var(--fd); color: var(--deep);
@@ -516,7 +528,12 @@ tr:last-child td { border-bottom: none; }
   transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
 }
 .step:hover { transform: translateY(-4px); box-shadow: var(--shadow); border-color: var(--maroon-2); }
-.step-head { position: relative; padding: 1.5rem 1.35rem 1rem; background: linear-gradient(135deg, var(--peri-l), #fdfbff 70%); border-bottom: 1px solid var(--line); }
+.step-head {
+  position: relative; padding: 1.7rem 1.35rem 1.3rem; background-size: cover; background-position: center;
+  border-bottom: 1px solid var(--line);
+}
+.step-head::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(59,13,16,0.12), rgba(59,13,16,0.66)); pointer-events: none; }
+.step-head > * { position: relative; z-index: 1; }
 .step .num {
   position: absolute; top: 1.05rem; right: 1.1rem; width: 34px; height: 34px; border-radius: 50%;
   background: linear-gradient(120deg, var(--maroon), var(--maroon-2)); color: #fff; font-family: var(--fd);
