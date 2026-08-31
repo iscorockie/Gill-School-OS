@@ -6,6 +6,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Icon from "@/components/icons.jsx";
+import { CAMPUSES } from "@/components/CampusMap.jsx";
 import { AppProvider } from "@/components/ui.jsx";
 import { ParentProvider, useParent } from "@/components/ParentProvider.jsx";
 
@@ -228,6 +229,96 @@ function Register() {
           ))}
         </div>
       </section>
+
+      {/* ------- Two campuses, two landmarks (same pins as the landing map) ------- */}
+      <section className="container" id="find-us" style={{ paddingBottom: "3rem" }}>
+        <div className="section-head">
+          <div>
+            <span className="kicker-sm">Visit us</span>
+            <h2><Icon name="pin" size={24} /> Two campuses in Najjera</h2>
+          </div>
+          <span className="muted small">Two distinct landmarks about 1 km apart, both on Mbogo Road</span>
+        </div>
+        <div className="find-grid">
+          {CAMPUSES.map((c) => (
+            <div className={`find-card ${c.class}`} key={c.id}>
+              <div className="find-top">
+                <span className="find-dot" style={{ background: c.color }} />
+                <div>
+                  <h3 style={c.class === "gips" ? { fontFamily: "var(--fpd)", color: "var(--gips-deep)", margin: 0 } : { color: "var(--maroon)", margin: 0 }}>{c.name}</h3>
+                  <span className="small muted">{c.landmark}</span>
+                </div>
+              </div>
+              <ul className="find-list">
+                <li><Icon name="pin" size={15} /> {c.address}</li>
+                <li><Icon name="file" size={15} /> Plus code {c.plusCode}</li>
+                <li><Icon name="phone" size={15} /> {c.phone}</li>
+                <li><Icon name="globe" size={15} /> Coordinates {c.lat}, {c.lng}</li>
+              </ul>
+              <a className="btn secondary sm" href={`https://www.google.com/maps?q=${c.lat},${c.lng}`} target="_blank" rel="noreferrer">
+                Open in Google Maps →
+              </a>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ------- Standard school footer (final, unchanged) ------- */}
+      <footer className="footer-dark" style={{ marginTop: "2.8rem", padding: "2.6rem 0 1.6rem" }}>
+        <div className="container">
+          <div className="footer-grid">
+            <div className="f-brand">
+              <div className="row" style={{ gap: "0.8rem" }}>
+                <img src="/logo.png" alt="Gill International School logo" style={{ height: 54, borderRadius: 10, background: "#fff", padding: "4px 8px" }} />
+                <div>
+                  <b style={{ fontFamily: "var(--fd)", fontSize: "1.1rem", display: "block", color: "#fff" }}>Gill School OS</b>
+                  <span className="small" style={{ color: "#cbb9bb" }}>Gill International School & Gill Pre-School</span>
+                </div>
+              </div>
+              <p className="small" style={{ margin: "1rem 0 0", color: "#cbb9bb", maxWidth: 340 }}>
+                One campus platform — parents, staff and students each work in their own portal.
+              </p>
+            </div>
+
+            <div>
+              <b className="f-title">Call or WhatsApp</b>
+              <div className="f-links" style={{ marginTop: "0.7rem", gap: "0.55rem" }}>
+                {["+256 771 648 684", "+256 755 071 456", "+256 783 003 231"].map((n) => {
+                  const digits = n.replace(/\s/g, "");
+                  return (
+                    <span className="row" key={n} style={{ gap: "0.5rem" }}>
+                      <a href={`tel:${digits}`} className="row" style={{ gap: "0.5rem", color: "#efe4e5" }}>
+                        <Icon name="phone" size={15} /> {n}
+                      </a>
+                      <a href={`https://wa.me/${digits.slice(1)}`} target="_blank" rel="noreferrer" title={`WhatsApp ${n}`} style={{ color: "var(--leaf)", opacity: 0.85 }}>
+                        <Icon name="chat" size={14} /> WhatsApp
+                      </a>
+                    </span>
+                  );
+                })}
+                <a href="mailto:info.gillschool@gmail.com" className="row" style={{ gap: "0.5rem", color: "#efe4e5", marginTop: "0.25rem" }}>
+                  <Icon name="mail" size={15} /> info.gillschool@gmail.com
+                </a>
+              </div>
+            </div>
+
+            <div>
+              <b className="f-title">Portals</b>
+              <div className="f-links" style={{ marginTop: "0.7rem" }}>
+                <a href="/portal/login" className="row" style={{ gap: "0.5rem" }}><Icon name="users" size={15} /> Parents' Portal</a>
+                <a href="/staff" className="row" style={{ gap: "0.5rem" }}><Icon name="grad" size={15} /> Staff Portal</a>
+                <a href="/student/login" className="row" style={{ gap: "0.5rem" }}><Icon name="user" size={15} /> Student Portal</a>
+                <a href="/api/ics?campus=all" className="row" style={{ gap: "0.5rem" }}><Icon name="calendar" size={15} /> School calendar (.ics)</a>
+              </div>
+            </div>
+          </div>
+
+          <div className="footer-bottom">
+            <span>© 2026 Gill International School · Excellence, Integrity, Service — Gill School OS. All rights reserved.</span>
+            <span>Powered by <a href="https://lubech.tech" target="_blank" rel="noreferrer">Lubech.tech</a></span>
+          </div>
+        </div>
+      </footer>
     </main>
   );
 }
