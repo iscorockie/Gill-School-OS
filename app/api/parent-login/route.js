@@ -9,9 +9,7 @@ export async function POST(req) {
     const { username, password } = await req.json();
     const db = getDB();
     const account = db.familyAccounts.find(
-      (a) =>
-        a.username.trim().toLowerCase() === String(username || "").trim().toLowerCase() &&
-        a.password === String(password || "")
+      (a) => a.username.trim().toLowerCase() === String(username || "").trim().toLowerCase()
     );
     if (!account) {
       return NextResponse.json(
@@ -21,6 +19,15 @@ export async function POST(req) {
     }
     if (account.status !== "active") {
       return NextResponse.json({ ok: false, error: "This family account is pending." }, { status: 403 });
+    }
+    if (account.verified === false) {
+      return NextResponse.json(
+        { ok: false, error: "Open your invite link (from the SMS) to create a password and verify your number first." },
+        { status: 403 }
+      );
+    }
+    if (account.password !== String(password || "")) {
+      return NextResponse.json({ ok: false, error: "That password doesn't match." }, { status: 401 });
     }
     const fam = db.families.find((f) => f.id === account.familyId);
     const members = account.members

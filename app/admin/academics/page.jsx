@@ -14,6 +14,8 @@ export default function AcademicsPage() {
   const [score, setScore] = useState("");
   const [max, setMax] = useState("100");
   const [feedback, setFeedback] = useState("");
+  const [remarkStudent, setRemarkStudent] = useState("");
+  const [remarkParent, setRemarkParent] = useState("");
   const [busy, setBusy] = useState(false);
 
   const student = db.studentIndex[studentId || Object.values(db.studentIndex)[0]?.id];
@@ -24,8 +26,12 @@ export default function AcademicsPage() {
     e.preventDefault();
     setBusy(true);
     try {
-      await act("addAssessment", { studentId: student.id, subject, type, title, score, max, feedback, teacher: teacher.id }, `Assessment saved for ${student.name} — visible to the parent instantly.`);
-      setTitle(""); setScore(""); setFeedback("");
+      await act(
+        "addAssessment",
+        { studentId: student.id, subject, type, title, score, max, feedback, remarkStudent, remarkParent, teacher: teacher.id },
+        `Assessment saved for ${student.name} — family remark published privately, child remark saved for their portal.`
+      );
+      setTitle(""); setScore(""); setFeedback(""); setRemarkStudent(""); setRemarkParent("");
     } catch (err) {
       alert(err.message);
     } finally {
@@ -73,9 +79,14 @@ export default function AcademicsPage() {
                 <Field label="Score"><input type="number" required min="0" value={score} onChange={(e) => setScore(e.target.value)} /></Field>
                 <Field label="Out of"><input type="number" required min="1" value={max} onChange={(e) => setMax(e.target.value)} /></Field>
               </div>
-              <Field label="Feedback to parent"><textarea rows={3} value={feedback} onChange={(e) => setFeedback(e.target.value)} placeholder="One encouraging, specific sentence." /></Field>
-              <button className="btn" disabled={busy}>{busy ? "Saving…" : "Save & publish to parent"}</button>
-              <p className="small muted" style={{ marginTop: "0.6rem" }}> Saved assessments appear on the parent's dashboard immediately — continuous tracking, not just closing-day report cards.
+              <Field label="Remark to the parent (private — family sees this, the child does not)">
+                <textarea rows={3} value={remarkParent} onChange={(e) => setRemarkParent(e.target.value)} placeholder="One encouraging, specific sentence for the family." />
+              </Field>
+              <Field label="Remark to the student (shown in their Student Portal — family controls visibility)">
+                <textarea rows={3} value={remarkStudent} onChange={(e) => setRemarkStudent(e.target.value)} placeholder="Encouraging, age-appropriate, first person." />
+              </Field>
+              <button className="btn" disabled={busy}>{busy ? "Saving…" : "Save & publish both remarks"}</button>
+              <p className="small muted" style={{ marginTop: "0.6rem" }}> Two separate streams: the family always sees their remark; the student sees theirs only if the parent keeps “teacher remarks” switched on in Student Accounts.
               </p>
             </form>
           </div>
@@ -90,7 +101,12 @@ export default function AcademicsPage() {
                     <div><Badge tone={Number(a.score) / Number(a.max) >= 0.75 ? "green" : "gold"}>{a.grade}</Badge></div>
                   </div>
                 </div>
-                {a.feedback && <div className="small muted"> {a.feedback}</div>}
+                <div className="small muted" style={{ marginTop: "0.35rem" }}>
+                  <b className="small">Parent:</b> {a.remarkParent || a.feedback || "—"}
+                </div>
+                <div className="small muted" style={{ opacity: 0.8 }}>
+                  <b className="small">Student:</b> {a.remarkStudent || a.feedback || "—"}
+                </div>
               </div>
             ))}
           </div>

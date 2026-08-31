@@ -171,15 +171,18 @@ export default function AdmissionsPage() {
                       {parents.map((p) => (
                         <div key={p.phone} className="mono" style={{ fontSize: "0.82rem" }}>{p.phone}</div>
                       ))}
-                      <button className="btn ghost sm" style={{ marginTop: "0.4rem" }}
-                        onClick={async () => {
-                          try {
-                            await act("resendFamilyInvite", { applicationId: app.id }, `Invite SMS re-sent to ${parents.length} parent number(s).`);
-                          } catch (err) {
-                            alert(err.message);
-                          }
-                        }}
-                      >Re-send invite SMS</button>
+                      <div className="row" style={{ marginTop: "0.4rem", justifyContent: "flex-end" }}>
+                        <a className="btn ghost sm" href={`/portal/setup?invite=${fa.inviteToken || ""}`}>Open invite setup</a>
+                        <button className="btn ghost sm"
+                          onClick={async () => {
+                            try {
+                              await act("resendFamilyInvite", { applicationId: app.id }, `Invite SMS re-sent to ${parents.length} parent number(s).`);
+                            } catch (err) {
+                              alert(err.message);
+                            }
+                          }}
+                        >Re-send invite SMS</button>
+                      </div>
                     </div>
                   ) : (
                     <div className="small muted" style={{ maxWidth: 240 }}>

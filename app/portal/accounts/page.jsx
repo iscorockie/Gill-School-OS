@@ -7,6 +7,7 @@ import { useParent } from "@/components/ParentProvider.jsx";
 
 const DEFAULT_PERMS = {
   progress: true,
+  remarks: true,
   homework: true,
   library: true,
   calendar: true,
@@ -15,11 +16,12 @@ const DEFAULT_PERMS = {
 };
 
 const PERM_LABELS = [
-  ["progress", "View progress & teachers' feedback"],
+  ["progress", "View progress & assessment scores"],
+  ["remarks", "See teacher remarks written to them"],
   ["homework", "See homework and due dates"],
   ["library", "Download worksheets & past papers"],
   ["calendar", "View the school calendar"],
-  ["messages", "Receive messages from teachers"],
+  ["messages", "Receive messages from teachers (creates the family group chat)"],
   ["fees", "View family fees & payments"],
 ];
 
@@ -27,6 +29,7 @@ export default function AccountsPage() {
   const { db, act } = useApp();
   const { session } = useParent();
   const [open, setOpen] = useState(null);
+  const [accessFor, setAccessFor] = useState(null);
 
   if (!db) return <div className="card">Loading…</div>;
   const family = currentFamily(db, session.primaryUserId);
@@ -89,8 +92,11 @@ export default function AccountsPage() {
                     ))}
                   </div>
                   <div className="row">
+                    <button className="btn secondary sm" onClick={() => setAccessFor(c.id)}>
+                      <Icon name="eye" size={14} /> What they can see
+                    </button>
                     <button
-                      className="btn secondary sm"
+                      className="btn ghost sm"
                       onClick={async () => {
                         const r = await act("resetStudentAccount", { accountId: acc.id });
                         alert(`New password for ${c.name}: ${r.password}`);
@@ -131,7 +137,63 @@ export default function AccountsPage() {
       </div>
 
       {open && <CreateAccountModal childId={open} onClose={() => setOpen(null)} />}
+      {accessFor && <AccessModal childId={accessFor} onClose={() => setAccessFor(null)} />}
     </div>
+  );
+}
+
+function AccessModal({ childId, onClose }) {
+  const { db, act } = useApp();
+  const { session } = useParent();
+  const family = currentFamily(db, session.primaryUserId);
+  const child = family.children.find((c) => c.id === childId);
+  const acc = db.accountByStudent[childId];
+  const [perms, setPerms] = useState({ ...acc.perms });
+  const [busy, setBusy] = useState(false);
+
+  async function save() {
+    setBusy(true);
+    try {
+      await act(
+        "updateStudentAccount",
+        { accountId: acc.id, perms },
+        perms.messages && !acc.perms.messages
+          ? `Teacher messages switched on — the ${child.name.split(" ")[0]} group chat was created automatically.`
+          : "Access updated."
+      );
+      onClose();
+    } catch (e) {
+      alert(e.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Modal title={`What can ${child.name.split(" ")[0]} see?`} onClose={onClose}>
+      <div className="quote" style={{ marginBottom: "0.9rem" }}>
+        <b>Two separate remark streams.</b>
+        <div className="small muted">
+          Teachers write a remark for your child <b>and</b> a private remark for the family. You decide here whether the
+          child sees their own remark; the family remark stays with you either way.
+        </div>
+      </div>
+      <div className="grid grid-2" style={{ gap: "0.5rem", marginBottom: "0.9rem" }}>
+        {PERM_LABELS.map(([key, label]) => (
+          <label key={key} className={`perm ${perms[key] ? "" : "off"}`} style={{ cursor: "pointer" }}>
+            <input type="checkbox" checked={!!perms[key]} onChange={(e) => setPerms({ ...perms, [key]: e.target.checked })} style={{ width: "auto" }} />
+            <span className="small">{label}</span>
+          </label>
+        ))}
+      </div>
+      <p className="small muted">
+        Tick “Receive messages from teachers” and the family group chat is created automatically — you can read
+        everything teachers post and reply about attendance issues.
+      </p>
+      <button className="btn" style={{ width: "100%", marginTop: "0.8rem" }} disabled={busy} onClick={save}>
+        {busy ? "Saving…" : "Save access & create/update group chat"}
+      </button>
+    </Modal>
   );
 }
 

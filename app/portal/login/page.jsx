@@ -113,6 +113,14 @@ function ParentLogin() {
           </div>
         </div>
 
+        <div className="card" style={{ marginTop: "1.1rem", background: "var(--peri-l)", borderColor: "var(--peri-2)", boxShadow: "none", padding: "0.7rem 0.9rem" }}>
+          <b className="small">New family?</b>
+          <span className="small muted"> Open your invite link from the SMS — it starts with creating a password, then a verification code is sent to your phone or email.</span>
+          <div style={{ marginTop: "0.5rem" }}>
+            <a className="btn secondary sm" href="/portal/setup">Open the invite setup →</a>
+          </div>
+        </div>
+
         <div className="row" style={{ justifyContent: "space-between", marginTop: "1.1rem" }}>
           <a href="/student/login" className="small">Student portal →</a>
           <a href="/" className="small">School home</a>

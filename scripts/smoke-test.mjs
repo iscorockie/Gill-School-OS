@@ -116,13 +116,13 @@ check("SMS sent to every parent number", inviteSms.length === 2 && inviteSms.som
 check("invite SMS carries the OS link + shared login", inviteSms.every((d) => d.subject.includes(r.db.meta.inviteLink) && d.subject.includes("ssemwanga.family")));
 check("audit trail records the activation", r.db.feesAudit[0]?.action.includes("Auto-onboarded Ssemwanga") && r.db.activatedNow?.some((a) => a.familyId === "fam-4"));
 
-// 15) The shared family login works for the parent portal
+// 15) Before setup, the new family can't sign in — the SMS link is the first step
 const parentLogin = await (await fetch(`${BASE}/api/parent-login`, {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ username: "ssemwanga.family", password: "gill2026" }),
 })).json();
-check("shared family login works", parentLogin.ok && parentLogin.session.members.length === 2 && parentLogin.session.familyName === "Ssemwanga");
+check("unverified family must use the invite link first", parentLogin.ok === false && /invite link/i.test(parentLogin.error || ""));
 const badParent = await (await fetch(`${BASE}/api/parent-login`, {
   method: "POST",
   headers: { "Content-Type": "application/json" },
@@ -134,14 +134,82 @@ check("wrong family password rejected", badParent.ok === false);
 r = await action("resendFamilyInvite", { applicationId: "app-1" });
 check("invite re-send hits both parent numbers", r.ok && r.result.parents === 2 && r.db.deliveries.filter((d) => d.ref === "app-1" && d.channel === "SMS").length === 4);
 
+// 17) SMS link → landing: create password → verification code → verified session
+const token = fam4Acc.inviteToken;
+check("new family has invite token + no password yet", !!token && fam4Acc.passwordSet === false && fam4Acc.verified === false);
+r = await action("inviteSetup", { token, password: "ssem2026!", channel: "sms" });
+const demoCode = r.result.demoCode;
+check("password created + code sent to parent phone", r.ok && r.result.channel === "sms" && r.result.to === "+256771444555" && /^\d{6}$/.test(demoCode), `(to ${r.result.to})`);
+r = await action("inviteVerify", { token, code: "000000" });
+check("wrong verification code rejected", r.ok === false);
+r = await action("inviteVerify", { token, code: demoCode });
+check("correct code verifies + shared session returned", r.ok && r.result.session.members.length === 2 && r.result.session.familyName === "Ssemwanga");
+const newLogin = await (await fetch(`${BASE}/api/parent-login`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ username: "ssemwanga.family", password: "ssem2026!" }),
+})).json();
+check("verified family signs in with the new password", newLogin.ok && newLogin.session.members.length === 2);
+
+// 18) Assessment: separate teacher remarks for parent vs student
+r = await action("addAssessment", {
+  studentId: "s-main-1", subject: "English", type: "Continuous assessment", title: "Term 3 — persuasive writing",
+  score: 14, max: 20, teacher: "t-aisha",
+  remarkStudent: "Great argument, Jordan — add facts to make it stronger.",
+  remarkParent: "Jordan argues well. At home, discuss one news story weekly so he adds real facts to his writing.",
+});
+const as = r.db.assessments[0];
+check("two separate remarks stored", r.ok && as.remarkStudent.includes("Jordan") && as.remarkParent.includes("news story") && as.feedback === as.remarkStudent);
+
+// 19) Group chat auto-created when "Receive messages from teachers" is on
+r = await action("createStudentAccount", { studentId: "s-pres-2", username: "daniel.achieng", password: "daniel123", perms: { messages: true } });
+const achiengChat = r.db.chats.find((c) => c.studentId === "s-pres-2");
+check("chat auto-created (Achieng, pre-school)", !!achiengChat && achiengChat.status === "active" && achiengChat.members.some((m) => m.userId === "t-sharon") && achiengChat.members.filter((m) => m.role === "parent").length === 1);
+const mayaChat = r.db.chats.find((c) => c.studentId === "s-pres-1");
+check("Maya chat has both parents", !!mayaChat && mayaChat.members.filter((m) => m.role === "parent").length === 2);
+
+// 20) Parents read-only except attendance issues
+r = await action("sendChatMessage", { chatId: mayaChat.id, from: "t-aisha", text: "Maya brought her reading bag today — lovely.", tag: "general" });
+check("teacher can post freely", r.ok);
+r = await action("sendChatMessage", { chatId: mayaChat.id, from: "u-parent-1", text: "What are we covering next week?", tag: "general" });
+check("parent general reply blocked", r.ok === false);
+r = await action("sendChatMessage", { chatId: mayaChat.id, from: "u-parent-1", text: "Maya will be absent tomorrow — she has a clinic visit.", tag: "attendance" });
+check("parent attendance reply allowed", r.ok && r.result.tag === "attendance" && r.result.role === "parent");
+
+// 21) Parent access toggle creates/pauses the chat
+r = await action("updateStudentAccount", { accountId: r.db.accountByStudent["s-main-1"].id, perms: { messages: true } });
+const jordanChat = r.db.chats.find((c) => c.studentId === "s-main-1");
+check("Jordan chat already active (seeded)", !!jordanChat && jordanChat.status === "active");
+r = await action("updateStudentAccount", { accountId: r.db.accountByStudent["s-main-1"].id, perms: { messages: false } });
+check("turning messages off pauses the chat", r.db.chats.find((c) => c.studentId === "s-main-1").status === "paused");
+r = await action("updateStudentAccount", { accountId: r.db.accountByStudent["s-main-1"].id, perms: { messages: true } });
+check("turning messages back on resumes it", r.db.chats.find((c) => c.studentId === "s-main-1").status === "active");
+
+// 22) Student portal respects the remarks permission
+const studentLogin = await (await fetch(`${BASE}/api/student-login`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ username: "jordan.nansubuga", password: "gill123" }),
+})).json();
+check("student session carries remarks perm", studentLogin.ok && studentLogin.session.perms.remarks === true);
+r = await action("updateStudentAccount", { accountId: r.db.accountByStudent["s-main-1"].id, perms: { remarks: false } });
+const studentLogin2 = await (await fetch(`${BASE}/api/student-login`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ username: "jordan.nansubuga", password: "gill123" }),
+})).json();
+check("parent can hide remarks from the child", studentLogin2.ok && studentLogin2.session.perms.remarks === false);
+
 // Portal routes respond
 const loginPage = await (await fetch(`${BASE}/portal/login`)).status;
+const setupPage = await (await fetch(`${BASE}/portal/setup?invite=${token}`)).status;
 check("parent login page serves", loginPage === 200);
+check("invite setup landing serves", setupPage === 200);
 
 // Reset so the demo starts from a clean seed
 await fetch(`${BASE}/api/reset`, { method: "POST" });
 const clean = await state();
-check("demo data reset", clean.invoices.length === 5 && clean.pickups.length === 4);
+check("demo data reset", clean.invoices.length === 5 && clean.pickups.length === 4 && clean.chats.length === 1);
 
 console.log(failures ? `\n${failures} check(s) failed.` : "\nAll business rules verified ✔");
 process.exit(failures ? 1 : 0);

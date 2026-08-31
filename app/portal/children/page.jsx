@@ -4,6 +4,7 @@ import { useApp, Badge, Tabs, Field, Modal, fmtUGX } from "@/components/ui.jsx";
 import { useParent } from "@/components/ParentProvider.jsx";
 import { currentFamily, studentAssessments } from "@/lib/client.js";
 import { fmtDate } from "@/components/ui.jsx";
+import Icon from "@/components/icons.jsx";
 
 function KidPanel({ db, kid }) {
   const { act } = useApp();
@@ -65,10 +66,14 @@ function KidPanel({ db, kid }) {
                 <div><Badge tone={Number(a.score) / Number(a.max) >= 0.75 ? "green" : Number(a.score) / Number(a.max) >= 0.5 ? "gold" : "red"}>{a.grade}</Badge></div>
               </div>
             </div>
-            {a.feedback && (
+            {(a.remarkParent || a.feedback) && (
               <div className="quote" style={{ marginTop: "0.55rem", fontSize: "0.88rem" }}>
-                 <b>{db.studentIndex[a.studentId]?.name === kid.name ? db.users.find((u) => u.id === a.teacher)?.name : ""}:</b>{" "}
-                {a.feedback}
+                <b className="small">Private remark for your family:</b>{" "}
+                <span>{a.remarkParent || a.feedback}</span>
+                <div className="small muted" style={{ marginTop: "0.3rem" }}>
+                  <Icon name="eye" size={13} style={{ verticalAlign: "-3px", marginRight: "0.3rem" }} />
+                  What {kid.name.split(" ")[0]} sees: {a.remarkStudent || a.feedback || "no student remark"} — switch this on/off under Student Accounts.
+                </div>
               </div>
             )}
           </div>

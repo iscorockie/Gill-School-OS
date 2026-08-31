@@ -34,9 +34,15 @@ export default function StudentProgress() {
                 <div>
                   <b>{a.subject}</b> · <span className="small muted">{a.title}</span>
                   <div className="small muted">{a.type} · {fmtDate(a.date)} · {a.term}</div>
-                  {a.feedback && (
+                  {session.perms.remarks !== false && (a.remarkStudent || a.feedback) && (
                     <div className="quote" style={{ marginTop: "0.5rem", fontSize: "0.86rem" }}>
-                      <b>{teacher(a.teacher)}:</b> {a.feedback}
+                      <b>{teacher(a.teacher)}:</b> {a.remarkStudent || a.feedback}
+                    </div>
+                  )}
+                  {session.perms.remarks === false && (
+                    <div className="small muted" style={{ marginTop: "0.4rem" }}>
+                      <Icon name="eyeOff" size={14} style={{ verticalAlign: "-3px", marginRight: "0.3rem" }} />
+                      Teacher remarks are hidden by your family — ask them in Parent Portal.
                     </div>
                   )}
                 </div>
@@ -56,7 +62,7 @@ export default function StudentProgress() {
           <Icon name="award" size={20} style={{ color: "var(--maroon)" }} />
           <span>
             <b>Keep going!</b> Your latest Checkpoint practice shows steady improvement in Science and Mathematics.
-            Parent feedback and progress notes are visible on your family's dashboard too.
+            Your family sees their own private notes from the teachers on the Parent Portal.
           </span>
         </div>
       </div>

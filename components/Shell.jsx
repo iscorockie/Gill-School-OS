@@ -23,6 +23,7 @@ const PORTAL_NAV = [
   { href: "/portal/accounts", icon: "key", label: "Student Accounts" },
   { href: "/portal/leave", icon: "send", label: "Absence Requests" },
   { section: "School life" },
+  { href: "/portal/messages", icon: "chat", label: "Family Group Chats" },
   { href: "/portal/news", icon: "bell", label: "Noticeboard & Messages" },
   { href: "/portal/calendar", icon: "calendar", label: "School Calendar" },
   { href: "/portal/resources", icon: "bookOpen", label: "Resources & Library" },

@@ -18,6 +18,11 @@ export default function PortalHome() {
   const pres = kids.find((c) => c.campus === "preschool");
   const main = kids.find((c) => c.campus === "main");
   const inv = db.invoices.find((i) => i.familyId === family.id && i.term === db.meta.currentTerm);
+  const chats = db.chats.filter((c) => c.familyId === family.id && c.status === "active");
+  const chatUnread = chats.reduce(
+    (n, c) => n + c.messages.filter((m) => m.from !== session.primaryUserId && !m.readBy.includes(session.primaryUserId)).length,
+    0
+  );
 
   return (
     <div>
@@ -54,6 +59,22 @@ export default function PortalHome() {
 
       <FamilyLoginCard db={db} session={session} />
 
+      {chats.length > 0 && (
+        <div className="card" style={{ marginBottom: "1.2rem", display: "flex", flexWrap: "wrap", gap: "0.8rem", alignItems: "center", justifyContent: "space-between" }}>
+          <div className="row" style={{ gap: "0.7rem" }}>
+            <Icon name="chat" size={21} style={{ color: "var(--maroon)" }} />
+            <div>
+              <b>Family group chats</b>
+              <div className="small muted">
+                {chats.map((c) => db.studentIndex[c.studentId]?.name.split(" ")[0]).join(" & ")} — teachers post, you can read everything and reply about attendance.
+              </div>
+            </div>
+          </div>
+          <Link className="btn secondary sm" href="/portal/messages">
+            {chatUnread ? `${chatUnread} unread · ` : ""}Open group chats →
+          </Link>
+        </div>
+      )}
 
       <div className="grid grid-4" style={{ marginBottom: "1.2rem" }}>
         <Stat label="Sibling discount applied" value={fmtUGX(bal.siblingDiscounts)} sub="10% off Pre-School tuition — automatic" tone="gold" />
@@ -144,9 +165,9 @@ function FamilyLoginCard({ db, session }) {
             <b>Family account · shared by every parent on the admission form</b>
             <p className="small muted" style={{ margin: "0.25rem 0 0" }}>
               Username <span className="mono">@{fa.username}</span> — one login for{" "}
-              {session.members.map((m) => m.name).join(" & ")}. Invite link sent by SMS to{" "}
-              {(invites.length ? invites.map((d) => d.to) : session.smsInvitesTo || []).join(", ")}{" "}
-              when admission was completed.
+              {session.members.map((m) => m.name).join(" & ")}. The SMS invite (to{" "}
+              {(invites.length ? invites.map((d) => d.to) : session.smsInvitesTo || []).join(", ")}
+              ) opens the portal landing: create the shared password, get a verification code by phone or email, then you're in.
             </p>
           </div>
         </div>

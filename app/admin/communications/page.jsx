@@ -94,6 +94,50 @@ export default function CommunicationsPage() {
           </p>
         </div>
       </div>
+
+      <div className="card" style={{ marginTop: "1.2rem" }}>
+        <div className="spread" style={{ marginBottom: "0.7rem" }}>
+          <div>
+            <h3> Family group chats — monitoring view</h3>
+            <p className="small muted" style={{ margin: "0.2rem 0 0" }}>
+              Every message in a teacher–family group is visible here. Families can read everything but only reply about
+              attendance issues; teachers post freely.
+            </p>
+          </div>
+          <Badge tone="blue">{db.chats.filter((c) => c.status === "active").length} active groups</Badge>
+        </div>
+        {db.chats.map((c) => {
+          const kid = db.studentIndex[c.studentId];
+          const fam = db.families.find((f) => f.id === c.familyId);
+          return (
+            <div className="list-item" key={c.id} style={{ alignItems: "flex-start" }}>
+              <div style={{ flex: 1 }}>
+                <div className="spread">
+                  <div>
+                    <b>{kid?.name}</b> · <span className="small muted">{fam?.name} family</span>
+                    <span className="badge gray" style={{ marginLeft: "0.4rem" }}>{c.status}</span>
+                  </div>
+                  <span className="small muted">{c.messages.length} messages</span>
+                </div>
+                <div style={{ marginTop: "0.45rem", display: "flex", flexDirection: "column", gap: "0.35rem" }}>
+                  {c.messages.map((m) => {
+                    const who = c.members.find((x) => x.userId === m.from);
+                    return (
+                      <div key={m.id} className="small quote" style={{ margin: 0, padding: "0.45rem 0.65rem" }}>
+                        <b>{who?.name}</b> ({who?.role})
+                        {m.tag === "attendance" && <Badge tone="gold">attendance</Badge>}
+                        <div>{m.text}</div>
+                      </div>
+                    );
+                  })}
+                  {c.messages.length === 0 && <div className="small muted">No messages yet.</div>}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+        {db.chats.length === 0 && <p className="small muted">No group chats yet — they are created automatically when a parent switches on “Receive messages from teachers”.</p>}
+      </div>
     </div>
   );
 }

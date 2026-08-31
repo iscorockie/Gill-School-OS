@@ -9,14 +9,14 @@ function Gate({ children }) {
   const { session, ready } = useParent();
   const router = useRouter();
   const pathname = usePathname();
-  const onLogin = pathname === "/portal/login";
+  const publicPath = pathname === "/portal/login" || pathname === "/portal/setup";
 
   useEffect(() => {
-    if (ready && !session && !onLogin) router.replace("/portal/login");
-  }, [ready, session, onLogin, router]);
+    if (ready && !session && !publicPath) router.replace("/portal/login");
+  }, [ready, session, publicPath, router]);
 
   if (!ready) return <div className="auth-wrap"><div className="auth-card">Loading Parent Portal…</div></div>;
-  if (onLogin) return children;
+  if (publicPath) return children;
   if (!session) return null;
   return children;
 }
@@ -36,7 +36,7 @@ export default function PortalLayout({ children }) {
 function PortalChrome({ children }) {
   const { session } = useParent();
   const pathname = usePathname();
-  if (pathname === "/portal/login") return children;
+  if (pathname === "/portal/login" || pathname === "/portal/setup") return children;
   return (
     <Shell
       mode="portal"
