@@ -30,6 +30,11 @@ const PORTAL_NAV = [
   { href: "/portal/orders", icon: "shirt", label: "Uniform & Book Pre-Orders" },
 ];
 
+const STAFF_NAV = [
+  { section: "My work" },
+  { href: "/staff/home", icon: "home", label: "Overview", end: true },
+];
+
 const STUDENT_NAV = [
   { section: "My school" },
   { href: "/student", icon: "home", label: "Today", end: true },
@@ -64,13 +69,13 @@ function ErrBanner() {
 }
 
 export default function Shell({ mode = "portal", user, subtitle, children }) {
-  const nav = mode === "portal" ? PORTAL_NAV : mode === "student" ? STUDENT_NAV : ADMIN_NAV;
-  const brand = mode === "portal" ? "Parent Portal" : mode === "student" ? "Student Portal" : "School Administration";
-  const tagline = mode === "student" ? "Najjera · Cambridge Pathway" : "Najjera · Kampala";
+  const nav = mode === "portal" ? PORTAL_NAV : mode === "student" ? STUDENT_NAV : mode === "staff" ? STAFF_NAV : ADMIN_NAV;
+  const brand = mode === "portal" ? "Parent Portal" : mode === "student" ? "Student Portal" : mode === "staff" ? "Staff Portal" : "OS Admin";
+  const tagline = mode === "student" ? "Najjera · Cambridge Pathway" : mode === "staff" ? "Gill School OS" : "Najjera · Kampala";
   return (
     <AppProvider>
       <div className="wrap">
-        <aside className={`sidebar ${mode === "student" ? "sidebar-student" : ""}`}>
+        <aside className={`sidebar ${mode === "student" ? "sidebar-student" : ""} ${mode === "staff" ? "sidebar-staff" : ""}`}>
           <div className="brand">
             <img src="/logo.png" alt="Gill International School logo" />
             <div>
@@ -101,7 +106,7 @@ export default function Shell({ mode = "portal", user, subtitle, children }) {
             </div>
             {user && (
               <div className="who">
-                <span className="small muted">{user.role === "parent" ? "Parent" : user.title || user.role}</span>
+                <span className="small muted">{user.role === "parent" ? "Parent" : user.roleLabel || user.title || user.role}</span>
                 <div className="avatar">{user.name.replace(/^(Mr\.|Mrs\.|Ms\.)\s*/, "").split(" ").map((w) => w[0]).join("").slice(0, 2)}</div>
               </div>
             )}

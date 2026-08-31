@@ -1,42 +1,38 @@
 "use client";
-import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import Shell from "@/components/Shell.jsx";
 import { useStaff } from "@/components/StaffSession.jsx";
 
-const DEFAULT_ADMIN = {
-  id: "u-admin",
-  role: "admin",
-  name: "Mr. Francis Ssekandi",
-  title: "Head of School",
-};
-
+// Only the Top School Administration may open this console. Staff, parents
+// and students use their own portals; any other session is sent away.
 export default function AdminLayout({ children }) {
   const { staff, ready } = useStaff();
   const router = useRouter();
-  const user = staff || DEFAULT_ADMIN;
-  const title = staff?.title || DEFAULT_ADMIN.title;
+  const pathname = usePathname();
+  const onLogin = pathname === "/admin/login";
+  const allowed = staff?.id === "u-admin";
+
+  useEffect(() => {
+    if (ready && !onLogin && !allowed) router.replace("/admin/login");
+  }, [ready, onLogin, allowed, router]);
+
+  if (!ready) {
+    return <div className="auth-wrap"><div className="auth-card">Checking access…</div></div>;
+  }
+  if (onLogin) return children;
+  if (!allowed) return null;
 
   return (
-    <Shell mode="admin" user={{ ...user, title, role: staff ? "staff" : "admin" }} subtitle="Staff Portal · Gill International School & Gill Pre-School">
+    <Shell mode="admin" user={{ ...staff, role: "staff", title: staff.title }} subtitle="OS Admin · Monitoring Console — Parents, Staff & Student Portals">
       <div className="card" style={{ marginBottom: "1.1rem", display: "flex", flexWrap: "wrap", gap: "0.7rem", alignItems: "center", justifyContent: "space-between", padding: "0.65rem 1rem" }}>
-        <div className="row" style={{ gap: "0.55rem" }}>
-          <span className="badge blue">Staff Portal</span>
-          {staff ? (
-            <span className="small">
-              Signed in as <b>{staff.name}</b> · {staff.roleLabel || staff.title}
-            </span>
-          ) : (
-            <span className="small muted">Signed in as <b>{DEFAULT_ADMIN.name}</b> (demo) — or sign in with your own staff role.</span>
-          )}
+        <div className="row" style={{ gap: "0.55rem", flexWrap: "wrap" }}>
+          <span className="badge blue">OS Admin · restricted</span>
+          <span className="small">
+            Signed in as <b>{staff.name}</b> · {staff.roleLabel || staff.title}
+          </span>
         </div>
-        <div className="row">
-          {!staff && ready && (
-            <button className="btn ghost sm" onClick={() => router.push("/staff")}>Enter Staff Portal</button>
-          )}
-          {staff && (
-            <a className="small" href="/staff" onClick={() => { try { localStorage.removeItem("gill_staff_session"); } catch {} }}>Sign out</a>
-          )}
-        </div>
+        <a className="small" href="/admin/login" onClick={() => { try { localStorage.removeItem("gill_staff_session"); } catch { /* ignore */ } }}>Sign out</a>
       </div>
       {children}
     </Shell>

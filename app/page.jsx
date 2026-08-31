@@ -41,9 +41,7 @@ export default function Landing() {
             <a href="#gallery">Our School</a>
           </div>
           <div className="cta">
-            <a href="/staff" className="btn-hero-ghost" style={{ padding: "0.55rem 1.2rem", fontSize: "0.85rem" }}>Staff Portal</a>
-            <a href="/admin" className="btn" style={{ padding: "0.55rem 1.3rem", fontSize: "0.85rem" }}>School portal</a>
-            <a href="/portal" className="btn gold" style={{ padding: "0.55rem 1.3rem", fontSize: "0.85rem" }}>Parent Portal</a>
+            <a href="#portals" className="btn gold" style={{ padding: "0.55rem 1.3rem", fontSize: "0.85rem" }}>Sign in</a>
           </div>
         </div>
       </nav>
@@ -57,8 +55,7 @@ export default function Landing() {
           <p> From first steps at Gill Pre-School to Cambridge Checkpoint and beyond — parents, teachers and students work in one place. Set up your children's portals before they report to school.
           </p>
           <div className="cta">
-            <a href="/portal" className="btn gold">Open Parent Portal</a>
-            <a href="/staff" className="btn-hero-ghost">Staff Portal</a>
+            <a href="#portals" className="btn gold">Open a Portal</a>
             <a href="/api/ics?campus=all" className="btn-hero-ghost"><Icon name="calendar" size={17} /> Sync calendar</a>
           </div>
 
@@ -77,6 +74,37 @@ export default function Landing() {
           </div>
         </div>
       </header>
+
+      {/* ------- Choose your portal ------- */}
+      <section className="container portal-choice" id="portals" style={{ paddingTop: "2.6rem" }}>
+        <div className="section-head">
+          <h2><Icon name="users" size={24} /> Choose your portal</h2>
+          <span className="muted small">Sign in to the portal that belongs to you — each one opens with its own account.</span>
+        </div>
+        <div className="grid grid-3">
+          <a className="portal-card" href="/portal/login">
+            <div className="ico"><Icon name="users" size={24} /></div>
+            <h3>Parents' Portal</h3>
+            <p>One shared family login for every parent on the admission form — children & progress, fees, notices, group chats and supervised student accounts.</p>
+            <span className="btn sm">Open Parents' Portal →</span>
+            <div className="small muted"><Icon name="checkCircle" size={14} style={{ verticalAlign: "-3px" }} /> One login per family · verified by sms code</div>
+          </a>
+          <a className="portal-card" href="/staff">
+            <div className="ico"><Icon name="grad" size={24} /></div>
+            <h3>Staff Portal</h3>
+            <p>Teachers, admissions, bursar and gate staff: classes, pupils, assessment remarks, family group chats and daily operations.</p>
+            <span className="btn sm">Open Staff Portal →</span>
+            <div className="small muted"><Icon name="checkCircle" size={14} style={{ verticalAlign: "-3px" }} /> Role-based sign-in · named accounts</div>
+          </a>
+          <a className="portal-card" href="/student/login">
+            <div className="ico"><Icon name="user" size={24} /></div>
+            <h3>Student Portal</h3>
+            <p>Each child's supervised account — today's classes, homework, progress, library and calendar. Parents decide what they can see.</p>
+            <span className="btn sm">Open Student Portal →</span>
+            <div className="small muted"><Icon name="checkCircle" size={14} style={{ verticalAlign: "-3px" }} /> Created & supervised by parents</div>
+          </a>
+        </div>
+      </section>
 
       {/* ------- Platform ------- */}
       <section className="container" id="platform" style={{ paddingTop: "3rem" }}>
@@ -175,10 +203,10 @@ export default function Landing() {
             <div>
               <b className="small" style={{ color: "var(--peri-2)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Portals</b>
               <div className="small" style={{ marginTop: "0.5rem", display: "grid", gap: "0.35rem" }}>
-                <a href="/portal">Parent Portal</a>
-                <a href="/student/login">Student Portal</a>
+                <a href="/portal/login">Parents' Portal</a>
                 <a href="/staff">Staff Portal</a>
-                <a href="/admin">School Administration</a>
+                <a href="/student/login">Student Portal</a>
+                <a href="/admin/login">OS Admin · top administration only</a>
                 <a href="/api/ics?campus=all">School calendar (.ics)</a>
               </div>
             </div>

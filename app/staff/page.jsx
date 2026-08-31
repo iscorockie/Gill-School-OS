@@ -33,13 +33,6 @@ const ROLES = [
     copy: "Check-ins, checkouts, late pickup handling.",
     users: ["u-gate"],
   },
-  {
-    id: "leadership",
-    label: "Leadership",
-    icon: "shield",
-    copy: "School-wide dashboards, notices and monitoring.",
-    users: ["u-admin"],
-  },
 ];
 
 const STAFF_DB = {
@@ -81,7 +74,7 @@ export default function StaffPortalPage() {
       return;
     }
     signIn({ ...person, roleLabel: activeRole.label, actor: true });
-    router.push("/admin");
+    router.push("/staff/home");
   }
 
   return (

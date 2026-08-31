@@ -20,6 +20,41 @@ export default function AdminDashboard() {
         <Badge tone="gold">{db.meta.currentTerm}</Badge>
       </div>
 
+      <div className="card" style={{ marginBottom: "1.2rem", background: "var(--peri-l)", borderColor: "var(--peri-2)" }}>
+        <div className="row" style={{ gap: "0.7rem", alignItems: "flex-start", flexWrap: "wrap" }}>
+          <Icon name="shield" size={22} style={{ color: "var(--maroon)", marginTop: "0.2rem" }} />
+          <div style={{ flex: 1, minWidth: 220 }}>
+            <b>OS Admin — monitoring three portals</b>
+            <p className="small muted" style={{ margin: "0.2rem 0 0" }}>
+              This console is restricted to the Top School Administration. It watches the Parents' Portal, Staff Portal and Student Portals below.
+            </p>
+          </div>
+        </div>
+        <div className="grid grid-3" style={{ marginTop: "0.8rem" }}>
+          <div className="row" style={{ gap: "0.6rem" }}>
+            <Icon name="users" size={20} style={{ color: "var(--maroon)" }} />
+            <div className="small">
+              <b>Parents' Portal</b>
+              <div className="muted">{db.familyAccounts.length} family accounts · {db.familyAccounts.filter((a) => a.verified).length} verified · {db.meta.currentTerm} invoices</div>
+            </div>
+          </div>
+          <div className="row" style={{ gap: "0.6rem" }}>
+            <Icon name="grad" size={20} style={{ color: "var(--maroon)" }} />
+            <div className="small">
+              <b>Staff Portal</b>
+              <div className="muted">{db.users.filter((u) => u.role === "teacher").length} teachers · {db.users.filter((u) => ["admissions", "bursar", "frontdesk"].includes(u.role)).length} office staff · {db.chats?.length || 0} group chats</div>
+            </div>
+          </div>
+          <div className="row" style={{ gap: "0.6rem" }}>
+            <Icon name="user" size={20} style={{ color: "var(--maroon)" }} />
+            <div className="small">
+              <b>Student Portal</b>
+              <div className="muted">{db.studentAccounts.filter((a) => a.status === "active").length} active supervised accounts · {db.studentAccounts.length} created</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="grid grid-4" style={{ marginBottom: "1.2rem" }}>
         <Stat label="Families" value={term.families} sub={`${term.students} children · pre + main`} />
         <Stat label="Fees collected" value={fmtUGX(paid)} sub={`of ${fmtUGX(total)} due this term`} tone="green" />
