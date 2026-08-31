@@ -41,7 +41,7 @@ export default function Landing() {
             <a href="#gallery">Our School</a>
           </div>
           <div className="cta">
-            <a href="/student/login" className="btn-hero-ghost" style={{ padding: "0.55rem 1.2rem", fontSize: "0.85rem" }}>Student sign in</a>
+            <a href="/staff" className="btn-hero-ghost" style={{ padding: "0.55rem 1.2rem", fontSize: "0.85rem" }}>Staff Portal</a>
             <a href="/admin" className="btn" style={{ padding: "0.55rem 1.3rem", fontSize: "0.85rem" }}>School portal</a>
             <a href="/portal" className="btn gold" style={{ padding: "0.55rem 1.3rem", fontSize: "0.85rem" }}>Parent Portal</a>
           </div>
@@ -58,7 +58,7 @@ export default function Landing() {
           </p>
           <div className="cta">
             <a href="/portal" className="btn gold">Open Parent Portal</a>
-            <a href="/student/login" className="btn-hero-ghost">Student sign in</a>
+            <a href="/staff" className="btn-hero-ghost">Staff Portal</a>
             <a href="/api/ics?campus=all" className="btn-hero-ghost"><Icon name="calendar" size={17} /> Sync calendar</a>
           </div>
 
@@ -177,6 +177,7 @@ export default function Landing() {
               <div className="small" style={{ marginTop: "0.5rem", display: "grid", gap: "0.35rem" }}>
                 <a href="/portal">Parent Portal</a>
                 <a href="/student/login">Student Portal</a>
+                <a href="/staff">Staff Portal</a>
                 <a href="/admin">School Administration</a>
                 <a href="/api/ics?campus=all">School calendar (.ics)</a>
               </div>
