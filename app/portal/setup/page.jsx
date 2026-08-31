@@ -111,7 +111,9 @@ function Setup() {
     <div className="auth-wrap">
       <div className="auth-card" style={{ maxWidth: 480 }}>
         <div className="logo-row">
+          <a href="https://www.gill.ac.ug/#home" aria-label="Back to gill.ac.ug" style={{ textDecoration: "none" }}>
           <img src="/logo.png" alt="Gill International School logo" />
+        </a>
           <div>
             <h1>Your family portal</h1>
             <div className="sub">Gill International School · Najjera</div>

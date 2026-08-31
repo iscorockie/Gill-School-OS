@@ -81,7 +81,9 @@ export default function StaffPortalPage() {
     <div className="auth-wrap">
       <div className="auth-card" style={{ maxWidth: 560 }}>
         <div className="logo-row">
+          <a href="https://www.gill.ac.ug/#home" aria-label="Back to gill.ac.ug" style={{ textDecoration: "none" }}>
           <img src="/logo.png" alt="Gill International School logo" />
+        </a>
           <div>
             <h1>Staff Portal</h1>
             <div className="sub">Gill International School · Gill Pre-School</div>

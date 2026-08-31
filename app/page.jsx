@@ -88,7 +88,9 @@ export default function Landing() {
       {/* ------- Top nav, like the school site ------- */}
       <nav className="land-nav">
         <div className="container inner">
-          <img src="/logo.png" alt="Gill International School logo" />
+          <a href="https://www.gill.ac.ug/#home" aria-label="Back to gill.ac.ug" className="nav-badge">
+            <img src="/logo.png" alt="Gill International School logo" />
+          </a>
           <div className="links">
             <a href="#platform">Platform</a>
             <a href="#journey">For Families</a>

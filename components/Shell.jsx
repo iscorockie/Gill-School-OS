@@ -77,10 +77,14 @@ export default function Shell({ mode = "portal", user, subtitle, children }) {
       <div className="wrap">
         <aside className={`sidebar ${mode === "student" ? "sidebar-student" : ""} ${mode === "staff" ? "sidebar-staff" : ""}`}>
           <div className="brand">
-            <img src="/logo.png" alt="Gill International School logo" />
+            <a href="https://www.gill.ac.ug/#home" aria-label="Back to gill.ac.ug" title="Back to gill.ac.ug">
+              <img src="/logo.png" alt="Gill International School logo" />
+            </a>
             <div>
-              <b>Gill School OS</b>
-              <span>{brand} · Najjera</span>
+              <a href="https://www.gill.ac.ug/#home" style={{ textDecoration: "none" }}>
+                <b>Gill School OS</b>
+                <span>{brand} · Najjera</span>
+              </a>
             </div>
           </div>
           <nav className="nav">
