@@ -26,19 +26,19 @@ function KidPanel({ db, kid }) {
   }
 
   return (
-    <div>
+    <div className={kid.campus === "preschool" ? "gips gips-body" : ""}>
       <div className="card" style={{ marginBottom: "1rem" }}>
         <div className="spread">
           <div className="row">
-            <div className="avatar-lg" style={{ background: kid.campus === "preschool" ? "var(--gold-50)" : "var(--green-50)", color: kid.campus === "preschool" ? "#8a6410" : "var(--green)" }}>
+            <div className="avatar-lg" style={{ background: kid.campus === "preschool" ? "var(--cream)" : "var(--peri-l)", color: kid.campus === "preschool" ? "var(--gips-deep)" : "var(--maroon)", border: kid.campus === "preschool" ? "1px solid var(--sun2)" : "1px solid var(--peri-2)", fontFamily: kid.campus === "preschool" ? "var(--fpd)" : "var(--fd)" }}>
               {kid.name.split(" ").map((w) => w[0]).join("").slice(0, 2)}
             </div>
             <div>
-              <h3>{kid.name}</h3>
-              <div className="small muted">{kid.class} · {kid.campus === "preschool" ? "Gill Pre-School" : "Gill International School"}</div>
+              <h3 style={kid.campus === "preschool" ? { fontFamily: "var(--fpd)", color: "var(--gips-deep)" } : undefined}>{kid.name}</h3>
+              <div className="small muted">{kid.class} · {kid.campus === "preschool" ? "Gill Pre-School (GIPS)" : "Gill International School"}</div>
             </div>
           </div>
-          <Badge tone={kid.campus === "preschool" ? "gold" : "green"}>{kid.campus === "preschool" ? "🌱 Pre-School" : "🏫 Main School"}</Badge>
+          {kid.campus === "preschool" ? <span className="chip-pre">🌱 Pre-School — Cambridge Early Years</span> : <Badge tone="purple">🏫 Main School — Cambridge Primary</Badge>}
         </div>
         {kid.readiness && (
           <div className="row" style={{ marginTop: "0.7rem" }}>

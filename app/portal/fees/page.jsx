@@ -80,11 +80,11 @@ export default function FeesPage() {
       <div className="grid grid-3" style={{ marginBottom: "1.2rem" }}>
         <div className="card stat"><span className="stat-label">Term total</span><span className="stat-value">{fmtUGX(bal.total)}</span></div>
         <div className="card stat"><span className="stat-label">Paid & reconciled</span><span className="stat-value" style={{ color: "var(--green)" }}>{fmtUGX(bal.paid)}</span></div>
-        <div className="card stat"><span className="stat-label">Auto sibling discount</span><span className="stat-value" style={{ color: "#a5781a" }}>{fmtUGX(bal.siblingDiscounts)}</span></div>
+        <div className="card stat"><span className="stat-label">Auto sibling discount</span><span className="stat-value" style={{ color: "#8a6410" }}>{fmtUGX(bal.siblingDiscounts)}</span></div>
       </div>
 
       {current && (
-        <div className="card" style={{ marginBottom: "1.4rem", borderColor: bal.balance > 0 ? "var(--gold)" : "var(--green)" }}>
+        <div className="card" style={{ marginBottom: "1.4rem", borderColor: bal.balance > 0 ? "var(--maroon-2)" : "var(--leaf)" }}>
           <div className="spread">
             <div>
               <h3>{current.term} — consolidated statement (both children)</h3>

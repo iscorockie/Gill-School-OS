@@ -80,7 +80,7 @@ export default function LeavePage() {
         </div>
       </div>
 
-      <div className="card" style={{ marginTop: "1.2rem", background: "var(--blue-50)", borderColor: "var(--blue)" }}>
+      <div className="card" style={{ marginTop: "1.2rem", background: "var(--peri-l)", borderColor: "var(--peri-2)" }}>
         <b>📅 Planning ahead?</b>
         <p className="small">
           Long absences (3+ days) also sync to the class attendance register automatically once approved. For emergency same-day absences,

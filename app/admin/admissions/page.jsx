@@ -51,10 +51,10 @@ export default function AdmissionsPage() {
               <div className="card" key={t.id}>
                 <div className="spread">
                   <div className="row">
-                    <div className="avatar-lg" style={{ background: "var(--green-50)", color: "var(--green)" }}>{kid?.name.split(" ").map((w) => w[0]).join("").slice(0, 2)}</div>
+                    <div className="avatar-lg" style={{ background: "var(--peri-l)", color: "var(--maroon)", border: "1px solid var(--peri-2)" }}>{kid?.name.split(" ").map((w) => w[0]).join("").slice(0, 2)}</div>
                     <div>
                       <h3>{kid?.name}</h3>
-                      <div className="small muted">{kid?.class} → <b style={{ color: "var(--green)" }}>{t.targetClass}</b> · {fam?.name} family</div>
+                      <div className="small muted">{kid?.class} → <b style={{ color: "var(--maroon)" }}>{t.targetClass}</b> · {fam?.name} family</div>
                     </div>
                   </div>
                   <Badge tone={t.status === "enrolled" ? "green" : "gold"}>{t.status}</Badge>
@@ -73,12 +73,15 @@ export default function AdmissionsPage() {
             );
           })}
 
-          <div className="card" style={{ borderStyle: "dashed" }}>
+          <div className="card soon">
             <h3>＋ Start a new transition</h3>
             <p className="small muted">Pick a Pre-School pupil who is ready for Primary 1. Their records are already on file — this takes one click.</p>
             {presKids.filter((k) => !db.transitions.some((t) => t.studentId === k.id)).map((k) => (
               <div className="list-item row" key={k.id} style={{ justifyContent: "space-between" }}>
-                <span>{k.name} · {k.class} <span className="badge gray">{k.readiness?.assessment || "on track"}</span></span>
+                <span>
+                  <span className="chip-pre">🌱</span> <b style={{ fontFamily: "var(--fpd)" }}>{k.name}</b> · {k.class}{" "}
+                  <span className="badge gray">{k.readiness?.assessment || "on track"}</span>
+                </span>
                 <button className="btn secondary sm" onClick={() => act("initiateTransition", { studentId: k.id, by: "u-admissions", notes }, `Transition initiated for ${k.name}.`)}>Initiate</button>
               </div>
             ))}
@@ -95,7 +98,7 @@ export default function AdmissionsPage() {
                 const kid = db.studentIndex[d.studentId];
                 return (
                   <tr key={d.id}>
-                    <td><b>{kid?.name}</b><div className="small muted">{kid?.campus === "preschool" ? "🌱 Pre-School" : "🏫 Main"}</div></td>
+                    <td><b style={kid?.campus === "preschool" ? { fontFamily: "var(--fpd)" } : undefined}>{kid?.name}</b><div className="small muted">{kid?.campus === "preschool" ? "🌱 Gill Pre-School" : "🏫 Main School"}</div></td>
                     <td>{d.type}</td>
                     <td className="mono small">{d.name}</td>
                     <td className="small">{fmtDate(d.uploadedAt)}</td>
@@ -124,7 +127,7 @@ export default function AdmissionsPage() {
           {presKids.map((k) => (
             <div className="list-item spread" key={k.id}>
               <div>
-                <b>{k.name}</b> · <span className="small muted">{k.class} · {k.family.name} family</span>
+                <b style={{ fontFamily: "var(--fpd)" }}>{k.name}</b> · <span className="small muted">{k.class} · {k.family.name} family</span>
                 <div className="small muted">Documents: {db.documents.filter((d) => d.studentId === k.id).length} on file</div>
               </div>
               <Badge tone="green">enrolled</Badge>
@@ -148,7 +151,7 @@ export default function AdmissionsPage() {
           <Field label="Notes (optional)">
             <textarea rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} />
           </Field>
-          <div className="quote" style={{ background: "var(--green-50)", borderColor: "var(--green)" }}>
+          <div className="quote" style={{ background: "var(--peri-l)", borderColor: "var(--maroon-2)" }}>
             <b>On enrolment the system will:</b>
             <div className="small">① move the pupil to the Main School campus · ② create a first-term invoice (tuition + records fee) ·
             ③ notify the Bursar and Admissions · ④ log everything in the audit trail.</div>

@@ -64,7 +64,7 @@ export function Stat({ label, value, sub, tone }) {
   return (
     <div className="card stat">
       <span className="stat-label">{label}</span>
-      <span className="stat-value" style={tone === "gold" ? { color: "#a5781a" } : tone === "red" ? { color: "var(--red)" } : tone === "blue" ? { color: "var(--blue)" } : undefined}>{value}</span>
+      <span className="stat-value" style={tone === "gold" ? { color: "#8a6410" } : tone === "red" ? { color: "var(--red)" } : tone === "blue" ? { color: "var(--blue)" } : undefined}>{value}</span>
       {sub ? <span className="small muted">{sub}</span> : null}
     </div>
   );

@@ -29,13 +29,13 @@ export default function Landing() {
           </p>
           <div className="cta">
             <a className="btn gold" href="/portal">Open Parent Portal →</a>
-            <a className="btn" style={{ background: "rgba(255,255,255,0.12)", borderColor: "rgba(255,255,255,0.4)" }} href="/admin">Admin Console</a>
-            <a className="btn secondary" href="/api/ics?campus=all" style={{ background: "transparent", color: "#fff", borderColor: "rgba(255,255,255,0.4)" }}>📅 Sync Calendar (.ics)</a>
+            <a className="btn-hero-ghost" href="/admin">Admin Console</a>
+            <a className="btn-hero-ghost" href="/api/ics?campus=all">📅 Sync Calendar (.ics)</a>
           </div>
         </div>
       </section>
 
-      <section className="container" style={{ marginTop: "-2.6rem", position: "relative", zIndex: 2 }}>
+      <section className="container" style={{ marginTop: "-3rem", position: "relative", zIndex: 2 }}>
         <div className="grid grid-4">
           {[
             ["🌱", "Pre-School", "Nursery 2 & Pre-K, play-based Cambridge Early Years"],
@@ -45,7 +45,7 @@ export default function Landing() {
           ].map(([ico, t, d]) => (
             <div className="card" key={t}>
               <div style={{ fontSize: "1.5rem" }}>{ico}</div>
-              <b>{t}</b>
+              <b style={{ fontFamily: "var(--fd)" }}>{t}</b>
               <div className="small muted">{d}</div>
             </div>
           ))}
@@ -67,14 +67,15 @@ export default function Landing() {
 
       <section className="container">
         <div className="grid grid-2" style={{ alignItems: "stretch" }}>
-          <div className="card" style={{ background: "var(--green)", color: "#fff", borderColor: "var(--green)" }}>
+          <div className="card surface-deep">
+            <span className="chip-pre" style={{ marginBottom: "0.6rem", display: "inline-flex" }}>🌱 Pre-School → Main School</span>
             <h3 style={{ color: "#fff" }}>A real parent, a real transition</h3>
-            <div className="quote" style={{ background: "rgba(255,255,255,0.1)", borderColor: "var(--gold)", color: "#fff" }}>
+            <div className="quote" style={{ background: "rgba(255,255,255,0.08)", borderColor: "var(--sun2)", color: "#fff" }}>
               “Moving Maya from Gill Pre-School to the International School felt like one school, not two —
               my children share one dashboard, one fee statement, and the team already knew her records.”
-              <div className="small" style={{ marginTop: "0.4rem", color: "var(--gold)" }}>— Nansubuga family, Najjera</div>
+              <div className="small" style={{ marginTop: "0.4rem", color: "var(--sun2)" }}>— Nansubuga family, Najjera</div>
             </div>
-            <p className="small" style={{ color: "rgba(255,255,255,0.8)", marginTop: "0.9rem" }}>
+            <p className="small" style={{ color: "rgba(255,255,255,0.82)", marginTop: "0.9rem" }}>
               That testimonial is now a built-in workflow: automated sibling discounts, one-click record migration,
               and consolidated billing across campuses.
             </p>
@@ -89,7 +90,7 @@ export default function Landing() {
                 ["UGX 20,000 / late pickup", "late-fee revenue captured automatically by the gate log"],
               ].map(([v, d]) => (
                 <div className="row" key={d}>
-                  <div className="badge green" style={{ fontSize: "0.95rem", padding: "0.4rem 0.8rem" }}>{v}</div>
+                  <div className="badge green" style={{ fontSize: "0.95rem", padding: "0.4rem 0.85rem" }}>{v}</div>
                   <span className="small">{d}</span>
                 </div>
               ))}
@@ -98,16 +99,19 @@ export default function Landing() {
         </div>
       </section>
 
-      <footer style={{ borderTop: "1px solid var(--line)", marginTop: "2.5rem", padding: "1.6rem 0 2.4rem" }}>
+      <footer className="footer-dark" style={{ marginTop: "2.5rem", padding: "1.7rem 0 2.2rem" }}>
         <div className="container spread">
-          <div>
-            <b style={{ fontFamily: "ui-serif, Georgia, serif" }}>Gill School OS</b>
-            <div className="small muted">Demo platform — Gill International School & Gill Pre-School, Najjera, Kampala</div>
+          <div className="row" style={{ gap: "0.8rem" }}>
+            <img src="/logo.png" alt="Gill International School logo" style={{ height: 52, borderRadius: 10, background: "#fff", padding: "4px 8px" }} />
+            <div>
+              <b style={{ fontFamily: "var(--fd)", fontSize: "1.05rem", display: "block" }}>Gill School OS</b>
+              <div className="small" style={{ color: "#cbb9bb" }}>Demo platform — Gill International School & Gill Pre-School, Najjera, Kampala</div>
+            </div>
           </div>
           <div className="row">
-            <a href="/portal" className="btn secondary sm">Parent Portal</a>
-            <a href="/admin" className="btn secondary sm">Admin Console</a>
-            <a href="/api/ics?campus=all" className="btn secondary sm">📅 .ics</a>
+            <a href="/portal" className="btn sm">Parent Portal</a>
+            <a href="/admin" className="btn-hero-ghost" style={{ padding: "0.5rem 1.1rem", fontSize: "0.85rem" }}>Admin Console</a>
+            <a href="/api/ics?campus=all" className="btn-hero-ghost" style={{ padding: "0.5rem 1.1rem", fontSize: "0.85rem" }}>📅 .ics</a>
           </div>
         </div>
       </footer>

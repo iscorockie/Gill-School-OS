@@ -52,9 +52,9 @@ export default function OrdersPage() {
         <span className="muted small">Order exact quantities before term start — no dead stock, no last-minute shortages</span>
       </div>
 
-      <div className="card" style={{ marginBottom: "1.2rem", background: "var(--gold-50)", borderColor: "var(--gold)" }}>
+      <div className="card gips" style={{ marginBottom: "1.2rem" }}>
         <b>⏰ Order for {db.meta.currentTerm} closes Friday 4 September.</b>
-        <p className="small" style={{ margin: "0.2rem 0 0" }}>
+        <p className="small muted" style={{ margin: "0.2rem 0 0" }}>
           Items are collected on the first day of term. Payment online (Mobile Money / card) or at the Bursar's office.
         </p>
       </div>

@@ -17,11 +17,11 @@ export default function CalendarPage() {
         <span className="muted small">Sync to Google or Apple — reminders included</span>
       </div>
 
-      <div className="card" style={{ marginBottom: "1.2rem", background: "var(--green-50)", borderColor: "var(--green)" }}>
+      <div className="card" style={{ marginBottom: "1.2rem", background: "var(--peri-l)", borderColor: "var(--peri-2)" }}>
         <div className="spread">
           <div>
             <b>📅 One-tap calendar sync</b>
-            <p className="small" style={{ margin: "0.25rem 0 0" }}>
+            <p className="small muted" style={{ margin: "0.25rem 0 0" }}>
               Sports Days, Coffee Mornings, Science Fairs and term dates — subscribe once and they stay in your personal calendar forever.
             </p>
           </div>
@@ -34,27 +34,38 @@ export default function CalendarPage() {
       </div>
 
       <div className="grid grid-2">
-        {db.events.map((e) => (
-          <div className="card" key={e.id}>
-            <div className="spread">
-              <div className="row">
-                <div style={{ textAlign: "center", background: "var(--gold-50)", border: "1px solid var(--gold)", borderRadius: 12, padding: "0.35rem 0.7rem" }}>
-                  <div style={{ fontWeight: 800, fontSize: "1.2rem", color: "#8a6410" }}>{new Date(e.date + "T00:00:00").getDate()}</div>
-                  <div className="small muted" style={{ textTransform: "uppercase", fontSize: "0.65rem" }}>{new Date(e.date + "T00:00:00").toLocaleString("en", { month: "short" })}</div>
+        {db.events.map((e) => {
+          const pre = e.audience === "preschool";
+          return (
+            <div className={`card ${pre ? "gips" : ""}`} key={e.id}>
+              <div className="spread">
+                <div className="row">
+                  <div style={{
+                    textAlign: "center", borderRadius: 12, padding: "0.35rem 0.7rem",
+                    background: pre ? "var(--cream)" : "var(--peri-l)",
+                    border: pre ? "1px solid var(--sun2)" : "1px solid var(--peri-2)",
+                  }}>
+                    <div style={{ fontWeight: 800, fontSize: "1.2rem", color: pre ? "var(--gips-deep)" : "var(--maroon)", fontFamily: "var(--fd)" }}>{new Date(e.date + "T00:00:00").getDate()}</div>
+                    <div className="small muted" style={{ textTransform: "uppercase", fontSize: "0.65rem" }}>{new Date(e.date + "T00:00:00").toLocaleString("en", { month: "short" })}</div>
+                  </div>
+                  <div>
+                    <b style={pre ? { fontFamily: "var(--fpd)" } : undefined}>{e.title}</b>
+                    <div className="small muted">{e.time} · {e.location}</div>
+                  </div>
                 </div>
-                <div>
-                  <b>{e.title}</b>
-                  <div className="small muted">{e.time} · {e.location}</div>
-                </div>
+                {pre ? (
+                  <span className="chip-pre">🌱 GIPS</span>
+                ) : (
+                  <Badge tone={e.category === "Sports" ? "gold" : e.category === "Community" ? "blue" : e.category === "Ceremony" ? "purple" : "gray"}>{e.category}</Badge>
+                )}
               </div>
-              <Badge tone={e.category === "Sports" ? "gold" : e.category === "Community" ? "blue" : e.category === "Ceremony" ? "purple" : "gray"}>{e.category}</Badge>
+              <div className="small muted" style={{ marginTop: "0.5rem" }}>
+                Audience: {e.audience === "preschool" ? "Pre-School families" : e.audience === "all" ? "Whole school" : "Parents"}
+                {e.audience === "all" && !e.title.includes("Pre-School") ? " · Primary & Secondary" : ""}
+              </div>
             </div>
-            <div className="small muted" style={{ marginTop: "0.5rem" }}>
-              Audience: {e.audience === "preschool" ? "Pre-School families" : e.audience === "all" ? "Whole school" : "Parents"}
-              {e.audience === "all" && !e.title.includes("Pre-School") ? " · Primary & Secondary" : ""}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

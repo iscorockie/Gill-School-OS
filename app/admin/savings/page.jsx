@@ -76,7 +76,7 @@ export default function SavingsPage() {
         </div>
       </div>
 
-      <div className="card" style={{ marginTop: "1.2rem", background: "var(--green-50)", borderColor: "var(--green)" }}>
+      <div className="card" style={{ marginTop: "1.2rem", background: "var(--peri-l)", borderColor: "var(--peri-2)" }}>
         <h3>🗣️ The pitch to leadership</h3>
         <p className="small" style={{ margin: "0.3rem 0 0" }}>
           Gill School OS doesn't just digitise the website — it <b>pays for itself</b>. It replaces premium third-party apps, reclaims

@@ -128,7 +128,7 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      <div className="card" style={{ marginTop: "1.2rem", background: "var(--green-50)", borderColor: "var(--green)" }}>
+      <div className="card" style={{ marginTop: "1.2rem", background: "var(--peri-l)", borderColor: "var(--peri-2)" }}>
         <div className="spread">
           <div>
             <b>🔑 Demo access</b>

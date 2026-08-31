@@ -18,20 +18,20 @@ export default function PortalHome() {
 
   return (
     <div>
-      <div className="card" style={{ background: "linear-gradient(135deg,#0b6b4f,#0f8262)", borderColor: "transparent", color: "#fff", marginBottom: "1.2rem" }}>
+      <div className="card surface-deep" style={{ marginBottom: "1.2rem" }}>
         <div className="spread">
           <div>
-            <span style={{ color: "var(--gold)", fontWeight: 700, fontSize: "0.78rem", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+            <span style={{ color: "var(--sun2)", fontWeight: 700, fontSize: "0.78rem", letterSpacing: "0.12em", textTransform: "uppercase" }}>
               {db.meta.currentTerm}
             </span>
-            <h2 style={{ color: "#fff", margin: "0.25rem 0 0.4rem" }}>Karibu, {family.name} family 👋</h2>
+            <h2 style={{ color: "#fff", margin: "0.3rem 0 0.4rem" }}>Karibu, {family.name} family 👋</h2>
             <p style={{ color: "rgba(255,255,255,0.85)", fontSize: "0.92rem" }}>
               {kids.length} children across both campuses · {pres ? "Pre-School" : ""}{pres && main ? " + " : ""}{main ? "International School" : ""} · one account, one fee statement.
             </p>
           </div>
-          <div className="card" style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.25)", minWidth: 230 }}>
-            <span className="stat-label" style={{ color: "rgba(255,255,255,0.7)" }}>Balance due · {db.meta.currentTerm}</span>
-            <div style={{ fontSize: "1.7rem", fontWeight: 800, fontFamily: "ui-serif, Georgia, serif" }}>{fmtUGX(bal.balance)}</div>
+          <div className="card" style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(201,212,242,0.4)", minWidth: 230 }}>
+            <span className="stat-label" style={{ color: "rgba(255,255,255,0.72)" }}>Balance due · {db.meta.currentTerm}</span>
+            <div style={{ fontSize: "1.7rem", fontWeight: 800, fontFamily: "var(--fd)" }}>{fmtUGX(bal.balance)}</div>
             <Progress pct={(bal.paid / Math.max(1, bal.total)) * 100} gold />
             <div className="small" style={{ color: "rgba(255,255,255,0.8)", marginTop: "0.35rem" }}>
               {fmtUGX(bal.paid)} paid of {fmtUGX(bal.total)}
@@ -40,9 +40,9 @@ export default function PortalHome() {
         </div>
         <div className="row" style={{ marginTop: "1rem" }}>
           <Link className="btn gold" href="/portal/fees">Pay with Mobile Money</Link>
-          <Link className="btn" style={{ background: "rgba(255,255,255,0.12)", borderColor: "rgba(255,255,255,0.4)", color: "#fff" }} href="/portal/leave">Request absence</Link>
+          <Link className="btn-hero-ghost" href="/portal/leave" style={{ padding: "0.7rem 1.5rem" }}>Request absence</Link>
           {notes.length > 0 && (
-            <Link className="btn" style={{ background: "rgba(255,255,255,0.12)", borderColor: "rgba(255,255,255,0.4)", color: "#fff" }} href="/portal/news">
+            <Link className="btn-hero-ghost" href="/portal/news" style={{ padding: "0.7rem 1.5rem" }}>
               🔔 {notes.length} unread
             </Link>
           )}
@@ -60,12 +60,31 @@ export default function PortalHome() {
         <div className="card">
           <h3>👦👧 Your children</h3>
           {kids.map((k) => (
-            <div className="list-item" key={k.id}>
+            <div className={`list-item ${k.campus === "preschool" ? "gips-body" : ""}`} key={k.id}>
               <div className="spread">
-                <div>
-                  <b>{k.name}</b>{" "}
-                  <Badge tone={k.campus === "preschool" ? "gold" : "green"}>{k.campus === "preschool" ? "🌱 Pre-School" : "🏫 International School"}</Badge>
-                  <div className="small muted">{k.class} · {k.campus === "main" ? "Cambridge Primary" : "Cambridge Early Years"}</div>
+                <div className="row">
+                  <div className="avatar-lg" style={{
+                    width: 40, height: 40, fontSize: "0.95rem",
+                    background: k.campus === "preschool" ? "var(--cream)" : "var(--peri-l)",
+                    border: k.campus === "preschool" ? "1px solid var(--sun2)" : "1px solid var(--peri-2)",
+                    color: k.campus === "preschool" ? "var(--gips-deep)" : "var(--maroon)",
+                    fontFamily: k.campus === "preschool" ? "var(--fpd)" : "var(--fd)",
+                  }}>
+                    {k.name.split(" ").map((w) => w[0]).join("").slice(0, 2)}
+                  </div>
+                  <div>
+                    {k.campus === "preschool" ? (
+                      <b style={{ fontFamily: "var(--fpd)" }}>{k.name}</b>
+                    ) : (
+                      <b>{k.name}</b>
+                    )}{" "}
+                    {k.campus === "preschool" ? (
+                      <span className="chip-pre">🌱 Gill Pre-School</span>
+                    ) : (
+                      <Badge tone="purple">🏫 Gill International School</Badge>
+                    )}
+                    <div className="small muted">{k.class} · {k.campus === "main" ? "Cambridge Primary" : "Cambridge Early Years"}</div>
+                  </div>
                 </div>
                 <span className="small muted">{k.campus === "preschool" ? `Attending since ${fmtDate(k.startDate)}` : `Year 5 · since ${fmtDate(k.startDate)}`}</span>
               </div>
@@ -90,7 +109,7 @@ export default function PortalHome() {
         </div>
       </div>
 
-      <div className="card" style={{ marginTop: "1.2rem", background: "var(--gold-50)", borderColor: "var(--gold)" }}>
+      <div className="card gips" style={{ marginTop: "1.2rem" }}>
         <div className="spread">
           <div>
             <b>🧾 Pre-order window closes Friday 4 September</b>

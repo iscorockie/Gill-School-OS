@@ -87,7 +87,7 @@ export default function Shell({ mode = "portal", user, subtitle, children }) {
       <div className="wrap">
         <aside className="sidebar">
           <div className="brand">
-            <div className="crest">G</div>
+            <img src="/logo.png" alt="Gill International School logo" />
             <div>
               <b>Gill School OS</b>
               <span>{brand} · Najjera</span>

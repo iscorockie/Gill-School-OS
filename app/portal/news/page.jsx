@@ -43,10 +43,14 @@ export default function NewsPage() {
       {tab === "notices" && (
         <div className="grid grid-2">
           {db.notices.map((n) => (
-            <div className="card" key={n.id}>
+            <div className={`card ${n.audience === "preschool" ? "gips" : ""}`} key={n.id}>
               <div className="spread">
-                <b>{n.title}</b>
-                <Badge tone={n.audience === "preschool" ? "gold" : n.audience === "parents" ? "blue" : "gray"}>{n.audience}</Badge>
+                <b style={n.audience === "preschool" ? { fontFamily: "var(--fpd)" } : undefined}>{n.title}</b>
+                {n.audience === "preschool" ? (
+                  <span className="chip-pre">🌱 Pre-School</span>
+                ) : (
+                  <Badge tone={n.audience === "parents" ? "blue" : "gray"}>{n.audience}</Badge>
+                )}
               </div>
               <p className="small muted">{n.body}</p>
               <div className="small muted">{n.author} · {fmtDate(n.date)}</div>
