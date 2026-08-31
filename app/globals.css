@@ -398,8 +398,19 @@ tr:last-child td { border-bottom: none; }
 .footer-dark { background: linear-gradient(180deg, var(--deep), var(--deep-2)); color: #f4e7e8; position: relative; overflow: hidden; }
 .footer-dark::before { content: ""; position: absolute; inset: 0; background-image: var(--noise); opacity: 0.6; pointer-events: none; }
 .footer-dark > * { position: relative; z-index: 1; }
-.footer-dark a { color: var(--peri); }
+.footer-dark a { color: var(--peri); text-decoration: none; }
+.footer-dark a:hover { color: #fff; }
 .footer-dark .muted, .footer-dark .small { color: #cbb9bb; }
+
+/* ---------------- Landing: footer grid ---------------- */
+.footer-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 1fr); gap: 2.4rem; align-items: start; padding-bottom: 2rem; border-bottom: 1px solid rgba(255, 255, 255, 0.09); }
+.f-title { display: block; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--peri-2); }
+.f-links { display: grid; }
+.f-links a { padding: 0.1rem 0; transition: color .15s ease, transform .15s ease; }
+.f-links a:hover { transform: translateX(2px); }
+.footer-bottom { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.6rem; padding-top: 1.2rem; color: #9d8a8d; font-size: 0.82rem; }
+.footer-bottom a { color: var(--peri); }
+@media (max-width: 900px) { .footer-grid { grid-template-columns: 1fr; gap: 1.6rem; } .footer-bottom { flex-direction: column; align-items: flex-start; gap: 0.4rem; } }
 
 .soon { border-style: dashed; background: var(--peri-l); }
 
@@ -479,8 +490,9 @@ tr:last-child td { border-bottom: none; }
 
 .mosaic { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 150px; gap: 0.9rem; }
 .mosaic .g { border-radius: 18px; overflow: hidden; position: relative; box-shadow: var(--shadow-s); }
-.mosaic .g:first-child { grid-column: span 2; grid-row: span 2; }
-.mosaic .g:nth-child(5) { grid-column: span 2; }
+/* 8 images fill a perfect 4×3 grid: hero 2×2 + 4 singles + 2-span + 2 singles */
+.mosaic .g1 { grid-column: span 2; grid-row: span 2; }
+.mosaic .g6 { grid-column: span 2; }
 .mosaic .g img { width: 100%; height: 100%; object-fit: cover; transition: transform .55s ease; }
 .mosaic .g:hover img { transform: scale(1.06); }
 .mosaic .g::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 55%, rgba(59, 13, 16, 0.72)); opacity: 0; transition: opacity .25s ease; }
@@ -490,7 +502,7 @@ tr:last-child td { border-bottom: none; }
   font-size: 0.84rem; letter-spacing: 0.02em; opacity: 0; transform: translateY(6px); transition: opacity .25s ease, transform .25s ease;
 }
 .mosaic .g:hover .cap { opacity: 1; transform: translateY(0); }
-@media (max-width: 800px) { .mosaic { grid-template-columns: repeat(2, 1fr); } .mosaic .g:first-child, .mosaic .g:nth-child(5) { grid-column: span 2; } }
+@media (max-width: 800px) { .mosaic { grid-template-columns: repeat(2, 1fr); } .mosaic .g1, .mosaic .g6 { grid-column: span 2; } }
 
 /* ---------------- Landing: journey steps ---------------- */
 .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; position: relative; }
