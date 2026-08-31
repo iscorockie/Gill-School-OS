@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useApp, Badge, Stat, Progress, fmtUGX, fmtDate } from "@/components/ui.jsx";
+import Icon from "@/components/icons.jsx";
 
 export default function AdminDashboard() {
   const { db } = useApp();
@@ -29,7 +30,7 @@ export default function AdminDashboard() {
       <div className="grid grid-2" style={{ marginBottom: "1.2rem" }}>
         <div className="card">
           <div className="spread">
-            <h3>💰 Term fee collection</h3>
+            <h3 style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}><Icon name="wallet" size={19} /> Term fee collection</h3>
             <span className="small muted">{Math.round((paid / Math.max(1, total)) * 100)}% collected</span>
           </div>
           <Progress pct={(paid / Math.max(1, total)) * 100} />
@@ -54,29 +55,35 @@ export default function AdminDashboard() {
         </div>
 
         <div className="card">
-          <h3>🚨 Needs attention</h3>
+          <h3 style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}><Icon name="alert" size={18} /> Needs attention</h3>
           <div className="list-item">
             <div className="spread">
-              <b>⏳ {term.pendingLeaves} pending leave {term.pendingLeaves === 1 ? "request" : "requests"}</b>
+              <b>{term.pendingLeaves} pending leave {term.pendingLeaves === 1 ? "request" : "requests"}</b>
               <Link className="btn ghost sm" href="/admin/leaves">Review</Link>
             </div>
           </div>
           <div className="list-item">
             <div className="spread">
-              <b>🧾 {term.pendingDocs} documents awaiting admissions verification</b>
+              <b>{term.pendingDocs} documents awaiting admissions verification</b>
               <Link className="btn ghost sm" href="/admin/admissions">Review</Link>
             </div>
           </div>
           <div className="list-item">
             <div className="spread">
-              <b>🎓 {term.openTransitions} Pre-School → Main School transition{term.openTransitions === 1 ? "" : "s"} ready</b>
-              <Link className="btn ghost sm" href="/admin/admissions">One-click migrate</Link>
+              <b>{term.openTransitions} Pre-School → Main School transition{term.openTransitions === 1 ? "" : "s"} ready</b>
+              <Link className="btn ghost sm" href="/admin/admissions">View</Link>
             </div>
           </div>
           <div className="list-item">
             <div className="spread">
-              <b>👕 {fmtUGX(term.ordersValue)} in pre-orders this term</b>
+              <b>{fmtUGX(term.ordersValue)} in pre-orders this term</b>
               <Link className="btn ghost sm" href="/portal/orders">View</Link>
+            </div>
+          </div>
+          <div className="list-item">
+            <div className="spread">
+              <b>{term.studentAccounts} student portal account{term.studentAccounts === 1 ? "" : "s"} active</b>
+              <Link className="btn ghost sm" href="/admin/admissions">Manage</Link>
             </div>
           </div>
         </div>
@@ -84,7 +91,7 @@ export default function AdminDashboard() {
 
       <div className="grid grid-2">
         <div className="card">
-          <h3>🕔 Gate log — late collections</h3>
+          <h3 style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}><Icon name="gate" size={19} /> Gate log — late collections</h3>
           {db.pickups.slice(0, 5).map((p) => {
             const kid = db.studentIndex[p.studentId];
             return (
@@ -110,7 +117,7 @@ export default function AdminDashboard() {
         </div>
 
         <div className="card">
-          <h3>📈 Live audit trail (last actions)</h3>
+          <h3 style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}><Icon name="clock" size={19} /> Recent activity</h3>
           {db.feesAudit.slice(0, 5).map((a) => (
             <div className="list-item" key={a.id}>
               <div className="spread">
@@ -122,8 +129,7 @@ export default function AdminDashboard() {
               </div>
             </div>
           ))}
-          <p className="small muted" style={{ marginTop: "0.5rem" }}>
-            Every shilling the system moves is logged — perfect for the Bursar's audit.
+          <p className="small muted" style={{ marginTop: "0.5rem" }}> Every shilling the system moves is logged — perfect for the Bursar's audit.
           </p>
         </div>
       </div>
@@ -131,15 +137,16 @@ export default function AdminDashboard() {
       <div className="card" style={{ marginTop: "1.2rem", background: "var(--peri-l)", borderColor: "var(--peri-2)" }}>
         <div className="spread">
           <div>
-            <b>🔑 Demo access</b>
-            <p className="small" style={{ margin: "0.2rem 0 0" }}>
-              Parent: <span className="mono">Amina Nansubuga</span> · Bursar: <span className="mono">Mr. Isaac Twesigye</span> ·
-              Admissions: <span className="mono">Mrs. Mary Kyomukama</span> · Gate: <span className="mono">Mr. Peter Othieno</span>
+            <b>Demo access</b>
+            <p className="small" style={{ margin: "0.2rem 0 0" }}> Parent: <span className="mono">Amina Nansubuga</span> · Bursar: <span className="mono">Mr. Isaac Twesigye</span> ·
+              Admissions: <span className="mono">Mrs. Mary Kyomukama</span> · Student: <span className="mono">jordan.nansubuga / gill123</span>
             </p>
           </div>
           <div className="row">
             <Link className="btn secondary sm" href="/">Landing page</Link>
-            <button className="btn ghost sm" onClick={() => fetch("/api/reset", { method: "POST" }).then(() => location.reload())}>↺ Reset demo data</button>
+            <button className="btn ghost sm" onClick={() => fetch("/api/reset", { method: "POST" }).then(() => location.reload())}>
+              <Icon name="refresh" size={14} /> Reset demo data
+            </button>
           </div>
         </div>
       </div>

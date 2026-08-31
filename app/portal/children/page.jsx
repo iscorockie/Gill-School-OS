@@ -38,7 +38,7 @@ function KidPanel({ db, kid }) {
               <div className="small muted">{kid.class} · {kid.campus === "preschool" ? "Gill Pre-School (GIPS)" : "Gill International School"}</div>
             </div>
           </div>
-          {kid.campus === "preschool" ? <span className="chip-pre">🌱 Pre-School — Cambridge Early Years</span> : <Badge tone="purple">🏫 Main School — Cambridge Primary</Badge>}
+          {kid.campus === "preschool" ? <span className="chip-pre">Pre-School — Cambridge Early Years</span> : <Badge tone="purple">Main School — Cambridge Primary</Badge>}
         </div>
         {kid.readiness && (
           <div className="row" style={{ marginTop: "0.7rem" }}>
@@ -49,7 +49,7 @@ function KidPanel({ db, kid }) {
       </div>
 
       <div className="card" style={{ marginBottom: "1rem" }}>
-        <h3>📈 Academic tracking — {kid.campus === "preschool" ? "early years observations" : "Cambridge assessments"}</h3>
+        <h3> Academic tracking — {kid.campus === "preschool" ? "early years observations" : "Cambridge assessments"}</h3>
         {assessments.length === 0 && <p className="muted small">No assessments yet this term.</p>}
         {assessments.map((a) => (
           <div className="list-item" key={a.id}>
@@ -65,22 +65,21 @@ function KidPanel({ db, kid }) {
             </div>
             {a.feedback && (
               <div className="quote" style={{ marginTop: "0.55rem", fontSize: "0.88rem" }}>
-                💬 <b>{db.studentIndex[a.studentId]?.name === kid.name ? db.users.find((u) => u.id === a.teacher)?.name : ""}:</b>{" "}
+                 <b>{db.studentIndex[a.studentId]?.name === kid.name ? db.users.find((u) => u.id === a.teacher)?.name : ""}:</b>{" "}
                 {a.feedback}
               </div>
             )}
           </div>
         ))}
         {kid.campus === "main" && (
-          <p className="small muted" style={{ marginTop: "0.5rem" }}>
-            📌 Checkpoint practice results appear here as they are marked — no need to wait for report cards on closing day.
+          <p className="small muted" style={{ marginTop: "0.5rem" }}> Checkpoint practice results appear here as they are marked — no need to wait for report cards on closing day.
           </p>
         )}
       </div>
 
       <div className="card">
         <div className="spread">
-          <h3>🗂️ Documents on file</h3>
+          <h3> Documents on file</h3>
           <Badge tone="blue">{docs.filter((d) => d.status === "verified").length} verified</Badge>
         </div>
         {docs.map((d) => (
@@ -111,8 +110,7 @@ function KidPanel({ db, kid }) {
             {uploading ? "Uploading…" : "Upload"}
           </button>
         </div>
-        <p className="small muted" style={{ marginTop: "0.4rem" }}>
-          🖨️ No paper needed — Admissions verifies these records online and they automatically carry forward on Pre-School → Main School transition.
+        <p className="small muted" style={{ marginTop: "0.4rem" }}> No paper needed — Admissions verifies these records online and they automatically carry forward on Pre-School → Main School transition.
         </p>
       </div>
     </div>
@@ -134,8 +132,7 @@ export default function ChildrenPage() {
         <span className="muted small">One dashboard for both campuses</span>
       </div>
 
-      <Tabs
-        tabs={family.children.map((c) => ({ id: c.id, label: `${c.name} · ${c.campus === "preschool" ? "Pre-School" : "Yr 5"}` }))}
+      <Tabs tabs={family.children.map((c) => ({ id: c.id, label: `${c.name} · ${c.campus === "preschool" ? "Pre-School" : "Yr 5"}` }))}
         active={kid.id}
         onChange={setKidId}
       />

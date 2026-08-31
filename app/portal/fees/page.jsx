@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useApp, Badge, Modal, Field, fmtUGX } from "@/components/ui.jsx";
 import { currentFamily, familyInvoices, balances } from "@/lib/client.js";
+import Icon from "@/components/icons.jsx";
 
 const CHANNELS = [
   { id: "MTN Mobile Money", logo: "MoMo", bg: "#ffcc00", color: "#1b1b1b", hint: "You'll receive a prompt on your phone" },
@@ -52,8 +53,7 @@ function PayModal({ inv, onClose }) {
       <button className="btn" style={{ width: "100%" }} disabled={busy || !amount} onClick={pay}>
         {busy ? "Processing…" : `Pay ${fmtUGX(amount)} →`}
       </button>
-      <p className="small muted" style={{ marginTop: "0.6rem", textAlign: "center" }}>
-        ⚡ Instant reconciliation: the Bursar's ledger clears automatically and a digital receipt is issued.
+      <p className="small muted" style={{ marginTop: "0.6rem", textAlign: "center" }}> Instant reconciliation: the Bursar's ledger clears automatically and a digital receipt is issued.
       </p>
     </Modal>
   );
@@ -124,7 +124,9 @@ export default function FeesPage() {
           </table>
           {current.balance > 0 && (
             <div style={{ marginTop: "0.9rem" }}>
-              <button className="btn gold" onClick={() => setPayInv(current)}>💳 {current.balance > 0 ? `Pay ${fmtUGX(current.balance)} now` : "Pay now"}</button>
+              <button className="btn gold" onClick={() => setPayInv(current)}>
+                <Icon name="card" size={16} /> {current.balance > 0 ? `Pay ${fmtUGX(current.balance)} now` : "Pay now"}
+              </button>
             </div>
           )}
         </div>
@@ -132,7 +134,7 @@ export default function FeesPage() {
 
       <div className="grid grid-2">
         <div className="card">
-          <h3>📲 How payments work</h3>
+          <h3> How payments work</h3>
           <div className="small muted" style={{ marginBottom: "0.7rem" }}>All three channels reconcile against the Bursar's ledger instantly.</div>
           {[
             ["MTN Mobile Money", "Pay directly from your phone — prompt arrives in seconds.", "yellow"],
@@ -148,7 +150,7 @@ export default function FeesPage() {
           <Link href="#" onClick={(e) => e.preventDefault()} className="small">View payment methods policy →</Link>
         </div>
         <div className="card">
-          <h3>🧾 Recent payments & receipts</h3>
+          <h3> Recent payments & receipts</h3>
           {receipts.length === 0 && <p className="muted small">No payments yet.</p>}
           {receipts.map((p) => (
             <div className="list-item" key={p.id}>

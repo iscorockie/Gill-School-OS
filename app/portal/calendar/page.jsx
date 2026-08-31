@@ -20,9 +20,8 @@ export default function CalendarPage() {
       <div className="card" style={{ marginBottom: "1.2rem", background: "var(--peri-l)", borderColor: "var(--peri-2)" }}>
         <div className="spread">
           <div>
-            <b>📅 One-tap calendar sync</b>
-            <p className="small muted" style={{ margin: "0.25rem 0 0" }}>
-              Sports Days, Coffee Mornings, Science Fairs and term dates — subscribe once and they stay in your personal calendar forever.
+            <b> One-tap calendar sync</b>
+            <p className="small muted" style={{ margin: "0.25rem 0 0" }}> Sports Days, Coffee Mornings, Science Fairs and term dates — subscribe once and they stay in your personal calendar forever.
             </p>
           </div>
           <div className="row">
@@ -54,13 +53,12 @@ export default function CalendarPage() {
                   </div>
                 </div>
                 {pre ? (
-                  <span className="chip-pre">🌱 GIPS</span>
+                  <span className="chip-pre">GIPS</span>
                 ) : (
                   <Badge tone={e.category === "Sports" ? "gold" : e.category === "Community" ? "blue" : e.category === "Ceremony" ? "purple" : "gray"}>{e.category}</Badge>
                 )}
               </div>
-              <div className="small muted" style={{ marginTop: "0.5rem" }}>
-                Audience: {e.audience === "preschool" ? "Pre-School families" : e.audience === "all" ? "Whole school" : "Parents"}
+              <div className="small muted" style={{ marginTop: "0.5rem" }}> Audience: {e.audience === "preschool" ? "Pre-School families" : e.audience === "all" ? "Whole school" : "Parents"}
                 {e.audience === "all" && !e.title.includes("Pre-School") ? " · Primary & Secondary" : ""}
               </div>
             </div>

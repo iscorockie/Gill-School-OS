@@ -33,7 +33,7 @@ export default function PickupsPage() {
 
       <div className="grid grid-2">
         <div className="card">
-          <h3>🚪 Log a checkout</h3>
+          <h3> Log a checkout</h3>
           <form onSubmit={checkout}>
             <Field label="Child">
               <select value={studentId || allStudents[0]?.id} onChange={(e) => setStudentId(e.target.value)}>
@@ -46,8 +46,7 @@ export default function PickupsPage() {
               <input required value={collector} onChange={(e) => setCollector(e.target.value)} placeholder="e.g. Amina Nansubuga (mother)" />
             </Field>
             <button className="btn" disabled={busy}>{busy ? "Logging…" : "Log checkout at current time"}</button>
-            <button
-              type="button"
+            <button type="button"
               className="btn secondary"
               style={{ marginTop: "0.5rem" }}
               disabled={busy}
@@ -60,18 +59,16 @@ export default function PickupsPage() {
                 } catch (err) { alert(err.message); }
                 setBusy(false);
               }}
-            >
-              🕔 Demo: simulate 5:07 pm checkout
+            > Demo: simulate 5:07 pm checkout
             </button>
           </form>
           <div className="quote" style={{ marginTop: "0.9rem" }}>
-            <b>Policy:</b> gate closes for pickup at <b>5:00 pm</b>. After that, a <b>UGX 20,000</b> late fee is added to the family's fee account automatically
-            and a polite SMS is sent — no manual tracking, no lost revenue.
+            <b>Policy:</b> gate closes for pickup at <b>5:00 pm</b>. After that, a <b>UGX 20,000</b> late fee is added to the family's fee account automatically and a polite SMS is sent — no manual tracking, no lost revenue.
           </div>
         </div>
 
         <div className="card">
-          <h3>🕔 Today's log</h3>
+          <h3> Today's log</h3>
           {db.pickups.slice(0, 8).map((p) => {
             const kid = db.studentIndex[p.studentId];
             return (
@@ -91,8 +88,7 @@ export default function PickupsPage() {
               </div>
             );
           })}
-          <p className="small muted" style={{ marginTop: "0.5rem" }}>
-            This term: <b>{fmtUGX(db.pickups.filter((p) => p.late).reduce((s, p) => s + p.fee, 0))}</b> in late fees captured automatically.
+          <p className="small muted" style={{ marginTop: "0.5rem" }}> This term: <b>{fmtUGX(db.pickups.filter((p) => p.late).reduce((s, p) => s + p.fee, 0))}</b> in late fees captured automatically.
           </p>
         </div>
       </div>

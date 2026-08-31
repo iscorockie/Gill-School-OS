@@ -40,8 +40,7 @@ export default function AcademicsPage() {
         <Badge tone="blue">Ms. Aisha Hassan · Mr. Brian Mugisha</Badge>
       </div>
 
-      <Tabs
-        tabs={[{ id: "record", label: "✍️ Record assessment" }, { id: "history", label: "📚 Assessment history" }]}
+      <Tabs tabs={[{ id: "record", label: " Record assessment" }, { id: "history", label: " Assessment history" }]}
         active={tab}
         onChange={setTab}
       />
@@ -76,13 +75,12 @@ export default function AcademicsPage() {
               </div>
               <Field label="Feedback to parent"><textarea rows={3} value={feedback} onChange={(e) => setFeedback(e.target.value)} placeholder="One encouraging, specific sentence." /></Field>
               <button className="btn" disabled={busy}>{busy ? "Saving…" : "Save & publish to parent"}</button>
-              <p className="small muted" style={{ marginTop: "0.6rem" }}>
-                ⚡ Saved assessments appear on the parent's dashboard immediately — continuous tracking, not just closing-day report cards.
+              <p className="small muted" style={{ marginTop: "0.6rem" }}> Saved assessments appear on the parent's dashboard immediately — continuous tracking, not just closing-day report cards.
               </p>
             </form>
           </div>
           <div className="card">
-            <h3>📈 {student?.name} — recent</h3>
+            <h3> {student?.name} — recent</h3>
             {myAssessments.slice(0, 6).map((a) => (
               <div className="list-item" key={a.id}>
                 <div className="spread">
@@ -92,7 +90,7 @@ export default function AcademicsPage() {
                     <div><Badge tone={Number(a.score) / Number(a.max) >= 0.75 ? "green" : "gold"}>{a.grade}</Badge></div>
                   </div>
                 </div>
-                {a.feedback && <div className="small muted">💬 {a.feedback}</div>}
+                {a.feedback && <div className="small muted"> {a.feedback}</div>}
               </div>
             ))}
           </div>

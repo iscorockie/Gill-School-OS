@@ -29,8 +29,7 @@ export default function LeavesPage() {
                 <div>
                   <b>{kid?.name}</b> · <span className="small">{fam?.name} family · {l.from} → {l.to}</span>
                   <div className="small">{l.reason || "No reason given"}</div>
-                  <div className="small muted">
-                    Notified automatically: {teachers.join(", ") || "—"} · submitted {fmtDate(l.date)}
+                  <div className="small muted"> Notified automatically: {teachers.join(", ") || "—"} · submitted {fmtDate(l.date)}
                   </div>
                 </div>
                 <div className="row" style={{ justifyContent: "flex-end" }}>

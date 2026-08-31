@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useApp, Badge, Stat, Progress } from "@/components/ui.jsx";
+import Icon from "@/components/icons.jsx";
 import { currentFamily, balances, notificationsFor } from "@/lib/client.js";
 import { fmtUGX, fmtDate } from "@/components/ui.jsx";
 
@@ -24,7 +25,7 @@ export default function PortalHome() {
             <span style={{ color: "var(--sun2)", fontWeight: 700, fontSize: "0.78rem", letterSpacing: "0.12em", textTransform: "uppercase" }}>
               {db.meta.currentTerm}
             </span>
-            <h2 style={{ color: "#fff", margin: "0.3rem 0 0.4rem" }}>Karibu, {family.name} family 👋</h2>
+            <h2 style={{ color: "#fff", margin: "0.3rem 0 0.4rem" }}>Karibu, {family.name} family </h2>
             <p style={{ color: "rgba(255,255,255,0.85)", fontSize: "0.92rem" }}>
               {kids.length} children across both campuses · {pres ? "Pre-School" : ""}{pres && main ? " + " : ""}{main ? "International School" : ""} · one account, one fee statement.
             </p>
@@ -43,7 +44,7 @@ export default function PortalHome() {
           <Link className="btn-hero-ghost" href="/portal/leave" style={{ padding: "0.7rem 1.5rem" }}>Request absence</Link>
           {notes.length > 0 && (
             <Link className="btn-hero-ghost" href="/portal/news" style={{ padding: "0.7rem 1.5rem" }}>
-              🔔 {notes.length} unread
+              <Icon name="bell" size={16} /> {notes.length} unread
             </Link>
           )}
         </div>
@@ -58,7 +59,7 @@ export default function PortalHome() {
 
       <div className="grid grid-2">
         <div className="card">
-          <h3>👦👧 Your children</h3>
+          <h3 style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}><Icon name="users" size={19} /> Your children</h3>
           {kids.map((k) => (
             <div className={`list-item ${k.campus === "preschool" ? "gips-body" : ""}`} key={k.id}>
               <div className="spread">
@@ -79,23 +80,23 @@ export default function PortalHome() {
                       <b>{k.name}</b>
                     )}{" "}
                     {k.campus === "preschool" ? (
-                      <span className="chip-pre">🌱 Gill Pre-School</span>
+                      <span className="chip-pre"> Gill Pre-School</span>
                     ) : (
-                      <Badge tone="purple">🏫 Gill International School</Badge>
+                      <Badge tone="purple"> Gill International School</Badge>
                     )}
                     <div className="small muted">{k.class} · {k.campus === "main" ? "Cambridge Primary" : "Cambridge Early Years"}</div>
                   </div>
                 </div>
                 <span className="small muted">{k.campus === "preschool" ? `Attending since ${fmtDate(k.startDate)}` : `Year 5 · since ${fmtDate(k.startDate)}`}</span>
               </div>
-              {k.featuredNote && <p className="small" style={{ marginTop: "0.45rem" }}>💬 {k.featuredNote}</p>}
+              {k.featuredNote && <p className="small" style={{ marginTop: "0.45rem" }}> {k.featuredNote}</p>}
             </div>
           ))}
           <Link href="/portal/children" className="btn secondary sm">View progress & documents →</Link>
         </div>
 
         <div className="card">
-          <h3>📜 Latest school notices</h3>
+          <h3 style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}><Icon name="bell" size={19} /> Latest school notices</h3>
           {db.notices.slice(0, 3).map((n) => (
             <div className="list-item" key={n.id}>
               <div className="spread">
@@ -112,7 +113,7 @@ export default function PortalHome() {
       <div className="card gips" style={{ marginTop: "1.2rem" }}>
         <div className="spread">
           <div>
-            <b>🧾 Pre-order window closes Friday 4 September</b>
+            <b><Icon name="clock" size={16} style={{ verticalAlign: "-3px", marginRight: "0.4rem" }} /> Pre-order window closes Friday 4 September</b>
             <div className="small muted">Uniforms (sports kit, house T-shirts) and Cambridge book packs for {db.meta.currentTerm}. Pay online and collect on day one.</div>
           </div>
           <Link className="btn sm" href="/portal/orders">Pre-order now</Link>

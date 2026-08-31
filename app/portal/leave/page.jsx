@@ -38,7 +38,7 @@ export default function LeavePage() {
 
       <div className="grid grid-2">
         <div className="card">
-          <h3>✍️ Submit a sickness / absence note</h3>
+          <h3> Submit a sickness / absence note</h3>
           <form onSubmit={submit}>
             <Field label="Child">
               <select value={selected} onChange={(e) => setStudentId(e.target.value)}>
@@ -51,14 +51,13 @@ export default function LeavePage() {
             </div>
             <Field label="Reason (optional)"><textarea rows={3} value={reason} onChange={(e) => setReason(e.target.value)} placeholder="e.g. Fever — seeing doctor on Tuesday." /></Field>
             <button className="btn" disabled={busy}>{busy ? "Submitting…" : "Submit request"}</button>
-            <p className="small muted" style={{ marginTop: "0.6rem" }}>
-              ⚡ On submit, the class teacher and front office receive an in-app notification; SMS goes to the class teacher's phone.
+            <p className="small muted" style={{ marginTop: "0.6rem" }}> On submit, the class teacher and front office receive an in-app notification; SMS goes to the class teacher's phone.
             </p>
           </form>
         </div>
 
         <div className="card">
-          <h3>📋 Requests & status</h3>
+          <h3> Requests & status</h3>
           {leaves.length === 0 && <p className="muted small">No requests yet.</p>}
           {leaves.map((l) => {
             const kid = db.studentIndex[l.studentId];
@@ -81,9 +80,8 @@ export default function LeavePage() {
       </div>
 
       <div className="card" style={{ marginTop: "1.2rem", background: "var(--peri-l)", borderColor: "var(--peri-2)" }}>
-        <b>📅 Planning ahead?</b>
-        <p className="small">
-          Long absences (3+ days) also sync to the class attendance register automatically once approved. For emergency same-day absences,
+        <b> Planning ahead?</b>
+        <p className="small"> Long absences (3+ days) also sync to the class attendance register automatically once approved. For emergency same-day absences,
           the front office still keeps a phone line — but the platform is the fastest route.
         </p>
       </div>

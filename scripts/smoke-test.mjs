@@ -68,6 +68,34 @@ check("event published", r.ok && r.db.events.some((e) => e.title.includes("Confe
 const ics = await (await fetch(`${BASE}/api/ics?campus=all`)).text();
 check("ICS contains new event", ics.includes("Parent–Teacher Conferences") && ics.includes("BEGIN:VCALENDAR"));
 
+// 10) Student portal account: parent creates a supervised account for a child
+r = await action("createStudentAccount", {
+  studentId: "s-pres-1",
+  username: "maya.nansubuga",
+  password: "maya123",
+  perms: { progress: true, homework: true, library: true, calendar: true, messages: true, fees: false },
+});
+check("student account created + supervised", r.ok && r.db.studentAccounts[0].supervisedBy === "u-parent-1" && r.db.studentAccounts[0].status === "active");
+
+// 11) Student sign-in with the parent-created credentials
+const login = await (await fetch(`${BASE}/api/student-login`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ username: "maya.nansubuga", password: "maya123" }),
+})).json();
+check("student login works", login.ok && login.session.studentId === "s-pres-1" && login.session.perms.fees === false);
+
+const badLogin = await (await fetch(`${BASE}/api/student-login`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ username: "maya.nansubuga", password: "nope" }),
+})).json();
+check("wrong password rejected", badLogin.ok === false);
+
+// 12) Pause/resume from the parent's account manager
+r = await action("updateStudentAccount", { accountId: r.db.studentAccounts[0].id, status: "paused" });
+check("parent can pause account", r.result.status === "paused");
+
 // Reset so the demo starts from a clean seed
 await fetch(`${BASE}/api/reset`, { method: "POST" });
 const clean = await state();

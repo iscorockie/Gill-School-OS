@@ -33,15 +33,14 @@ export default function ResourcesPage() {
                 <td><Badge tone={TYPE_TONE[r.type] || "gray"}>{r.type}</Badge></td>
                 <td className="small">{r.subject}</td>
                 <td className="small">{r.stage}</td>
-                <td className="small">{r.campus === "preschool" ? "🌱 Pre-School" : r.campus === "all" ? "All" : "🏫 Main"}</td>
+                <td className="small">{r.campus === "preschool" ? " Pre-School" : r.campus === "all" ? "All" : " Main"}</td>
                 <td>{r.downloads}</td>
                 <td><a className="btn secondary sm" href="#" onClick={(e) => e.preventDefault()}>Open ↗</a></td>
               </tr>
             ))}
           </tbody>
         </table>
-        <p className="small muted" style={{ marginTop: "0.7rem" }}>
-          💡 In production, links open the actual PDFs from the school's storage. Teachers upload new materials at the admin console.
+        <p className="small muted" style={{ marginTop: "0.7rem" }}> In production, links open the actual PDFs from the school's storage. Teachers upload new materials at the admin console.
         </p>
       </div>
     </div>

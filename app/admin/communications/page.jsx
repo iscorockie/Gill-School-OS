@@ -36,8 +36,8 @@ export default function CommunicationsPage() {
   return (
     <div>
       <div className="section-head">
-        <h2>In-House Communications</h2>
-        <Badge tone="green">replaces ClassDojo premium · $0 per seat</Badge>
+        <h2>Communications</h2>
+        <Badge tone="green">Notices · messaging · SMS & email</Badge>
       </div>
 
       <div className="grid grid-3" style={{ marginBottom: "1.2rem" }}>
@@ -52,7 +52,7 @@ export default function CommunicationsPage() {
 
       <div className="grid grid-2">
         <div className="card">
-          <h3>📢 Compose & broadcast</h3>
+          <h3> Compose & broadcast</h3>
           <form onSubmit={publish}>
             <Field label="Audience">
               <select value={audience} onChange={(e) => setAudience(e.target.value)}>
@@ -72,14 +72,12 @@ export default function CommunicationsPage() {
             </Field>
             <button className="btn" disabled={busy}>{busy ? "Sending…" : "Publish & notify"}</button>
           </form>
-          <p className="small muted" style={{ marginTop: "0.6rem" }}>
-            💰 vs third-party apps: ClassDojo premium costs ~<b>$60/month</b>. The in-app noticeboard is unlimited and built-in;
-            SMS is only used for urgent fee/absence/late-pickup alerts (~UGX 55 each).
+          <p className="small muted" style={{ marginTop: "0.6rem" }}> Notices appear instantly on every family's dashboard; SMS is used for urgent fee, absence and late-pickup alerts.
           </p>
         </div>
 
         <div className="card">
-          <h3>📮 Delivery log</h3>
+          <h3> Delivery log</h3>
           {db.deliveries.map((d) => (
             <div className="list-item" key={d.id}>
               <div className="spread">
@@ -92,8 +90,7 @@ export default function CommunicationsPage() {
               </div>
             </div>
           ))}
-          <p className="small muted" style={{ marginTop: "0.5rem" }}>
-            In production this connects to an SMS aggregator (MTN Uganda / Airtel Uganda) with a failover to email for delivery receipts.
+          <p className="small muted" style={{ marginTop: "0.5rem" }}> In production this connects to an SMS aggregator (MTN Uganda / Airtel Uganda) with a failover to email for delivery receipts.
           </p>
         </div>
       </div>

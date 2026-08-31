@@ -36,9 +36,10 @@ export default function AdmissionsPage() {
       </div>
 
       <div className="tabs">
-        <button className={tab === "transitions" ? "on" : ""} onClick={() => setTab("transitions")}>🎓 Transitions</button>
-        <button className={tab === "docs" ? "on" : ""} onClick={() => setTab("docs")}>🗂️ Document vault</button>
-        <button className={tab === "applicants" ? "on" : ""} onClick={() => setTab("applicants")}>🌱 New applicants</button>
+        <button className={tab === "transitions" ? "on" : ""} onClick={() => setTab("transitions")}>Transitions</button>
+        <button className={tab === "docs" ? "on" : ""} onClick={() => setTab("docs")}>Document vault</button>
+        <button className={tab === "applicants" ? "on" : ""} onClick={() => setTab("applicants")}>New applicants</button>
+        <button className={tab === "accounts" ? "on" : ""} onClick={() => setTab("accounts")}>Student portal accounts</button>
       </div>
 
       {tab === "transitions" && (
@@ -74,12 +75,12 @@ export default function AdmissionsPage() {
           })}
 
           <div className="card soon">
-            <h3>＋ Start a new transition</h3>
+            <h3>+ Start a new transition</h3>
             <p className="small muted">Pick a Pre-School pupil who is ready for Primary 1. Their records are already on file — this takes one click.</p>
             {presKids.filter((k) => !db.transitions.some((t) => t.studentId === k.id)).map((k) => (
               <div className="list-item row" key={k.id} style={{ justifyContent: "space-between" }}>
                 <span>
-                  <span className="chip-pre">🌱</span> <b style={{ fontFamily: "var(--fpd)" }}>{k.name}</b> · {k.class}{" "}
+                   <b style={{ fontFamily: "var(--fpd)" }}>{k.name}</b> · {k.class}{" "}
                   <span className="badge gray">{k.readiness?.assessment || "on track"}</span>
                 </span>
                 <button className="btn secondary sm" onClick={() => act("initiateTransition", { studentId: k.id, by: "u-admissions", notes }, `Transition initiated for ${k.name}.`)}>Initiate</button>
@@ -98,7 +99,7 @@ export default function AdmissionsPage() {
                 const kid = db.studentIndex[d.studentId];
                 return (
                   <tr key={d.id}>
-                    <td><b style={kid?.campus === "preschool" ? { fontFamily: "var(--fpd)" } : undefined}>{kid?.name}</b><div className="small muted">{kid?.campus === "preschool" ? "🌱 Gill Pre-School" : "🏫 Main School"}</div></td>
+                    <td><b style={kid?.campus === "preschool" ? { fontFamily: "var(--fpd)" } : undefined}>{kid?.name}</b><div className="small muted">{kid?.campus === "preschool" ? "Gill Pre-School" : "Main School"}</div></td>
                     <td>{d.type}</td>
                     <td className="mono small">{d.name}</td>
                     <td className="small">{fmtDate(d.uploadedAt)}</td>
@@ -115,15 +116,14 @@ export default function AdmissionsPage() {
               })}
             </tbody>
           </table>
-          <p className="small muted" style={{ marginTop: "0.6rem" }}>
-            🖨️ Previously these lived in folders and a filing cabinet. Verified records migrate with the pupil at transition — parents never re-submit.
+          <p className="small muted" style={{ marginTop: "0.6rem" }}> Previously these lived in folders and a filing cabinet. Verified records migrate with the pupil at transition — parents never re-submit.
           </p>
         </div>
       )}
 
       {tab === "applicants" && (
         <div className="card">
-          <h3>🌱 Pre-School & Main School pipeline</h3>
+          <h3> Pre-School & Main School pipeline</h3>
           {presKids.map((k) => (
             <div className="list-item spread" key={k.id}>
               <div>
@@ -133,9 +133,41 @@ export default function AdmissionsPage() {
               <Badge tone="green">enrolled</Badge>
             </div>
           ))}
-          <p className="small muted" style={{ marginTop: "0.6rem" }}>
-            New applications arrive here with automatic profile creation — parents fill the form once and the platform builds the records.
+          <p className="small muted" style={{ marginTop: "0.6rem" }}> New applications arrive here with automatic profile creation — parents fill the form once and the platform builds the records.
           </p>
+        </div>
+      )}
+
+      {tab === "accounts" && (
+        <div className="card">
+          <table>
+            <thead><tr><th>Student</th><th>Username</th><th>Supervised by</th><th>Created</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+              {db.studentAccounts.map((a) => {
+                const kid = db.studentIndex[a.studentId];
+                const fam = db.families.find((f) => f.id === kid?.familyId);
+                return (
+                  <tr key={a.id}>
+                    <td><b>{kid?.name}</b><div className="small muted">{kid?.class}</div></td>
+                    <td className="mono small">@{a.username}</td>
+                    <td className="small">{fam?.name} family</td>
+                    <td className="small">{fmtDate(a.createdAt)}</td>
+                    <td><Badge tone={a.status === "active" ? "green" : "gold"}>{a.status}</Badge></td>
+                    <td>
+                      <button className="btn ghost sm"
+                        onClick={() => act("updateStudentAccount", { accountId: a.id, status: a.status === "active" ? "paused" : "active" }, a.status === "active" ? "Account paused." : "Account resumed.")}
+                      >
+                        {a.status === "active" ? "Pause" : "Resume"}
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+              {db.studentAccounts.length === 0 && (
+                <tr><td colSpan={6} className="muted small">No student accounts yet — parents create them from Parent Portal → Student Accounts.</td></tr>
+              )}
+            </tbody>
+          </table>
         </div>
       )}
 
@@ -157,7 +189,7 @@ export default function AdmissionsPage() {
             ③ notify the Bursar and Admissions · ④ log everything in the audit trail.</div>
           </div>
           <button className="btn" style={{ width: "100%", marginTop: "0.9rem" }} disabled={busy} onClick={doEnroll}>
-            {busy ? "Migrating…" : "✅ Enrol & migrate records"}
+            {busy ? "Migrating…" : "Enrol & migrate records"}
           </button>
         </Modal>
       )}

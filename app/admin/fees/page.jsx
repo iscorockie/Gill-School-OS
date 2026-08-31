@@ -32,9 +32,9 @@ export default function AdminFeesPage() {
       </div>
 
       <div className="tabs">
-        <button className={tab === "ledger" ? "on" : ""} onClick={() => setTab("ledger")}>🧾 Fee ledger</button>
-        <button className={tab === "payments" ? "on" : ""} onClick={() => setTab("payments")}>💸 Payments & receipts</button>
-        <button className={tab === "audit" ? "on" : ""} onClick={() => setTab("audit")}>🔍 Audit trail</button>
+        <button className={tab === "ledger" ? "on" : ""} onClick={() => setTab("ledger")}> Fee ledger</button>
+        <button className={tab === "payments" ? "on" : ""} onClick={() => setTab("payments")}> Payments & receipts</button>
+        <button className={tab === "audit" ? "on" : ""} onClick={() => setTab("audit")}> Audit trail</button>
       </div>
 
       {tab === "ledger" && (
@@ -72,7 +72,7 @@ export default function AdminFeesPage() {
       {tab === "payments" && (
         <div className="grid grid-2">
           <div className="card">
-            <h3>💸 Payment stream</h3>
+            <h3> Payment stream</h3>
             {db.payments.map((p) => {
               const fam = db.families.find((f) => f.id === p.familyId);
               return (
@@ -92,7 +92,7 @@ export default function AdminFeesPage() {
             })}
           </div>
           <div className="card">
-            <h3>🔄 Reconciliation, automated</h3>
+            <h3> Reconciliation, automated</h3>
             {[
               ["MTN MoMo statement batch", "Auto-matched to invoices by reference · 4:00 pm sweep", "green"],
               ["Airtel Merchant portal", "API call-out → ledger update → recipient = invoice", "green"],
@@ -104,8 +104,7 @@ export default function AdminFeesPage() {
                 <div className="small muted">{d}</div>
               </div>
             ))}
-            <div className="quote" style={{ marginTop: "0.7rem" }}>
-              ⏱️ Estimated saving: <b>36 hours of manual bank reconciliation per month</b> — the platform clears the balance, sends the receipt and notifies the family.
+            <div className="quote" style={{ marginTop: "0.7rem" }}> Estimated saving: <b>36 hours of manual bank reconciliation per month</b> — the platform clears the balance, sends the receipt and notifies the family.
             </div>
           </div>
         </div>

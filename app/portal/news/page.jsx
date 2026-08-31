@@ -31,13 +31,13 @@ export default function NewsPage() {
     <div>
       <div className="section-head">
         <h2>Noticeboard & Messages</h2>
-        <span className="muted small">Built in-house — no ClassDojo premium, no per-seat fees</span>
+        <span className="muted small">Notices, teacher messages and alerts in one place</span>
       </div>
 
       <div className="tabs">
-        <button className={tab === "notices" ? "on" : ""} onClick={() => setTab("notices")}>📢 Notices</button>
-        <button className={tab === "inbox" ? "on" : ""} onClick={() => setTab("inbox")}>📥 Inbox</button>
-        <button className={tab === "compose" ? "on" : ""} onClick={() => setTab("compose")}>✍️ Message a teacher</button>
+        <button className={tab === "notices" ? "on" : ""} onClick={() => setTab("notices")}> Notices</button>
+        <button className={tab === "inbox" ? "on" : ""} onClick={() => setTab("inbox")}> Inbox</button>
+        <button className={tab === "compose" ? "on" : ""} onClick={() => setTab("compose")}> Message a teacher</button>
       </div>
 
       {tab === "notices" && (
@@ -47,7 +47,7 @@ export default function NewsPage() {
               <div className="spread">
                 <b style={n.audience === "preschool" ? { fontFamily: "var(--fpd)" } : undefined}>{n.title}</b>
                 {n.audience === "preschool" ? (
-                  <span className="chip-pre">🌱 Pre-School</span>
+                  <span className="chip-pre"> Pre-School</span>
                 ) : (
                   <Badge tone={n.audience === "parents" ? "blue" : "gray"}>{n.audience}</Badge>
                 )}
@@ -72,8 +72,7 @@ export default function NewsPage() {
                 <span className="small muted">{fmtDate(m.date)} · via {m.channel}</span>
               </div>
               <p className="small">{m.body}</p>
-              <div className="small muted">
-                From: {db.users.find((u) => u.id === m.from)?.name || "System"} ·{" "}
+              <div className="small muted"> From: {db.users.find((u) => u.id === m.from)?.name || "System"} ·{" "}
                 <button className="btn ghost sm" onClick={() => act("markRead", { messageId: m.id })}>Mark read</button>
               </div>
             </div>
@@ -96,8 +95,7 @@ export default function NewsPage() {
             <Field label="Subject"><input value={subject} onChange={(e) => setSubject(e.target.value)} required /></Field>
             <Field label="Message"><textarea rows={5} value={body} onChange={(e) => setBody(e.target.value)} required /></Field>
             <button className="btn" disabled={busy}>{busy ? "Sending…" : "Send"}</button>
-            <p className="small muted" style={{ marginTop: "0.6rem" }}>
-              Messages land in the teacher's in-app inbox. Critical updates can be escalated to SMS/email at the admin console.
+            <p className="small muted" style={{ marginTop: "0.6rem" }}> Messages land in the teacher's in-app inbox. Critical updates can be escalated to SMS/email at the admin console.
             </p>
           </form>
         </div>

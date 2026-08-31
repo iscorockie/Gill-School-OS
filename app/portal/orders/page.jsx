@@ -53,16 +53,15 @@ export default function OrdersPage() {
       </div>
 
       <div className="card gips" style={{ marginBottom: "1.2rem" }}>
-        <b>⏰ Order for {db.meta.currentTerm} closes Friday 4 September.</b>
-        <p className="small muted" style={{ margin: "0.2rem 0 0" }}>
-          Items are collected on the first day of term. Payment online (Mobile Money / card) or at the Bursar's office.
+        <b> Order for {db.meta.currentTerm} closes Friday 4 September.</b>
+        <p className="small muted" style={{ margin: "0.2rem 0 0" }}> Items are collected on the first day of term. Payment online (Mobile Money / card) or at the Bursar's office.
         </p>
       </div>
 
       <div className="grid grid-2">
         <div className="card">
           <div className="spread">
-            <h3>🛒 Catalogue</h3>
+            <h3> Catalogue</h3>
             <Field label="Ordering for">
               <select value={student?.id} onChange={(e) => setStudentId(e.target.value)}>
                 {family.children.map((c) => <option key={c.id} value={c.id}>{c.name} — {c.class}</option>)}
@@ -94,7 +93,7 @@ export default function OrdersPage() {
         </div>
 
         <div className="card">
-          <h3>🧾 Order summary</h3>
+          <h3> Order summary</h3>
           {items.length === 0 && <p className="muted small">Nothing selected yet.</p>}
           {items.map((i) => (
             <div className="list-item" key={i.sku}>
@@ -114,7 +113,7 @@ export default function OrdersPage() {
             </>
           )}
 
-          <h3 style={{ marginTop: "1.4rem" }}>📦 Your orders</h3>
+          <h3 style={{ marginTop: "1.4rem" }}> Your orders</h3>
           {myOrders.length === 0 && <p className="muted small">No orders yet.</p>}
           {myOrders.map((o) => (
             <div className="list-item" key={o.id}>
