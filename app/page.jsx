@@ -2,21 +2,21 @@
 import Icon from "@/components/icons.jsx";
 
 const features = [
-  { ico: "users", t: "One family, every child", d: "Siblings at Gill Pre-School and the International School share a single login — progress, fees and notices in one place." },
-  { ico: "wallet", t: "Mobile money fees", d: "MTN MoMo, Airtel Money and card payments settle instantly with digital receipts for every shilling." },
-  { ico: "chart", t: "Real-time progress", d: "Continuous assessments, Checkpoint practice results and teacher feedback as they happen — not just on report day." },
-  { ico: "chat", t: "Messages & notices", d: "School notices, teacher messages, SMS and email — one in-house channel for every family." },
-  { ico: "calendar", t: "One-tap calendar sync", d: "Sports Days, Coffee Mornings and Science Fairs subscribe straight to Google or Apple calendars." },
-  { ico: "bookOpen", t: "Paperless resources", d: "Past papers, worksheets, e-books and The Gill Insider — read online, print only what you need." },
-  { ico: "send", t: "Absence in a tap", d: "Submit a sickness note online; class teachers are notified instantly, no phone queue." },
-  { ico: "shirt", t: "Term pre-orders", d: "Uniforms and book packs pre-ordered before term starts — collected on day one, right size, right quantity." },
-  { ico: "key", t: "Student accounts", d: "Parents set up each child's supervised portal before they report to school — like adding a device to the family." },
+  { ico: "users", t: "One family, every child", d: "Siblings at Gill Pre-School and the International School share a single login — progress, fees and notices in one place.", accent: "var(--maroon)", tag: "Family first", hero: true },
+  { ico: "wallet", t: "Mobile money fees", d: "MTN MoMo, Airtel Money and card payments settle instantly with digital receipts for every shilling.", accent: "var(--gold)" },
+  { ico: "chart", t: "Real-time progress", d: "Continuous assessments, Checkpoint practice results and teacher feedback as they happen — not just on report day.", accent: "#2f7d46" },
+  { ico: "chat", t: "Messages & notices", d: "School notices, teacher messages, SMS and email — one in-house channel for every family.", accent: "#7f9cd4" },
+  { ico: "calendar", t: "One-tap calendar sync", d: "Sports Days, Coffee Mornings and Science Fairs subscribe straight to Google or Apple calendars.", accent: "#b3261e" },
+  { ico: "bookOpen", t: "Paperless resources", d: "Past papers, worksheets, e-books and The Gill Insider — read online, print only what you need.", accent: "var(--gold)" },
+  { ico: "send", t: "Absence in a tap", d: "Submit a sickness note online; class teachers are notified instantly, no phone queue.", accent: "#7f9cd4" },
+  { ico: "shirt", t: "Term pre-orders", d: "Uniforms and book packs pre-ordered before term starts — collected on day one, right size, right quantity.", accent: "#2f7d46" },
+  { ico: "key", t: "Student accounts", d: "Parents set up each child's supervised portal before they report to school — like adding a device to the family.", accent: "var(--maroon)" },
 ];
 
 const steps = [
-  { ico: "users", t: "Your family is set up", d: "Admissions registers your child's records. You sign in to Gill School OS with one family account." },
-  { ico: "key", t: "Create your child's account", d: "Choose the username, password and what your child can see. The account is supervised by you." },
-  { ico: "grad", t: "Child signs in and learns", d: "Their own portal: today's classes, homework, progress, library and calendar — before they even report to school." },
+  { ico: "users", t: "Your family is set up", d: "Admissions registers your child's records. You sign in to Gill School OS with one family account.", who: "Admissions", meta: "Records ready on day one", metaIco: "file" },
+  { ico: "key", t: "Create your child's account", d: "Choose the username, password and what your child can see. The account is supervised by you.", who: "You, the parent", meta: "You choose the visibility", metaIco: "shield" },
+  { ico: "grad", t: "Child signs in and learns", d: "Their own portal: today's classes, homework, progress, library and calendar — before they even report to school.", who: "Your child", meta: "Supervised, always", metaIco: "eye" },
 ];
 
 const heroPhotos = [
@@ -107,82 +107,133 @@ export default function Landing() {
       </section>
 
       {/* ------- Platform ------- */}
-      <section className="container" id="platform" style={{ paddingTop: "3rem" }}>
+      <section className="container" id="platform" style={{ paddingTop: "3.4rem" }}>
         <div className="section-head">
-          <h2><Icon name="layers" size={24} /> Everything in one place</h2>
-          <span className="muted small">One portal for parents, one for every student, one console for the school</span>
+          <div>
+            <span className="kicker-sm">The platform</span>
+            <h2><Icon name="layers" size={24} /> Everything in one place</h2>
+          </div>
+          <span className="muted small">One portal for parents · one for every student · one console for the school</span>
         </div>
-        <div className="grid grid-3">
-          {features.map((f) => (
-            <div className="feature" key={f.t}>
-              <div className="ico"><Icon name={f.ico} size={22} /></div>
-              <h3>{f.t}</h3>
+        <div className="platform-grid">
+          {features.map((f, i) => (
+            <div className={`feature ${f.hero ? "feature-hero" : ""}`} key={f.t} style={{ "--ft": f.accent }}>
+              <div className={`ico ico-${i % 5}`}><Icon name={f.ico} size={22} /></div>
+              <div className="ft-top">
+                <h3>{f.t}</h3>
+                {f.tag && <span className="ft-chip">{f.tag}</span>}
+              </div>
               <p>{f.d}</p>
+              {f.hero && (
+                <div className="ft-pills">
+                  {[["users", "Parents' Portal"], ["grad", "Staff Portal"], ["user", "Student Portal"]].map(([ico, label]) => (
+                    <span key={label}><Icon name={ico} size={15} /> {label}</span>
+                  ))}
+                </div>
+              )}
             </div>
           ))}
         </div>
       </section>
 
       {/* ------- Journey ------- */}
-      <section className="container" id="journey" style={{ paddingTop: "2.5rem" }}>
+      <section className="container" id="journey" style={{ paddingTop: "3.4rem" }}>
         <div className="section-head">
-          <h2><Icon name="users" size={24} /> For families</h2>
+          <div>
+            <span className="kicker-sm">From enrolment to first day</span>
+            <h2><Icon name="users" size={24} /> For families</h2>
+          </div>
+          <span className="muted small">Three steps — most families finish in an afternoon</span>
         </div>
         <div className="steps">
           {steps.map((s, i) => (
             <div className="step" key={s.t}>
-              <span className="num">{i + 1}</span>
-              <span className="ico"><Icon name={s.ico} size={26} /></span>
-              <h3>{s.t}</h3>
-              <p>{s.d}</p>
+              <div className="step-head">
+                <span className="num">{i + 1}</span>
+                <span className="ico"><Icon name={s.ico} size={26} /></span>
+              </div>
+              <div className="step-body">
+                <span className="ft-chip">{s.who}</span>
+                <h3>{s.t}</h3>
+                <p>{s.d}</p>
+                <div className="step-foot">
+                  <Icon name={s.metaIco} size={14} /> <span>{s.meta}</span>
+                </div>
+              </div>
             </div>
           ))}
         </div>
 
-        <div className="grid grid-2" style={{ marginTop: "1.6rem", alignItems: "stretch" }}>
-          <div className="card surface-deep">
-            <span className="chip-pre" style={{ marginBottom: "0.6rem", display: "inline-flex" }}>Parent → Student accounts</span>
-            <h3 style={{ color: "#fff" }}>Set up before day one</h3>
-            <p className="small" style={{ color: "rgba(255,255,255,0.85)" }}> The school already has your child's record on file. From Parent Portal you create their supervised account —
-              username, password, and exactly what they can see.
-            </p>
-            <div className="row" style={{ marginTop: "0.9rem" }}>
-              <a href="/portal/accounts" className="btn">Create a student account</a>
+        {/* ------- Family proof ------- */}
+        <div className="proof" style={{ marginTop: "1.6rem" }}>
+          <div className="proof-photo">
+            <img src="/photos/three-kids.jpg" alt="Gill pupils in uniform" loading="lazy" />
+            <div className="proof-overlay">
+              <span className="chip-pre" style={{ display: "inline-flex" }}>Parent → Student accounts</span>
+              <h3>Set up before day one</h3>
+              <p className="small">The school already has your child's record on file. From the Parent Portal you create their supervised account — username, password, and exactly what they can see.</p>
+              <div className="row">
+                <a href="/portal/accounts" className="btn gold">Create a student account</a>
+                <span className="proof-stat"><Icon name="clock" size={15} /> ~2 minutes</span>
+              </div>
             </div>
           </div>
-          <div className="card">
-            <div className="quote sun">
-              “Moving Maya from Gill Pre-School to the International School felt like one school, not two —
-              my children share one dashboard, one fee statement, and the team already knew her records.”
-              <div className="small muted" style={{ marginTop: "0.4rem" }}>— Nansubuga family, Najjera</div>
+
+          <div className="card testimonial">
+            <div className="quote-mark">“</div>
+            <div className="stars">
+              {[...Array(5)].map((_, i) => <Icon key={i} name="star" size={16} />)}
             </div>
-            <div className="row" style={{ marginTop: "0.9rem" }}>
-              <a href="/portal" className="btn secondary">Explore the parent portal</a>
-              <a href="/student" className="btn secondary"><Icon name="grad" size={16} /> See the student portal</a>
+            <p className="quote-body">
+              Moving Maya from Gill Pre-School to the International School felt like one school, not two —
+              my children share one dashboard, one fee statement, and the team already knew her records.
+            </p>
+            <div className="t-who">
+              <div className="t-ava">N</div>
+              <div>
+                <b>Nansubuga family</b>
+                <span className="small muted">Najjera · two children, both campuses</span>
+              </div>
+            </div>
+            <div className="proof-stats">
+              <span><b>1</b> login for the family</span>
+              <span><b>0</b> paper forms re-typed</span>
+              <span><b>24/7</b> progress tracking</span>
             </div>
           </div>
         </div>
       </section>
 
       {/* ------- Gallery ------- */}
-      <section className="container" id="gallery" style={{ paddingTop: "2.5rem", paddingBottom: "1rem" }}>
+      <section className="container" id="gallery" style={{ paddingTop: "3.4rem", paddingBottom: "1rem" }}>
         <div className="section-head">
-          <h2><Icon name="camera" size={24} /> Our school</h2>
-          <span className="muted small">Najjera · Kampala</span>
+          <div>
+            <span className="kicker-sm">Najjera · Kampala</span>
+            <h2><Icon name="camera" size={24} /> Our school</h2>
+          </div>
+          <span className="muted small">One campus, two schools — Pre-School to A Levels</span>
         </div>
-        <div className="gallery">
-          {heroPhotos.map((p) => (
+        <div className="mosaic">
+          {[
+            { src: "/photos/three-kids.jpg", alt: "Gill pupils in uniform", cap: "Morning assembly, Najjera" },
+            { src: "/photos/reading-girl.jpg", alt: "Pupil reading", cap: "Cambridge reading programme" },
+            { src: "/photos/uganda-day.jpg", alt: "Uganda Day celebrations", cap: "Uganda Day" },
+            { src: "/photos/sports-day.jpg", alt: "Sports day", cap: "Sports day, house colours" },
+            { src: "/photos/science-teens.jpg", alt: "Science practical", cap: "Science practicals" },
+            { src: "/photos/two-kids-building.jpg", alt: "Pupils outside the school building", cap: "Life at Gill" },
+          ].map((p) => (
             <div className="g" key={p.src}>
               <img src={p.src} alt={p.alt} loading="lazy" />
+              <span className="cap">{p.cap}</span>
             </div>
           ))}
         </div>
       </section>
 
       {/* ------- Footer, like the school site ------- */}
-      <footer className="footer-dark" style={{ marginTop: "2.5rem", padding: "2rem 0 2.4rem" }}>
+      <footer className="footer-dark" style={{ marginTop: "2.8rem", padding: "2.4rem 0 2.6rem" }}>
         <div className="container">
-          <div className="grid grid-3" style={{ gap: "1.5rem" }}>
+          <div className="grid grid-3" style={{ gap: "1.8rem" }}>
             <div>
               <div className="row" style={{ gap: "0.8rem" }}>
                 <img src="/logo.png" alt="Gill International School logo" style={{ height: 52, borderRadius: 10, background: "#fff", padding: "4px 8px" }} />
@@ -191,10 +242,16 @@ export default function Landing() {
                   <span className="small" style={{ color: "#cbb9bb" }}>Gill International School & Gill Pre-School</span>
                 </div>
               </div>
+              <p className="small" style={{ marginTop: "0.8rem", color: "#cbb9bb", maxWidth: 320 }}>
+                One campus platform — parents, staff and students each work in their own portal.
+              </p>
+              <span className="ft-chip" style={{ borderColor: "rgba(255,255,255,0.2)", color: "#e9d3d5", background: "rgba(255,255,255,0.06)" }}>
+                <Icon name="shield" size={13} /> OS Admin · restricted to top administration
+              </span>
             </div>
             <div>
               <b className="small" style={{ color: "var(--peri-2)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Contact</b>
-              <div className="small" style={{ marginTop: "0.5rem", display: "grid", gap: "0.35rem", color: "#efe4e5" }}>
+              <div className="small" style={{ marginTop: "0.6rem", display: "grid", gap: "0.45rem", color: "#efe4e5" }}>
                 <span className="row" style={{ gap: "0.5rem" }}><Icon name="pin" size={15} /> Plot 8, Block 228, Najjera, Kampala</span>
                 <span className="row" style={{ gap: "0.5rem" }}><Icon name="phone" size={15} /> +256 755 071 456</span>
                 <span className="row" style={{ gap: "0.5rem" }}><Icon name="mail" size={15} /> admissions@gillschool.ac.ug</span>
@@ -202,14 +259,17 @@ export default function Landing() {
             </div>
             <div>
               <b className="small" style={{ color: "var(--peri-2)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Portals</b>
-              <div className="small" style={{ marginTop: "0.5rem", display: "grid", gap: "0.35rem" }}>
-                <a href="/portal/login">Parents' Portal</a>
-                <a href="/staff">Staff Portal</a>
-                <a href="/student/login">Student Portal</a>
-                <a href="/admin/login">OS Admin · top administration only</a>
-                <a href="/api/ics?campus=all">School calendar (.ics)</a>
+              <div className="small" style={{ marginTop: "0.6rem", display: "grid", gap: "0.4rem" }}>
+                <a href="/portal/login" className="row" style={{ gap: "0.45rem" }}><Icon name="users" size={14} /> Parents' Portal</a>
+                <a href="/staff" className="row" style={{ gap: "0.45rem" }}><Icon name="grad" size={14} /> Staff Portal</a>
+                <a href="/student/login" className="row" style={{ gap: "0.45rem" }}><Icon name="user" size={14} /> Student Portal</a>
+                <a href="/admin/login" className="row" style={{ gap: "0.45rem" }}><Icon name="shield" size={14} /> OS Admin</a>
+                <a href="/api/ics?campus=all" className="row" style={{ gap: "0.45rem" }}><Icon name="calendar" size={14} /> School calendar (.ics)</a>
               </div>
             </div>
+          </div>
+          <div className="small" style={{ marginTop: "1.6rem", paddingTop: "1rem", borderTop: "1px solid rgba(255,255,255,0.08)", color: "#9d8a8d" }}>
+            Gill International School · Excellence, Integrity, Service — Gill School OS.
           </div>
         </div>
       </footer>
