@@ -37,6 +37,10 @@ export default function StudentLayout({ children }) {
 
 function StudentShell({ children }) {
   const { session, logout } = useStudent();
+  const pathname = usePathname();
+  // Public pages (login) render without the portal chrome — no session yet,
+  // so the shell must NOT touch session fields or it throws client-side.
+  if (pathname === "/student/login") return children;
   return (
     <Shell mode="student"
       user={{ name: session.name, role: `${session.class} · supervised by ${session.supervisedBy}`, title: null }}
