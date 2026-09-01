@@ -19,7 +19,7 @@ export default function SchoolFooter() {
                 <span className="small" style={{ color: "#cbb9bb" }}>
                   <a href="https://www.gill.ac.ug/#home" target="_blank" rel="noreferrer" className="footer-site-link" title="Gill International School website">Gill International School</a>
                   {" & "}
-                  <a href="https://preschool.gillschool.ac.ug" target="_blank" rel="noreferrer" className="footer-site-link" title="Gill Pre-School website">Gill Pre-School</a>
+                  <a href="https://preschool.gill.ac.ug" target="_blank" rel="noreferrer" className="footer-site-link" title="Gill Pre-School website">Gill Pre-School</a>
                 </span>
               </div>
             </div>
