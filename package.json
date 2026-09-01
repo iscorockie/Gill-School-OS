@@ -1,0 +1,16 @@
+{
+  "name": "gill-school-os",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Gill International School OS — a unified campus management platform for Gill International School & Gill Pre-School, Najjera, Kampala.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "^15.5.24",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  }
+}
