@@ -1,5 +1,5 @@
 "use client";
-// Static Najjera street map based on the school's map listing. The campus
+// Static Najjera map screenshot showing both school locations. The campus
 // export remains shared with registration and footer location links.
 
 export const CAMPUSES = [
@@ -46,7 +46,7 @@ export default function CampusMap({ height = 430 }) {
     >
       <img
         className="cmap-img"
-        src="/map-najjera.svg"
+        src="/map-najjera.png"
         alt="Street map showing Gill International School, Gill International Preschool, Mbogo Road, Bulabira Road and nearby Najjera landmarks"
         draggable={false}
       />
