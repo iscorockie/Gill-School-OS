@@ -918,3 +918,56 @@ tr:last-child td { border-bottom: none; }
   .staff-onboard-logo img { height: 48px; }
   .staff-onboard-card { padding: 1.35rem 1.1rem 1.5rem; border-radius: 20px; }
 }
+
+/* ---------------- Landing suggestion box ---------------- */
+.suggestion-section {
+  position: relative; overflow: hidden; margin-top: 3.4rem; padding: 4rem 0;
+  color: #fff; background:
+    radial-gradient(700px 420px at 8% 20%, rgba(201, 162, 75, 0.17), transparent 65%),
+    radial-gradient(700px 460px at 96% 85%, rgba(201, 212, 242, 0.1), transparent 65%),
+    linear-gradient(145deg, var(--deep-2), var(--deep) 62%, var(--maroon-2));
+}
+.suggestion-section::before { content: ""; position: absolute; inset: 0; background-image: var(--noise); opacity: 0.65; pointer-events: none; }
+.suggestion-shell { position: relative; display: grid; grid-template-columns: minmax(0, 0.82fr) minmax(520px, 1.18fr); gap: 3rem; align-items: center; }
+.suggestion-intro h2 { display: flex; align-items: center; gap: 0.65rem; margin: 0.55rem 0 0.8rem; color: #fff; font-size: clamp(1.8rem, 3vw, 2.65rem); }
+.suggestion-intro h2 svg { color: var(--sun2); }
+.suggestion-intro > p { max-width: 52ch; margin: 0; color: rgba(255,255,255,0.78); font-size: 1rem; line-height: 1.7; }
+.suggestion-promises { display: grid; gap: 0.8rem; margin-top: 1.6rem; }
+.suggestion-promises > div { display: grid; grid-template-columns: 42px 1fr; gap: 0.75rem; align-items: center; }
+.suggestion-promises > div > span { width: 42px; height: 42px; display: grid; place-items: center; color: var(--sun2); background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18); border-radius: 13px; }
+.suggestion-promises p { display: grid; gap: 0.08rem; margin: 0; line-height: 1.4; }
+.suggestion-promises b { color: #fff; font-family: var(--fd); font-size: 0.88rem; }
+.suggestion-promises small { color: rgba(255,255,255,0.63); font-size: 0.78rem; }
+.suggestion-form { display: grid; gap: 1rem; padding: 1.6rem; color: var(--ink); background: #fff; border: 1px solid rgba(201,212,242,0.55); border-radius: 24px; box-shadow: 0 24px 65px rgba(0,0,0,0.28); }
+.suggestion-form-head { display: flex; align-items: center; gap: 0.75rem; padding-bottom: 0.9rem; border-bottom: 1px solid var(--line); }
+.suggestion-form-head h3 { margin: 0; color: var(--deep); font-size: 1.1rem; }
+.suggestion-form-head p { margin: 0.15rem 0 0; color: var(--muted); font-size: 0.77rem; }
+.suggestion-anonymous { display: flex; align-items: flex-start; gap: 0.65rem; padding: 0.7rem 0.8rem; background: var(--peri-l); border: 1px solid var(--peri-2); border-radius: 13px; cursor: pointer; }
+.suggestion-anonymous input { width: auto; margin-top: 3px; accent-color: var(--maroon); }
+.suggestion-anonymous > span { display: grid; line-height: 1.35; }
+.suggestion-anonymous b { color: var(--deep); font-size: 0.84rem; }
+.suggestion-anonymous small { color: var(--muted); font-size: 0.73rem; }
+.suggestion-fields { display: grid; gap: 0.8rem; }
+.suggestion-fields.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.suggestion-form .field { display: grid; gap: 0.35rem; margin: 0; }
+.suggestion-form .field > span { color: var(--deep); font-size: 0.8rem; font-weight: 700; }
+.suggestion-form .field > span small { margin-left: 0.25rem; color: var(--muted); font-size: 0.67rem; font-weight: 500; }
+.suggestion-form input, .suggestion-form select, .suggestion-form textarea { border-radius: 12px; background: #fff; }
+.suggestion-form input:disabled { color: #8c929b; background: #f2f3f6; cursor: not-allowed; }
+.suggestion-message { position: relative; }
+.suggestion-message textarea { min-height: 125px; resize: vertical; }
+.suggestion-message > small { justify-self: end; color: var(--muted); font-size: 0.68rem; }
+.suggestion-status { display: flex; align-items: center; gap: 0.45rem; padding: 0.65rem 0.8rem; border-radius: 11px; font-size: 0.8rem; }
+.suggestion-status.success { color: #1d6b3a; background: #edf8f1; border: 1px solid #bfe3cd; }
+.suggestion-status.error { color: var(--red); background: var(--red-50); border: 1px solid #ecc1be; }
+.suggestion-form > .btn { width: 100%; min-height: 47px; }
+.suggestion-note { margin: -0.2rem 0 0; color: var(--muted); text-align: center; font-size: 0.7rem; line-height: 1.45; }
+@media (max-width: 980px) {
+  .suggestion-shell { grid-template-columns: 1fr; gap: 2rem; }
+  .suggestion-intro > p { max-width: 70ch; }
+}
+@media (max-width: 580px) {
+  .suggestion-section { margin-top: 2.6rem; padding: 2.8rem 0; }
+  .suggestion-fields.two { grid-template-columns: 1fr; }
+  .suggestion-form { padding: 1.1rem; border-radius: 19px; }
+}
