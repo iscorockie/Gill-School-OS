@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useApp, Badge, Stat, Progress } from "@/components/ui.jsx";
 import { useParent } from "@/components/ParentProvider.jsx";
 import Icon from "@/components/icons.jsx";
+import StudentAvatar from "@/components/StudentAvatar.jsx";
 import { currentFamily, balances, notificationsFor } from "@/lib/client.js";
 import { fmtUGX, fmtDate } from "@/components/ui.jsx";
 
@@ -94,20 +95,12 @@ export default function PortalHome() {
 
       <div className="grid grid-2">
         <div className="card">
-          <h3 style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}><Icon name="users" size={19} /> Your children</h3>
+          <h3 className="card-heading"><span className="heading-icon"><Icon name="users" size={18} /></span> Your children</h3>
           {kids.map((k) => (
             <div className={`list-item ${k.campus === "preschool" ? "gips-body" : ""}`} key={k.id}>
               <div className="spread">
                 <div className="row">
-                  <div className="avatar-lg" style={{
-                    width: 40, height: 40, fontSize: "0.95rem",
-                    background: k.campus === "preschool" ? "var(--cream)" : "var(--peri-l)",
-                    border: k.campus === "preschool" ? "1px solid var(--sun2)" : "1px solid var(--peri-2)",
-                    color: k.campus === "preschool" ? "var(--gips-deep)" : "var(--maroon)",
-                    fontFamily: k.campus === "preschool" ? "var(--fpd)" : "var(--fd)",
-                  }}>
-                    {k.name.split(" ").map((w) => w[0]).join("").slice(0, 2)}
-                  </div>
+                  <StudentAvatar student={k} size={48} />
                   <div>
                     {k.campus === "preschool" ? (
                       <b style={{ fontFamily: "var(--fpd)" }}>{k.name}</b>
@@ -131,7 +124,7 @@ export default function PortalHome() {
         </div>
 
         <div className="card">
-          <h3 style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}><Icon name="bell" size={19} /> Latest school notices</h3>
+          <h3 className="card-heading"><span className="heading-icon"><Icon name="bell" size={18} /></span> Latest school notices</h3>
           {db.notices.slice(0, 3).map((n) => (
             <div className="list-item" key={n.id}>
               <div className="spread">

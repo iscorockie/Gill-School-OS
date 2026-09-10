@@ -354,7 +354,8 @@ export default function Icon({ name, size = 18, className = "", style }) {
       width={size}
       height={size}
       className={className}
-      style={{ flex: "none", ...style }}
+      style={{ display: "inline-block", verticalAlign: "middle", overflow: "visible", flex: "none", ...style }}
+      focusable="false"
       aria-hidden="true"
     >
       {content}
