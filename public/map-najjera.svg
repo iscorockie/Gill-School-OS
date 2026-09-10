@@ -1,295 +1,126 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1312 984" font-family="Roboto, 'Segoe UI', 'Helvetica Neue', 'DejaVu Sans', Arial, sans-serif">
-  <!-- Najjera campus map — traced from the real street layout between the two
-       Gill campuses (route: 1.1 km, 3 min drive / 3 min bike / 15 min walk). -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 921 856" font-family="Roboto, 'Segoe UI', Arial, sans-serif">
   <defs>
-    <filter id="bsh" x="-30%" y="-30%" width="160%" height="180%">
-      <feDropShadow dx="0" dy="1.6" stdDeviation="2.6" flood-color="#202124" flood-opacity="0.28"/>
+    <filter id="shadow" x="-60%" y="-60%" width="220%" height="240%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#52636c" flood-opacity=".3"/>
     </filter>
-    <filter id="psh" x="-60%" y="-60%" width="220%" height="220%">
-      <feDropShadow dx="0" dy="1" stdDeviation="1.4" flood-color="#202124" flood-opacity="0.3"/>
-    </filter>
+    <g id="school">
+      <circle r="18" fill="#fff" stroke="#cbd6dc" stroke-width="2"/>
+      <circle r="13" fill="#829aa5"/>
+      <path d="m-9-3 9-5 9 5-9 5zm3 3v6h12V0M8-2v7" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>
+    </g>
+    <g id="hospital">
+      <circle r="18" fill="#fff" stroke="#d7dfe3" stroke-width="2"/>
+      <circle r="13" fill="#ef4053"/>
+      <path d="M-3-8h6v5h5v6H3v5h-6V3h-5v-6h5z" fill="#fff"/>
+    </g>
+    <g id="park">
+      <circle r="18" fill="#fff" stroke="#d7dfe3" stroke-width="2"/>
+      <circle r="13" fill="#139d68"/>
+      <path d="M0-9 7 1H3l4 6H1v5h-3V7h-5l4-6h-4z" fill="#fff"/>
+    </g>
   </defs>
 
-  <!-- ======================= land ======================= -->
-  <rect width="1312" height="984" fill="#e9ebee"/>
+  <rect width="921" height="856" fill="#f6f4f4"/>
 
-  <!-- parks / green areas -->
-  <path d="M256 470 Q248 434 276 409 Q308 390 331 411 Q346 431 334 456 Q314 479 285 477 Q262 480 256 470 Z" fill="#c7e6bf"/>
-  <path d="M296 345 q14 -9 27 -1 q11 8 1 19 q-14 9 -27 1 q-11 -9 -1 -19 Z" fill="#cfe9c8"/>
-  <path d="M1240 690 q22 -12 40 2 q14 12 2 26 q-20 14 -40 2 q-14 -14 -2 -30 Z" fill="#cfe9c8"/>
-
-  <!-- ======================= minor lanes ======================= -->
-  <g stroke="#ffffff" stroke-width="4.5" fill="none" stroke-linecap="round" opacity="0.95">
-    <!-- top-left residential grid -->
-    <path d="M118 0 L124 296"/>
-    <path d="M196 22 L202 330"/>
-    <path d="M286 58 L292 300"/>
-    <path d="M0 88 L292 78"/>
-    <path d="M0 182 L300 170"/>
-    <path d="M118 20 L196 22"/>
-    <!-- Desha Cl -->
-    <path d="M118 42 L262 6"/>
-    <!-- top-middle -->
-    <path d="M540 0 L548 92"/>
-    <path d="M612 0 L618 58"/>
-    <path d="M776 0 L770 88"/>
-    <path d="M822 12 L816 86"/>
-    <!-- top-right -->
-    <path d="M1006 52 L1000 138"/>
-    <path d="M1080 0 L1078 128"/>
-    <path d="M1202 0 L1206 118"/>
-    <path d="M1266 8 L1270 126"/>
-    <path d="M1002 78 L1310 96"/>
-    <!-- right-mid -->
-    <path d="M1160 202 L1150 428"/>
-    <path d="M1236 212 L1230 438"/>
-    <path d="M968 296 L1310 286"/>
-    <path d="M962 372 L1310 384"/>
-    <!-- left-mid / bottom-left -->
-    <path d="M78 498 L198 556"/>
-    <path d="M76 502 L70 984"/>
-    <path d="M172 548 L166 984"/>
-    <path d="M272 562 L264 758"/>
-    <path d="M320 542 L324 718"/>
-    <path d="M0 702 L322 690"/>
-    <path d="M0 812 L314 800"/>
-    <path d="M0 932 L306 918"/>
-    <path d="M360 642 L602 722"/>
-    <!-- bottom-middle -->
-    <path d="M356 746 L586 852"/>
-    <path d="M402 890 L622 934"/>
-    <path d="M522 702 L642 762"/>
-    <!-- bottom-right -->
-    <path d="M762 934 L1006 962 L1312 944"/>
-    <path d="M882 772 L874 984"/>
-    <path d="M1016 876 L1009 984"/>
+  <!-- subtle land parcels and parks -->
+  <g fill="#f0eeee" opacity=".75">
+    <path d="M463 332h96l18 65-105 18z"/><path d="M480 501h112l-15 75-114-8z"/>
+    <path d="M584 117h83l25 90-92 21z"/><path d="M301 707h130l-8 96-139-10z"/>
+  </g>
+  <g fill="#a8e9bb" opacity=".8">
+    <path d="M173 438h40l18 47-49 5z"/><path d="M203 397h26l3 18-28 7z"/>
+    <path d="M835 678h58l12 51-62 16z"/>
   </g>
 
-  <!-- ======================= major roads ======================= -->
+  <!-- residential streets -->
+  <g fill="none" stroke="#cad8e1" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M10 73 38 24M57 88 63 42 84 0M111 58 163 65 177 89M167 0l-2 18 30 19-8 53M210 0l-8 21 12 16-6 45M251 16l26 28 21-11M310 1l-8 31 34 28M359 19l37 15 11 34M421 0l6 42 31 2M514 0l1 37 31 10M607 0l13 47 35 25M696 0l-1 57 34 40M763 0l13 36 32 9M839 0l17 35 42 8"/>
+    <path d="M0 126 63 129 87 162M27 190 93 191 101 149M112 111 170 123 177 171M200 100 252 118 265 166M286 88 337 111 341 161M370 98 419 110 426 155M513 86 554 105 548 161M583 81 629 97 645 152M690 108 746 124 760 173M791 91 836 120 851 168M872 87 921 109"/>
+    <path d="M0 246 50 249 73 216M79 260 137 269 155 218M174 235 227 244 244 201M270 206 313 215 340 183M363 230 412 218 429 181M540 237 586 244 607 203M641 235 699 226 715 188M752 222 807 212 828 178M855 235 921 225"/>
+    <path d="M0 318 61 306 85 348M102 314 157 328 169 374M190 297 241 310 248 351M288 314 322 351 360 326M397 300 431 336 468 318M561 299 614 302 628 345M660 289 708 306 725 353M752 278 793 305 814 346M842 290 891 300 921 328"/>
+    <path d="M0 390 62 381 91 418M104 402 160 389 178 435M251 397 292 369 324 405M337 385 379 416 420 394M526 371 576 356 613 385M647 374 690 397 727 374M754 389 801 370 832 404M851 374 921 390"/>
+    <path d="M0 477 58 459 90 495M104 469 151 456 173 503M237 468 278 451 308 489M322 457 370 482 405 455M424 471 461 446 495 466M526 452 575 476 607 448M633 466 676 443 711 471M736 452 786 475 816 445M849 468 896 449 921 459"/>
+    <path d="M0 550 61 531 85 576M111 535 154 558 183 529M205 549 248 523 281 553M303 534 341 568 380 541M400 532 438 558 467 529M518 540 557 516 595 547M625 527 662 558 703 535M730 529 766 559 806 524M835 545 875 518 921 533"/>
+    <path d="M0 630 49 607 82 645M103 615 151 638 179 608M205 623 253 598 284 634M306 603 348 632 382 603M404 614 447 594 477 625M522 619 563 594 599 625M632 604 674 634 708 600M738 618 781 594 814 627M851 612 892 585 921 598"/>
+    <path d="M0 709 58 689 88 730M103 698 149 723 177 692M200 708 246 678 279 716M300 690 341 719 376 686M485 700 526 674 562 706M589 683 629 713 668 683M701 694 743 671 778 706M808 682 847 710 883 679M893 744l28-8"/>
+    <path d="M0 793 57 773 89 813M113 776 155 811 190 782M215 800 257 769 294 807M321 779 357 816 395 788M477 789 521 765 552 799M580 777 620 811 657 781M690 797 729 768 764 808M797 780 840 817 873 787M900 802l21-7"/>
+    <path d="M98 856l-7-51M167 856l8-57M233 856l-5-51M539 856l5-55M618 856l-3-46M776 856l-4-48M866 856l3-42"/>
+  </g>
+
+  <!-- principal roads copied from the supplied Najjera map -->
   <g fill="none" stroke-linecap="round" stroke-linejoin="round">
-    <!-- casings -->
-    <g stroke="#d9dcdf">
-      <!-- Bulabira Rd -> Senyonjo Rd -->
-      <path d="M332 472 C356 398 414 282 448 196 C462 158 520 128 590 116 C680 100 780 96 870 116 C910 126 930 142 942 158 C960 150 1000 150 1060 158 C1140 168 1230 178 1312 186" stroke-width="17"/>
-      <!-- Bulabira north branch -->
-      <path d="M452 190 C440 140 430 70 428 0" stroke-width="14"/>
-      <!-- Kulambiro Link -->
-      <path d="M0 648 C90 622 200 568 300 508 C318 494 326 484 332 472 C400 436 480 398 560 360 C610 336 650 314 690 292" stroke-width="15"/>
-      <!-- main Najjera road (the route road) -->
-      <path d="M697 0 C700 60 702 120 703 180 C705 260 702 330 697 388 C693 420 690 430 686 438 C670 480 655 540 648 600 C641 660 640 720 638 780 C636 816 634 838 631 852 C627 876 630 900 640 916 C650 940 654 962 656 984" stroke-width="16"/>
-      <!-- Busibante Rd -->
-      <path d="M942 158 C946 220 950 270 948 320 C946 380 936 430 926 470 C912 540 900 620 896 690 C894 724 894 744 896 758" stroke-width="15"/>
-      <!-- Bwanika drive -->
-      <path d="M631 852 C700 868 780 878 860 880 C920 882 970 884 1012 890" stroke-width="13"/>
-      <!-- Kiwatule road -->
-      <path d="M896 758 C960 782 1040 790 1120 786 C1200 782 1260 784 1312 790" stroke-width="13"/>
-      <!-- Rhino Road -->
-      <path d="M1082 764 C1078 840 1074 910 1072 984" stroke-width="12"/>
-      <!-- Sseninde Cl -->
-      <path d="M560 984 C610 976 660 972 710 972 C760 972 800 974 830 978" stroke-width="12"/>
-      <!-- Victoria Cl -->
-      <path d="M640 916 C680 922 720 926 760 926" stroke-width="11"/>
+    <g stroke="#0e9eaf" stroke-width="9">
+      <path d="M468-10 477 85 481 167 489 247 495 350 499 440 493 514 482 582 466 704 450 856"/>
+      <path d="M468 8 552 17 582 48 613 113 645 183 676 263 685 335 687 401 681 444 655 478 598 528 571 607 516 596 482 582"/>
+      <path d="M0 629 94 585 170 540 266 494 241 417 240 356 253 323 299 293 381 280 489 247"/>
+      <path d="M253 323 232 316 188 315 129 313 61 304 0 298"/>
+      <path d="M266 494 303 548 357 604 414 665 466 704"/>
+      <path d="M95 830 159 850M225 733l5 63 34 46M168 732l7 57"/>
+      <path d="M571 607 598 528"/>
+      <path d="M674 856 675 772 686 755 763 750 842 744 921 727"/>
+      <path d="M675 772 675 856M718 754 721 821 721 856"/>
     </g>
-    <!-- surfaces -->
-    <g stroke="#ffffff">
-      <path d="M332 472 C356 398 414 282 448 196 C462 158 520 128 590 116 C680 100 780 96 870 116 C910 126 930 142 942 158 C960 150 1000 150 1060 158 C1140 168 1230 178 1312 186" stroke-width="12"/>
-      <path d="M452 190 C440 140 430 70 428 0" stroke-width="9"/>
-      <path d="M0 648 C90 622 200 568 300 508 C318 494 326 484 332 472 C400 436 480 398 560 360 C610 336 650 314 690 292" stroke-width="10"/>
-      <path d="M697 0 C700 60 702 120 703 180 C705 260 702 330 697 388 C693 420 690 430 686 438 C670 480 655 540 648 600 C641 660 640 720 638 780 C636 816 634 838 631 852 C627 876 630 900 640 916 C650 940 654 962 656 984" stroke-width="11"/>
-      <path d="M942 158 C946 220 950 270 948 320 C946 380 936 430 926 470 C912 540 900 620 896 690 C894 724 894 744 896 758" stroke-width="10"/>
-      <path d="M631 852 C700 868 780 878 860 880 C920 882 970 884 1012 890" stroke-width="8"/>
-      <path d="M896 758 C960 782 1040 790 1120 786 C1200 782 1260 784 1312 790" stroke-width="8"/>
-      <path d="M1082 764 C1078 840 1074 910 1072 984" stroke-width="7"/>
-      <path d="M560 984 C610 976 660 972 710 972 C760 972 800 974 830 978" stroke-width="7"/>
-      <path d="M640 916 C680 922 720 926 760 926" stroke-width="6"/>
+    <g stroke="#6bd1d9" stroke-width="4">
+      <path d="M468-10 477 85 481 167 489 247 495 350 499 440 493 514 482 582 466 704 450 856"/>
+      <path d="M468 8 552 17 582 48 613 113 645 183 676 263 685 335 687 401 681 444 655 478 598 528 571 607 516 596 482 582"/>
+      <path d="M0 629 94 585 170 540 266 494 241 417 240 356 253 323 299 293 381 280 489 247"/>
+      <path d="M253 323 232 316 188 315 129 313 61 304 0 298"/>
+      <path d="M266 494 303 548 357 604 414 665 466 704"/>
+      <path d="M95 830 159 850M225 733l5 63 34 46M168 732l7 57"/>
+      <path d="M571 607 598 528"/>
+      <path d="M674 856 675 772 686 755 763 750 842 744 921 727"/>
+      <path d="M675 772 675 856M718 754 721 821 721 856"/>
     </g>
   </g>
 
-  <!-- ======================= route (Gill International School -> Gill Pre-School, 1.1 km) ======================= -->
-  <path d="M737 122 C725 127 716 131 710 137 C705 142 704 148 703 158 C700 220 699 290 697 360 C695 400 693 416 689 428 C686 436 681 446 676 462 C664 500 654 556 648 606 C642 656 640 716 638 776 C637 806 635 828 632 842 C629 852 620 855 606 856 L580 857 C572 857 568 855 567 849"
-        fill="none" stroke="#4a3bf5" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
-
-  <!-- ======================= road labels ======================= -->
-  <g fill="#80858c" font-size="15.5" font-weight="500" letter-spacing="0.3" paint-order="stroke" stroke="#ffffff" stroke-width="3" stroke-linejoin="round">
-    <text x="592" y="132" transform="rotate(-29 592 132)">Bulabira Rd</text>
-    <text x="392" y="332" transform="rotate(-66 392 332)" text-anchor="middle">Bulabira Rd</text>
-    <text x="1098" y="150">Senyonjo Rd</text>
-    <text x="170" y="592" transform="rotate(-15 170 592)">Kulambiro Link</text>
-    <text x="140" y="530" transform="rotate(27 140 530)" font-size="13.5">Nzuri Cl</text>
-    <text x="948" y="300" transform="rotate(-80 948 300)">Busibante Rd</text>
-    <text x="745" y="884" transform="rotate(-5 745 884)">Bwanika drive</text>
-    <text x="665" y="980" transform="rotate(-3 665 980)">Sseninde Cl</text>
-    <text x="703" y="941" transform="rotate(-2 703 941)" font-size="13.5">Victoria Cl</text>
-    <text x="1078" y="892" transform="rotate(-87 1078 892)" text-anchor="middle">Rhino Road</text>
-    <text x="1022" y="930" transform="rotate(-87 1022 930)" text-anchor="middle" font-size="13.5">Eleph</text>
-    <text x="172" y="16" font-size="13">Desha Cl</text>
+  <!-- road labels -->
+  <g fill="#4d6674" font-size="16" font-weight="600" paint-order="stroke" stroke="#f6f4f4" stroke-width="4">
+    <text x="477" y="120" transform="rotate(-92 477 120)">Mbogo Road</text>
+    <text x="382" y="278" transform="rotate(-8 382 278)">Bulabira Rd</text>
+    <text x="65" y="612" transform="rotate(-29 65 612)">Kulambiro Link</text>
+    <text x="385" y="626" transform="rotate(47 385 626)">Bulabira Rd</text>
+    <text x="707" y="842" transform="rotate(-90 707 842)">Kiwatule Rd</text>
   </g>
 
-  <!-- ======================= POIs ======================= -->
-  <!-- Najjera fitness complex -->
-  <g filter="url(#psh)">
-    <circle cx="452" cy="190" r="10" fill="#34a853" stroke="#fff" stroke-width="2"/>
-    <g stroke="#fff" stroke-width="2.4" stroke-linecap="round">
-      <line x1="446" y1="185" x2="446" y2="195"/>
-      <line x1="458" y1="185" x2="458" y2="195"/>
-      <line x1="449" y1="190" x2="455" y2="190"/>
-    </g>
-  </g>
-  <text x="438" y="195" text-anchor="end" font-size="15.5" font-weight="600" fill="#188038">Najjera fitness complex</text>
+  <text x="395" y="226" font-size="24" font-weight="600" fill="#30383d">Najjera</text>
 
-  <!-- SASH MEDICAL CENTRE -->
-  <g filter="url(#psh)">
-    <rect x="323" y="248" width="20" height="20" rx="4.5" fill="#fff" stroke="#ea4335" stroke-width="2"/>
-    <text x="333" y="263" text-anchor="middle" font-size="13" font-weight="700" fill="#ea4335">H</text>
-  </g>
-  <text x="318" y="253" text-anchor="end" font-size="14" font-weight="700" fill="#d93025">SASH MEDICAL</text>
-  <text x="318" y="271" text-anchor="end" font-size="14" font-weight="700" fill="#d93025">CENTRE</text>
+  <!-- points of interest -->
+  <g filter="url(#shadow)"><use href="#school" x="528" y="209"/></g>
+  <text x="555" y="208" font-size="21" fill="#5a7481">Gill International School</text>
+  <text x="555" y="229" font-size="15" fill="#607985">Recently viewed</text>
 
-  <!-- Giggles Preschool -->
-  <g filter="url(#psh)">
-    <circle cx="445" cy="375" r="10" fill="#3f4d5f" stroke="#fff" stroke-width="2"/>
-    <path d="M438 373.5 L445 369.5 L452 373.5 L445 377.5 Z" fill="#fff"/>
-    <line x1="450" y1="375" x2="450" y2="379" stroke="#fff" stroke-width="1.4"/>
+  <g filter="url(#shadow)">
+    <circle cx="537" cy="74" r="18" fill="#fff" stroke="#d7dfe3" stroke-width="2"/>
+    <circle cx="537" cy="74" r="13" fill="#ff6d19"/>
+    <path d="M533 64v12m4-12v12m4-12v12M533 68h8M537 76v8" stroke="#fff" stroke-width="2"/>
   </g>
-  <text x="462" y="380" font-size="15.5" font-weight="500" fill="#3c4043">Giggles Preschool</text>
+  <text x="564" y="83" font-size="21" fill="#e75b12" paint-order="stroke" stroke="#fff" stroke-width="3">Xhub Bar &amp; Restaurant</text>
 
-  <!-- Time to Play (park label) -->
-  <text x="270" y="446" text-anchor="middle" font-size="15" font-weight="500" fill="#34a853">Time to Play</text>
+  <g filter="url(#shadow)"><use href="#hospital" x="234" y="326"/></g>
+  <text x="60" y="323" font-size="21" fill="#df3042" paint-order="stroke" stroke="#fff" stroke-width="3">SASH MEDICAL</text>
+  <text x="130" y="348" font-size="21" fill="#df3042" paint-order="stroke" stroke="#fff" stroke-width="3">CENTRE</text>
 
-  <!-- All seasons fitness center -->
-  <g filter="url(#psh)">
-    <circle cx="385" cy="680" r="9" fill="#5f6368" stroke="#fff" stroke-width="2"/>
-    <g stroke="#fff" stroke-width="2.2" stroke-linecap="round">
-      <line x1="380" y1="676" x2="380" y2="684"/>
-      <line x1="390" y1="676" x2="390" y2="684"/>
-      <line x1="382" y1="680" x2="388" y2="680"/>
-    </g>
-  </g>
-  <text x="371" y="685" text-anchor="end" font-size="15" font-weight="500" fill="#3c4043">All seasons fitness center</text>
+  <g filter="url(#shadow)"><use href="#park" x="185" y="446"/></g>
+  <text x="43" y="454" font-size="21" fill="#138f68" paint-order="stroke" stroke="#fff" stroke-width="3">Time to Play</text>
 
-  <!-- Kilimani mall -->
-  <g filter="url(#psh)">
-    <circle cx="684" cy="598" r="10" fill="#1a73e8" stroke="#fff" stroke-width="2"/>
-    <rect x="679" y="597" width="10" height="7" rx="1.6" fill="#fff"/>
-    <path d="M681 597 q3 -5 6 0" fill="none" stroke="#fff" stroke-width="1.6"/>
-  </g>
-  <text x="670" y="603" text-anchor="end" font-size="16" font-weight="600" fill="#1a73e8">Kilimani mall</text>
+  <g filter="url(#shadow)"><use href="#hospital" x="451" y="808"/></g>
+  <text x="274" y="820" font-size="20" fill="#df4050" paint-order="stroke" stroke="#fff" stroke-width="3">Najjera Hospital</text>
 
-  <!-- Najera shopping centre -->
-  <g filter="url(#psh)">
-    <circle cx="940" cy="168" r="10" fill="#1a73e8" stroke="#fff" stroke-width="2"/>
-    <rect x="935" y="167" width="10" height="7" rx="1.6" fill="#fff"/>
-    <path d="M937 167 q3 -5 6 0" fill="none" stroke="#fff" stroke-width="1.6"/>
-  </g>
-  <text x="926" y="173" text-anchor="end" font-size="16" font-weight="600" fill="#1a73e8">Najera</text>
+  <g filter="url(#shadow)"><use href="#school" x="719" y="801"/></g>
+  <text x="518" y="811" font-size="20" fill="#5a7481" paint-order="stroke" stroke="#fff" stroke-width="3">Preschool Express</text>
 
-  <!-- Najjera 1 Apartments -->
-  <g filter="url(#psh)">
-    <circle cx="1110" cy="452" r="9" fill="#5f6368" stroke="#fff" stroke-width="2"/>
-    <rect x="1106" y="446" width="8" height="11" rx="1" fill="#fff"/>
-    <g fill="#5f6368"><circle cx="1108" cy="449" r="0.9"/><circle cx="1112" cy="449" r="0.9"/><circle cx="1108" cy="453" r="0.9"/><circle cx="1112" cy="453" r="0.9"/></g>
+  <g filter="url(#shadow)">
+    <circle cx="868" cy="710" r="18" fill="#fff" stroke="#d7dfe3" stroke-width="2"/>
+    <circle cx="868" cy="710" r="12" fill="#11a06b"/><circle cx="868" cy="710" r="5" fill="#fff"/>
   </g>
-  <text x="1096" y="457" text-anchor="end" font-size="15" font-weight="500" fill="#3c4043">Najjera 1 Apartments</text>
+  <text x="760" y="708" font-size="20" fill="#138f68" paint-order="stroke" stroke="#fff" stroke-width="3">Kiwatule</text>
+  <text x="674" y="734" font-size="20" fill="#138f68" paint-order="stroke" stroke="#fff" stroke-width="3">Recreation Centre</text>
 
-  <!-- Royal City Ministries -->
-  <g filter="url(#psh)">
-    <circle cx="1170" cy="545" r="9" fill="#5f6368" stroke="#fff" stroke-width="2"/>
-    <g stroke="#fff" stroke-width="2.4" stroke-linecap="round">
-      <line x1="1170" y1="539" x2="1170" y2="551"/>
-      <line x1="1165" y1="544" x2="1175" y2="544"/>
-    </g>
+  <!-- Gill International Preschool pin from the supplied screenshot -->
+  <g transform="translate(411 724)" filter="url(#shadow)">
+    <path d="M0 34S-20 12-20-2a20 20 0 1 1 40 0C20 12 0 34 0 34z" fill="#e3312a"/>
+    <circle cy="-2" r="8" fill="#ad1e1b"/>
   </g>
-  <text x="1156" y="550" text-anchor="end" font-size="15" font-weight="500" fill="#3c4043">Royal City Ministries</text>
-
-  <!-- OGWALINN SECURITY COMPANY LIMITED -->
-  <g filter="url(#psh)">
-    <circle cx="1102" cy="314" r="9" fill="#5f6368" stroke="#fff" stroke-width="2"/>
-    <path d="M1102 308 L1108 310 L1108 315 Q1108 320 1102 322 Q1096 320 1096 315 L1096 310 Z" fill="#fff"/>
-  </g>
-  <text x="1116" y="310" font-size="13.5" font-weight="700" letter-spacing="0.5" fill="#3c4043">OGWALINN SECURITY</text>
-  <text x="1116" y="328" font-size="13.5" font-weight="700" letter-spacing="0.5" fill="#3c4043">COMPANY LIMITED</text>
-
-  <!-- Continental One 2 One Guest House -->
-  <g filter="url(#psh)">
-    <circle cx="1005" cy="68" r="10" fill="#e0447c" stroke="#fff" stroke-width="2"/>
-    <rect x="999" y="66" width="12" height="6" rx="1.4" fill="#fff"/>
-    <rect x="1000" y="63.5" width="4.5" height="3.5" rx="1" fill="#fff"/>
-  </g>
-  <text x="991" y="63" text-anchor="end" font-size="14.5" font-weight="600" fill="#d6408f">Continental One 2</text>
-  <text x="991" y="81" text-anchor="end" font-size="14.5" font-weight="600" fill="#d6408f">One Guest House</text>
-
-  <!-- Kiwatule Recreation Centre -->
-  <g filter="url(#psh)">
-    <circle cx="1204" cy="782" r="9" fill="#34a853" stroke="#fff" stroke-width="2"/>
-    <g stroke="#fff" stroke-width="2" stroke-linecap="round">
-      <line x1="1200" y1="778" x2="1200" y2="786"/>
-      <line x1="1208" y1="778" x2="1208" y2="786"/>
-      <line x1="1202" y1="782" x2="1206" y2="782"/>
-    </g>
-  </g>
-  <text x="1190" y="778" text-anchor="end" font-size="15" font-weight="600" fill="#188038">Kiwatule</text>
-  <text x="1190" y="796" text-anchor="end" font-size="15" font-weight="600" fill="#188038">Recreation Centre</text>
-
-  <!-- Najjera Hospital -->
-  <g filter="url(#psh)">
-    <rect x="622" y="905" width="20" height="20" rx="4.5" fill="#fff" stroke="#ea4335" stroke-width="2"/>
-    <text x="632" y="920" text-anchor="middle" font-size="13" font-weight="700" fill="#ea4335">H</text>
-  </g>
-  <text x="617" y="920" text-anchor="end" font-size="14.5" font-weight="700" fill="#d93025">Najjera Hospital</text>
-
-  <!-- Preschool Express -->
-  <g filter="url(#psh)">
-    <circle cx="995" cy="905" r="9" fill="#5f6368" stroke="#fff" stroke-width="2"/>
-    <rect x="989" y="900" width="12" height="9" rx="1.4" fill="#fff"/>
-    <path d="M989 901 L995 905.5 L1001 901" fill="none" stroke="#5f6368" stroke-width="1.4"/>
-  </g>
-  <text x="981" y="910" text-anchor="end" font-size="15" font-weight="500" fill="#3c4043">Preschool Express</text>
-
-  <!-- Venus (edge label) -->
-  <text x="1262" y="968" font-size="15" font-weight="500" fill="#80858c">Venus</text>
-
-  <!-- ======================= travel-time badges ======================= -->
-  <!-- walking -->
-  <g filter="url(#bsh)">
-    <path d="M688 292 L701 299 L688 306 Z" fill="#ffffff"/>
-    <rect x="568" y="268" width="120" height="62" rx="10" fill="#ffffff"/>
-  </g>
-  <g stroke="#5f6368" stroke-width="2.6" stroke-linecap="round" fill="none">
-    <circle cx="589" cy="284" r="3.4" fill="#5f6368" stroke="none"/>
-    <line x1="589" y1="288" x2="587" y2="302"/>
-    <line x1="589" y1="291" x2="582" y2="297"/>
-    <line x1="589" y1="291" x2="595" y2="298"/>
-    <line x1="587" y1="302" x2="581" y2="313"/>
-    <line x1="587" y1="302" x2="593" y2="313"/>
-  </g>
-  <text x="606" y="296" font-size="19" font-weight="600" fill="#202124">15 min</text>
-  <text x="606" y="317" font-size="14" fill="#70757a">1.1 km</text>
-
-  <!-- cycling -->
-  <g filter="url(#bsh)">
-    <path d="M694 471 L681 478 L694 485 Z" fill="#ffffff"/>
-    <rect x="696" y="448" width="118" height="60" rx="10" fill="#ffffff"/>
-  </g>
-  <g stroke="#5f6368" stroke-width="2.2" fill="none" stroke-linecap="round">
-    <circle cx="709" cy="492" r="5.6"/>
-    <circle cx="727" cy="492" r="5.6"/>
-    <path d="M709 492 L715 483 L723 483 L727 492 M715 483 L719 492 M721 481 L725 481"/>
-  </g>
-  <text x="742" y="474" font-size="19" font-weight="600" fill="#202124">3 min</text>
-  <text x="742" y="495" font-size="14" fill="#70757a">1.1 km</text>
-
-  <!-- driving -->
-  <g filter="url(#bsh)">
-    <path d="M648 652 L661 659 L648 666 Z" fill="#ffffff"/>
-    <rect x="516" y="628" width="132" height="60" rx="10" fill="#ffffff"/>
-  </g>
-  <g fill="#5f6368">
-    <path d="M521 664 q0 -4 4 -5 l3.5 -5.5 q2 -3.5 7.5 -3.5 h6 q5.5 0 8.5 4 l3 5 q4.5 1 4.5 5 v2.5 h-37 z"/>
-    <circle cx="529" cy="666" r="3.4"/>
-    <circle cx="546" cy="666" r="3.4"/>
-  </g>
-  <circle cx="529" cy="666" r="1.4" fill="#fff"/>
-  <circle cx="546" cy="666" r="1.4" fill="#fff"/>
-  <text x="560" y="655" font-size="19" font-weight="600" fill="#202124">3 min</text>
-  <text x="560" y="676" font-size="14" fill="#70757a">1.1 km</text>
+  <text x="438" y="724" font-size="21" fill="#cc1e22" paint-order="stroke" stroke="#fff" stroke-width="3">Gill International</text>
+  <text x="438" y="750" font-size="21" fill="#cc1e22" paint-order="stroke" stroke="#fff" stroke-width="3">Preschool</text>
 </svg>

@@ -1,10 +1,6 @@
 "use client";
-// Static campus map — a real street view of Najjera (public/map-najjera.svg)
-// showing the 1.1 km route between the two Gill campuses, in the style of the
-// school's own Google Maps listing. Tapping a pin (or its label) opens Google
-// Maps with driving directions to that exact landmark — the shortest route
-// for the parent.
-import Icon from "./icons.jsx";
+// Static Najjera street map based on the school's map listing. The campus
+// export remains shared with registration and footer location links.
 
 export const CAMPUSES = [
   {
@@ -40,52 +36,20 @@ export const CAMPUSES = [
   },
 ];
 
-const directionsUrl = (c) =>
-  `https://www.google.com/maps/dir/?api=1&destination=${c.lat},${c.lng}`;
-
 export default function CampusMap({ height = 430 }) {
   return (
     <div
-      className="cmap"
-      style={{ minHeight: height, aspectRatio: "1312 / 984" }}
-      role="group"
-      aria-label="Street map of the two Gill campuses in Najjera, Kampala, with the 1.1 km route between them"
+      className="cmap cmap-static"
+      style={{ minHeight: height, aspectRatio: "921 / 856" }}
+      role="img"
+      aria-label="Static street map of Gill International School and Gill International Preschool in Najjera, Kampala"
     >
       <img
         className="cmap-img"
         src="/map-najjera.svg"
-        alt=""
-        aria-hidden="true"
+        alt="Street map showing Gill International School, Gill International Preschool, Mbogo Road, Bulabira Road and nearby Najjera landmarks"
         draggable={false}
       />
-
-      {/* Pins — tapping opens Google Maps directions (shortest driving route) */}
-      {CAMPUSES.map((c) => (
-        <a
-          key={c.id}
-          className={`cmap-pin ${c.class}`}
-          href={directionsUrl(c)}
-          target="_blank"
-          rel="noreferrer"
-          style={{ left: `${c.x}%`, top: `${c.y}%` }}
-          aria-label={`Directions to ${c.name} — ${c.address}, ${c.landmark}`}
-          title={`Directions to ${c.name}`}
-        >
-          <svg className="cmap-pin-svg" width="34" height="46" viewBox="0 0 24 32" fill="none" aria-hidden="true">
-            <path d="M12 31C12 31 22 19.5 22 12a10 10 0 1 0-20 0c0 7.5 10 19 10 19z" fill={c.color} stroke="#fff" strokeWidth="1.6" />
-            <circle cx="12" cy="12" r="4.2" fill="#fff" stroke={c.color} strokeWidth="1.4" />
-          </svg>
-          <span className="cmap-label">
-            <b>{c.short}</b>
-            <small>{c.landmark}</small>
-          </span>
-        </a>
-      ))}
-
-      <div className="cmap-hint">
-        <Icon name="pin" size={15} />
-        Tap a pin — Google Maps opens the quickest driving route from where you are.
-      </div>
     </div>
   );
 }
