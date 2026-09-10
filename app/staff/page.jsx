@@ -25,6 +25,7 @@ export default function StaffPortalPage() {
   const { signIn } = useStaff();
   const [role, setRole] = useState("teacher");
   const [userId, setUserId] = useState("t-aisha");
+  const [email, setEmail] = useState("a.hassan@gill.sch");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -45,9 +46,13 @@ export default function StaffPortalPage() {
   function submit(event) {
     event.preventDefault();
     setError("");
-    if (password.length < 8) return setError("Password must be at least 8 characters.");
-    if (password !== confirm) return setError("Passwords don't match.");
-    if (password !== "gill2026") return setError("Use the school-issued demo password: gill2026");
+    // Demo flow: any staff profile works with the demo password gill2026
+    if (password !== "gill2026") {
+      if (password.length < 8) return setError("Password must be at least 8 characters.");
+      if (password !== confirm) return setError("Passwords don't match.");
+      return setError("Use the school-issued demo password: gill2026");
+    }
+    if (confirm !== "gill2026") return setError("Please confirm the demo password: gill2026");
 
     setBusy(true);
     signIn({ ...person, role: "staff", roleLabel: activeRole.label, actor: true });
@@ -104,7 +109,7 @@ export default function StaffPortalPage() {
 
               <label className="field">
                 <span className="fw700">School email address</span>
-                <input type="email" value={person.email} readOnly aria-readonly="true" />
+                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="any staff email works with demo password" autoComplete="email" />
               </label>
             </div>
           </fieldset>
@@ -124,7 +129,7 @@ export default function StaffPortalPage() {
 
         <div className="staff-security-note">
           <Icon name="lock" size={17} />
-          <span><b>School-managed access</b> · Staff profiles are issued by the school office. Demo password: <span className="mono">gill2026</span>.</span>
+          <span><b>School-managed access</b> · Any staff profile works with the demo password: <span className="mono">gill2026</span>.</span>
         </div>
 
         <p className="staff-onboard-foot">Already set up? Completing this form securely opens your existing staff workspace.</p>
