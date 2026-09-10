@@ -257,7 +257,7 @@ function Register() {
                 <li><Icon name="globe" size={15} /> Coordinates {c.lat}, {c.lng}</li>
               </ul>
               <a className="btn secondary sm" href={`https://www.google.com/maps/dir/?api=1&destination=${c.lat},${c.lng}`} target="_blank" rel="noreferrer">
-                <Icon name="pin" size={15} /> Get directions →
+                <Icon name="pin" size={15} /> Get directions &gt;
               </a>
             </div>
           ))}

@@ -177,7 +177,7 @@ function ApplyWizard() {
             </ol>
           </div>
           <div className="row" style={{ justifyContent: "space-between", marginTop: "1.1rem" }}>
-            <a href="/portal/login" className="btn secondary sm">Open Parent Portal →</a>
+            <a href="/portal/login" className="btn secondary sm">Open Parent Portal &gt;</a>
             <a href="/" className="small">School home</a>
           </div>
         </div>
@@ -399,7 +399,7 @@ function ApplyWizard() {
             <div className="row" style={{ justifyContent: "space-between", marginTop: "1.1rem" }}>
               <button className="btn ghost" disabled={busy || step === 0} onClick={() => setStep((s) => Math.max(0, s - 1))}>← Back</button>
               <button className="btn" disabled={busy} onClick={() => save()}>
-                {busy ? "Saving…" : step === 5 ? "Submit application" : "Save & continue →"}
+                {busy ? "Saving…" : step === 5 ? "Submit application" : "Save & continue >"}
               </button>
             </div>
           </div>

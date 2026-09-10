@@ -152,7 +152,7 @@ export default function Landing() {
               <div className="small muted">Create your family account and apply in the same 6 steps as the school admission form — Pre-School to Year 13.</div>
             </div>
           </div>
-          <a href="/register" className="btn gold sm">Register &amp; start application →</a>
+          <a href="/register" className="btn gold sm">Register &amp; start application &gt;</a>
         </div>
         <div className="grid grid-3">
           <a className="portal-card pc-parents" href="/portal/login">
@@ -161,7 +161,7 @@ export default function Landing() {
               <div className="ico"><Icon name="users" size={24} /></div>
               <h3>Parents' Portal</h3>
               <p>One shared family login for every parent on the admission form — children & progress, fees, notices, group chats and supervised student accounts.</p>
-              <span className="btn gold sm">Open Parents' Portal →</span>
+              <span className="btn gold sm">Open Parents' Portal &gt;</span>
               <div className="pc-note"><Icon name="checkCircle" size={14} style={{ verticalAlign: "-3px" }} /> One login per family · verified by sms code</div>
             </div>
           </a>
@@ -171,7 +171,7 @@ export default function Landing() {
               <div className="ico"><Icon name="grad" size={24} /></div>
               <h3>Staff Portal</h3>
               <p>Teachers, admissions, bursar and gate staff: classes, pupils, assessment remarks, family group chats and daily operations.</p>
-              <span className="btn gold sm">Open Staff Portal →</span>
+              <span className="btn gold sm">Open Staff Portal &gt;</span>
               <div className="pc-note"><Icon name="checkCircle" size={14} style={{ verticalAlign: "-3px" }} /> Role-based sign-in · named accounts</div>
             </div>
           </a>
@@ -181,7 +181,7 @@ export default function Landing() {
               <div className="ico"><Icon name="user" size={24} /></div>
               <h3>Student Portal</h3>
               <p>Each child's supervised account — today's classes, homework, progress, library and calendar. Parents decide what they can see.</p>
-              <span className="btn gold sm">Open Student Portal →</span>
+              <span className="btn gold sm">Open Student Portal &gt;</span>
               <div className="pc-note"><Icon name="checkCircle" size={14} style={{ verticalAlign: "-3px" }} /> Created & supervised by parents</div>
             </div>
           </a>
@@ -301,7 +301,7 @@ export default function Landing() {
           <div className="proof-photo">
             <img src="/photos/three-kids.jpg" alt="Gill pupils in uniform" loading="lazy" />
             <div className="proof-overlay">
-              <span className="chip-pre" style={{ display: "inline-flex" }}>Parent → Student accounts</span>
+              <span className="chip-pre" style={{ display: "inline-flex" }}>Parent &gt; Student accounts</span>
               <h3>Set up before day one</h3>
               <p className="small">The school already has your child's record on file. From the Parent Portal you create their supervised account — username, password, and exactly what they can see.</p>
               <div className="row">
@@ -390,7 +390,7 @@ export default function Landing() {
               <li><Icon name="crosshair" size={17} /> <span><b>Coordinates</b> 0.3762226, 32.6244347</span></li>
             </ul>
             <a className="btn secondary sm" href={`https://www.google.com/maps/dir/?api=1&destination=${CAMPUSES[0].lat},${CAMPUSES[0].lng}`} target="_blank" rel="noreferrer">
-              <Icon name="navigation" size={15} /> Get directions →
+              <Icon name="navigation" size={15} /> Get directions &gt;
             </a>
           </div>
 
@@ -409,7 +409,7 @@ export default function Landing() {
               <li><Icon name="crosshair" size={17} /> <span><b>Coordinates</b> 0.384875, 32.626375</span></li>
             </ul>
             <a className="btn secondary sm" href={`https://www.google.com/maps/dir/?api=1&destination=${CAMPUSES[1].lat},${CAMPUSES[1].lng}`} target="_blank" rel="noreferrer">
-              <Icon name="navigation" size={15} /> Get directions →
+              <Icon name="navigation" size={15} /> Get directions &gt;
             </a>
           </div>
         </div>

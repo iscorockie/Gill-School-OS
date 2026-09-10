@@ -28,7 +28,7 @@ export default function PortalHome() {
   );
 
   // New parents (registered on /register) see the application dashboard until
-  // the Admissions registrar verifies records + tuition → account "active".
+  // the Admissions registrar verifies records + tuition > account "active".
   const fa = db.familyAccountByFamily[family.id];
   if (fa?.status === "pending" || (fa?.status === "active" && kids.every((k) => !k.enrolled))) {
     return <ApplicationHome db={db} session={session} family={family} act={act} />;
@@ -81,7 +81,7 @@ export default function PortalHome() {
             </div>
           </div>
           <Link className="btn secondary sm" href="/portal/messages">
-            {chatUnread ? `${chatUnread} unread · ` : ""}Open group chats →
+            {chatUnread ? `${chatUnread} unread · ` : ""}Open group chats &gt;
           </Link>
         </div>
       )}
@@ -120,7 +120,7 @@ export default function PortalHome() {
               {k.featuredNote && <p className="small" style={{ marginTop: "0.45rem" }}> {k.featuredNote}</p>}
             </div>
           ))}
-          <Link href="/portal/children" className="btn secondary sm">View progress & documents →</Link>
+          <Link href="/portal/children" className="btn secondary sm">View progress & documents &gt;</Link>
         </div>
 
         <div className="card">
@@ -134,7 +134,7 @@ export default function PortalHome() {
               <p className="small muted">{n.body}</p>
             </div>
           ))}
-          <Link href="/portal/news" className="btn secondary sm">Open noticeboard →</Link>
+          <Link href="/portal/news" className="btn secondary sm">Open noticeboard &gt;</Link>
         </div>
       </div>
 
@@ -211,8 +211,8 @@ function ApplicationHome({ db, session, family, act }) {
           {app && <Badge tone={isActive ? "green" : "gold"}>{isActive ? "Admission verified" : app.status === "applied" ? "Under review" : "Application in progress"}</Badge>}
         </div>
         <div className="row" style={{ marginTop: "1rem" }}>
-          {!app && <Link className="btn gold" href="/apply">Start the application →</Link>}
-          {app && !isActive && app.status === "in_progress" && <Link className="btn gold" href="/apply">Continue application →</Link>}
+          {!app && <Link className="btn gold" href="/apply">Start the application &gt;</Link>}
+          {app && !isActive && app.status === "in_progress" && <Link className="btn gold" href="/apply">Continue application &gt;</Link>}
           {app && !isActive && app.status === "applied" && (<>
             <button className="btn gold" onClick={applyAgain}>
               <Icon name="refresh" size={16} /> Apply again — edit & resubmit
@@ -234,7 +234,7 @@ function ApplicationHome({ db, session, family, act }) {
         <div className="card">
           <h3>No application yet</h3>
           <p className="small muted">Your family account is ready. Start the application — it follows the same 6 steps as the school's admission form.</p>
-          <Link className="btn" href="/apply">Start the application →</Link>
+          <Link className="btn" href="/apply">Start the application &gt;</Link>
         </div>
       ) : (
         <>
@@ -269,7 +269,7 @@ function ApplicationHome({ db, session, family, act }) {
                 {fa?.status === "pending" && <Badge tone="blue">account active after verification</Badge>}
               </div>
               {inv && !tuitionOK && (
-                <Link className="btn secondary sm" href="/portal/fees" style={{ marginTop: "0.8rem" }}>Pay with mobile money →</Link>
+                <Link className="btn secondary sm" href="/portal/fees" style={{ marginTop: "0.8rem" }}>Pay with mobile money &gt;</Link>
               )}
             </div>
           </div>
@@ -286,7 +286,7 @@ function ApplicationHome({ db, session, family, act }) {
                     </p>
                   </div>
                 </div>
-                {sa && <Link className="btn sm" href={`/student/login?u=${encodeURIComponent(sa.username)}`}>Open portal →</Link>}
+                {sa && <Link className="btn sm" href={`/student/login?u=${encodeURIComponent(sa.username)}`}>Open portal &gt;</Link>}
               </div>
             </div>
           )}
@@ -297,7 +297,7 @@ function ApplicationHome({ db, session, family, act }) {
 }
 
 function ApplicationSettings({ app, act }) {
-  // Parents' dashboard → Application settings. These choices are kept on the
+  // Parents' dashboard > Application settings. These choices are kept on the
   // application record so the Admissions office sees the family's latest
   // preferences; nothing here changes the 6-step application itself.
   const [open, setOpen] = useState(false);

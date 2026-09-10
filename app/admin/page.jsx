@@ -86,7 +86,7 @@ export default function AdminDashboard() {
               })}
             </tbody>
           </table>
-          <Link href="/admin/fees" className="btn secondary sm">Open fees & reconciliation →</Link>
+          <Link href="/admin/fees" className="btn secondary sm">Open fees & reconciliation &gt;</Link>
         </div>
 
         <div className="card">
@@ -105,7 +105,7 @@ export default function AdminDashboard() {
           </div>
           <div className="list-item">
             <div className="spread">
-              <b>{term.openTransitions} Pre-School → Main School transition{term.openTransitions === 1 ? "" : "s"} ready</b>
+              <b>{term.openTransitions} Pre-School &gt; Main School transition{term.openTransitions === 1 ? "" : "s"} ready</b>
               <Link className="btn ghost sm" href="/admin/admissions">View</Link>
             </div>
           </div>
@@ -148,7 +148,7 @@ export default function AdminDashboard() {
               </div>
             );
           })}
-          <Link href="/admin/pickups" className="btn secondary sm">Open gate console →</Link>
+          <Link href="/admin/pickups" className="btn secondary sm">Open gate console &gt;</Link>
         </div>
 
         <div className="card">

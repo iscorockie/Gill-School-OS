@@ -56,7 +56,7 @@ export default function AdmissionsPage() {
                     <div className="avatar-lg" style={{ background: "var(--peri-l)", color: "var(--maroon)", border: "1px solid var(--peri-2)" }}>{kid?.name.split(" ").map((w) => w[0]).join("").slice(0, 2)}</div>
                     <div>
                       <h3>{kid?.name}</h3>
-                      <div className="small muted">{kid?.class} → <b style={{ color: "var(--maroon)" }}>{t.targetClass}</b> · {fam?.name} family</div>
+                      <div className="small muted">{kid?.class} &gt; <b style={{ color: "var(--maroon)" }}>{t.targetClass}</b> · {fam?.name} family</div>
                     </div>
                   </div>
                   <Badge tone={t.status === "enrolled" ? "green" : "gold"}>{t.status}</Badge>
@@ -68,7 +68,7 @@ export default function AdmissionsPage() {
                   ))}
                 </div>
                 <div className="row">
-                  <button className="btn secondary sm" onClick={() => { setTrId(t.id); setNotes(t.notes || ""); }}>One-click migrate →</button>
+                  <button className="btn secondary sm" onClick={() => { setTrId(t.id); setNotes(t.notes || ""); }}>One-click migrate &gt;</button>
                   <button className="btn ghost sm" onClick={() => act("initiateTransition", { studentId: t.studentId, by: "u-admissions", notes: "Manual re-initiation." }, "Transition record re-created.")}>Re-initiate</button>
                 </div>
               </div>
@@ -268,7 +268,7 @@ export default function AdmissionsPage() {
                 );
               })}
               {db.studentAccounts.length === 0 && (
-                <tr><td colSpan={6} className="muted small">No student accounts yet — parents create them from Parent Portal → Student Accounts.</td></tr>
+                <tr><td colSpan={6} className="muted small">No student accounts yet — parents create them from Parent Portal &gt; Student Accounts.</td></tr>
               )}
             </tbody>
           </table>
@@ -276,7 +276,7 @@ export default function AdmissionsPage() {
       )}
 
       {transition && (
-        <Modal title={`Migrate ${db.studentIndex[transition.studentId]?.name} → Main School`} onClose={() => setTrId(null)}>
+        <Modal title={`Migrate ${db.studentIndex[transition.studentId]?.name} > Main School`} onClose={() => setTrId(null)}>
           <div className="quote" style={{ marginBottom: "0.9rem" }}>
             <b>What migrates automatically:</b> progress records, immunisation records, medical history, parent contacts, and birth certificate.
             <div className="small muted">No re-typing for Admissions, no re-filling forms for parents.</div>

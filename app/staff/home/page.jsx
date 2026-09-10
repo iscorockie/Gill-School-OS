@@ -216,7 +216,7 @@ export default function StaffHome() {
           {staff.id === "u-admissions" && (
             <div className="card">
               <h3>Admissions desk</h3>
-              <div className="list-item"><b>{db.applications.filter((a) => a.status !== "activated").length} applications awaiting activation</b><div className="small muted">docs verified + tuition cleared → auto on-boarded</div></div>
+              <div className="list-item"><b>{db.applications.filter((a) => a.status !== "activated").length} applications awaiting activation</b><div className="small muted">docs verified + tuition cleared &gt; auto on-boarded</div></div>
               <div className="list-item"><b>{db.documents.filter((d) => d.status === "pending review").length} documents pending verification</b><div className="small muted">verified records follow the pupil at transition</div></div>
             </div>
           )}

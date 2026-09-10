@@ -19,7 +19,7 @@ function Setup() {
   const router = useRouter();
   const { login } = useParent();
   const [token, setToken] = useState(search.get("invite") || "");
-  const [step, setStep] = useState("welcome"); // welcome → password → verify
+  const [step, setStep] = useState("welcome"); // welcome > password > verify
   const [info, setInfo] = useState(null);
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -164,9 +164,9 @@ function Setup() {
             </form>
 
             <div className="demo-hint">
-              <b>Demo</b> — pay the Ssemwanga invoice in Admin → Fees, then use{" "}
+              <b>Demo</b> — pay the Ssemwanga invoice in Admin &gt; Fees, then use{" "}
               <span className="mono">INV-SSEM-XXXX</span> from the invite SMS. Already set up?{" "}
-              <a href="/portal/login">Sign in →</a>
+              <a href="/portal/login">Sign in &gt;</a>
             </div>
           </>
         )}
@@ -216,7 +216,7 @@ function Setup() {
               </button>
             </form>
             <p className="small muted" style={{ marginTop: "0.8rem", textAlign: "center" }}>
-              <a href="/portal/login">Already set up? Sign in instead →</a>
+              <a href="/portal/login">Already set up? Sign in instead &gt;</a>
             </p>
           </>
         )}
@@ -257,7 +257,7 @@ function Setup() {
               <button className="btn ghost sm" onClick={resend} disabled={busy}>
                 <Icon name="refresh" size={14} /> Resend code
               </button>
-              <a className="small" href="/portal/login">Sign in instead →</a>
+              <a className="small" href="/portal/login">Sign in instead &gt;</a>
             </div>
           </>
         )}

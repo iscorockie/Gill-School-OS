@@ -102,7 +102,7 @@ function StudentLogin() {
           <div style={{ marginTop: "0.5rem" }}>
             <button className="btn secondary sm" onClick={demo}>Fill demo details</button>
           </div>
-          <p style={{ marginTop: "0.55rem", marginBottom: 0 }}> Parents create and manage student accounts from <b>Parent Portal → Student Accounts</b>.
+          <p style={{ marginTop: "0.55rem", marginBottom: 0 }}> Parents create and manage student accounts from <b>Parent Portal &gt; Student Accounts</b>.
           </p>
         </div>
 

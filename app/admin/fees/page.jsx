@@ -336,7 +336,7 @@ export default function AdminFeesPage() {
             <h3> Reconciliation, automated</h3>
             {[
               ["MTN MoMo statement batch", "Auto-matched to invoices by reference · 4:00 pm sweep", "green"],
-              ["Airtel Merchant portal", "API call-out → ledger update → recipient = invoice", "green"],
+              ["Airtel Merchant portal", "API call-out > ledger update > recipient = invoice", "green"],
               ["Visa / card", "Card processor settlement matched by receipt number", "green"],
               ["Cash & bank slips (front office)", "Manual entry remains, but every entry is audit-logged", "gold"],
             ].map(([t, d, tone]) => (

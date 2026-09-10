@@ -67,7 +67,7 @@ export default function LeavePage() {
               <div className="list-item" key={l.id}>
                 <div className="spread">
                   <div>
-                    <b>{kid?.name}</b> · <span className="small">{fmtDate(l.from)} → {fmtDate(l.to)}</span>
+                    <b>{kid?.name}</b> · <span className="small">{fmtDate(l.from)} &gt; {fmtDate(l.to)}</span>
                     <div className="small muted">{l.reason || "No reason given"}</div>
                     <div className="small muted">Notified: {l.teacherNotified?.map((t) => db.users.find((u) => u.id === t)?.name?.split(" ").slice(-1)[0]).join(", ") || "—"}</div>
                   </div>

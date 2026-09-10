@@ -116,7 +116,7 @@ function KidPanel({ db, kid }) {
             {uploading ? "Uploading…" : "Upload"}
           </button>
         </div>
-        <p className="small muted" style={{ marginTop: "0.4rem" }}> No paper needed — Admissions verifies these records online and they automatically carry forward on Pre-School → Main School transition.
+        <p className="small muted" style={{ marginTop: "0.4rem" }}> No paper needed — Admissions verifies these records online and they automatically carry forward on Pre-School &gt; Main School transition.
         </p>
       </div>
     </div>
