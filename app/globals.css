@@ -739,8 +739,8 @@ tr:last-child td { border-bottom: none; }
 .fw700 { font-weight: 700; }
 
 /* ---------------- Static campus map (design-system, no tiles) ---------------- */
-.cmap { position: relative; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: #eef1f7; box-shadow: var(--shadow-soft); }
-.cmap-svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.cmap { position: relative; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: #e9ebee; box-shadow: var(--shadow-soft); }
+.cmap-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; user-select: none; }
 .cmap-pin {
   position: absolute; transform: translate(-50%, -100%); z-index: 2;
   display: flex; flex-direction: column; align-items: center; gap: 0.35rem;
