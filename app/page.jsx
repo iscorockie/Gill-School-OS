@@ -384,13 +384,13 @@ export default function Landing() {
               </div>
             </div>
             <ul className="find-list">
-              <li><Icon name="pin" size={15} /> White Close, Plot 341 — opposite <b>Hass Petrol Station</b></li>
-              <li><Icon name="file" size={15} /> Plus code 6GGJ9JGF+FQ</li>
-              <li><Icon name="phone" size={15} /> {CAMPUSES[0].phone}</li>
-              <li><Icon name="globe" size={15} /> Coordinates 0.3762226, 32.6244347</li>
+              <li><Icon name="pin" size={17} /> <span>White Close, Plot 341, opposite <b>Hass Petrol Station</b></span></li>
+              <li><Icon name="hash" size={17} /> <span><b>Plus code</b> 6GGJ9JGF+FQ</span></li>
+              <li><Icon name="phone" size={17} /> <a href={`tel:${CAMPUSES[0].phone.replace(/\s/g, "")}`}>{CAMPUSES[0].phone}</a></li>
+              <li><Icon name="crosshair" size={17} /> <span><b>Coordinates</b> 0.3762226, 32.6244347</span></li>
             </ul>
             <a className="btn secondary sm" href={`https://www.google.com/maps/dir/?api=1&destination=${CAMPUSES[0].lat},${CAMPUSES[0].lng}`} target="_blank" rel="noreferrer">
-              <Icon name="pin" size={15} /> Get directions →
+              <Icon name="navigation" size={15} /> Get directions →
             </a>
           </div>
 
@@ -403,13 +403,13 @@ export default function Landing() {
               </div>
             </div>
             <ul className="find-list">
-              <li><Icon name="pin" size={15} /> <b>Mbogo Road 1</b>, Najjera A–Bulabira, Kira Ward</li>
-              <li><Icon name="file" size={15} /> Plus code <b>9JMG+XH</b> Kampala (6GGJ9JMG+XH)</li>
-              <li><Icon name="phone" size={15} /> {CAMPUSES[1].phone}</li>
-              <li><Icon name="globe" size={15} /> Coordinates 0.384875, 32.626375</li>
+              <li><Icon name="pin" size={17} /> <span><b>Mbogo Road 1</b>, Najjera A, Bulabira, Kira Ward</span></li>
+              <li><Icon name="hash" size={17} /> <span><b>Plus code</b> 6GGJ9JMG+XH</span></li>
+              <li><Icon name="phone" size={17} /> <a href={`tel:${CAMPUSES[1].phone.replace(/\s/g, "")}`}>{CAMPUSES[1].phone}</a></li>
+              <li><Icon name="crosshair" size={17} /> <span><b>Coordinates</b> 0.384875, 32.626375</span></li>
             </ul>
             <a className="btn secondary sm" href={`https://www.google.com/maps/dir/?api=1&destination=${CAMPUSES[1].lat},${CAMPUSES[1].lng}`} target="_blank" rel="noreferrer">
-              <Icon name="pin" size={15} /> Get directions →
+              <Icon name="navigation" size={15} /> Get directions →
             </a>
           </div>
         </div>
