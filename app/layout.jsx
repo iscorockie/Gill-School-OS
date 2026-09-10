@@ -1,4 +1,5 @@
 import "./globals.css";
+import PrivacyBanner from "@/components/PrivacyBanner.jsx";
 
 export const metadata = {
   title: "Gill School OS — Gill International School, Najjera",
@@ -25,7 +26,10 @@ export default function RootLayout({ children }) {
           rel="stylesheet"
         />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <PrivacyBanner />
+      </body>
     </html>
   );
 }

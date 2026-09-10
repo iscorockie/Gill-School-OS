@@ -25,7 +25,7 @@ export default function CalendarPage() {
             </p>
           </div>
           <div className="row">
-            <a className="btn sm" href={`https://calendar.google.com/calendar/render?cid=${encodeURIComponent(ICS_URL)}`} target="_blank" rel="noreferrer">Google Calendar →</a>
+            <a className="btn sm" href={`https://calendar.google.com/calendar/render?cid=${encodeURIComponent(ICS_URL)}`} target="_blank" rel="noreferrer">Google Calendar &gt;</a>
             <a className="btn secondary sm" href={`webcal://${ICS_URL.replace(/^https?:\/\//, "")}`}>Apple / iCal</a>
             <a className="btn secondary sm" href="/api/ics?campus=all" download="gill-school-events.ics">Download .ics</a>
           </div>

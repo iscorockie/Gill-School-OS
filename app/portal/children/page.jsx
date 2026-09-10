@@ -5,6 +5,7 @@ import { useParent } from "@/components/ParentProvider.jsx";
 import { currentFamily, studentAssessments } from "@/lib/client.js";
 import { fmtDate } from "@/components/ui.jsx";
 import Icon from "@/components/icons.jsx";
+import StudentAvatar from "@/components/StudentAvatar.jsx";
 
 function KidPanel({ db, kid }) {
   const { act } = useApp();
@@ -33,9 +34,7 @@ function KidPanel({ db, kid }) {
       <div className="card" style={{ marginBottom: "1rem" }}>
         <div className="spread">
           <div className="row">
-            <div className="avatar-lg" style={{ background: kid.campus === "preschool" ? "var(--cream)" : "var(--peri-l)", color: kid.campus === "preschool" ? "var(--gips-deep)" : "var(--maroon)", border: kid.campus === "preschool" ? "1px solid var(--sun2)" : "1px solid var(--peri-2)", fontFamily: kid.campus === "preschool" ? "var(--fpd)" : "var(--fd)" }}>
-              {kid.name.split(" ").map((w) => w[0]).join("").slice(0, 2)}
-            </div>
+            <StudentAvatar student={kid} size={64} />
             <div>
               <h3 style={kid.campus === "preschool" ? { fontFamily: "var(--fpd)", color: "var(--gips-deep)" } : undefined}>{kid.name}</h3>
               <div className="small muted">{kid.class} · {kid.campus === "preschool" ? "Gill Pre-School (GIPS)" : "Gill International School"}</div>
@@ -117,7 +116,7 @@ function KidPanel({ db, kid }) {
             {uploading ? "Uploading…" : "Upload"}
           </button>
         </div>
-        <p className="small muted" style={{ marginTop: "0.4rem" }}> No paper needed — Admissions verifies these records online and they automatically carry forward on Pre-School → Main School transition.
+        <p className="small muted" style={{ marginTop: "0.4rem" }}> No paper needed — Admissions verifies these records online and they automatically carry forward on Pre-School &gt; Main School transition.
         </p>
       </div>
     </div>

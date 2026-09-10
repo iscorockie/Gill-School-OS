@@ -115,13 +115,13 @@ function ParentLogin() {
           <b className="small">New family?</b>
           <span className="small muted"> Start your application online — create the family account and follow the 6-step application, or open your invite link from the SMS (set a password, then verify with a code sent to your phone).</span>
           <div className="row" style={{ marginTop: "0.5rem", gap: "0.5rem", flexWrap: "wrap" }}>
-            <a className="btn secondary sm" href="/register">Register &amp; apply →</a>
-            <a className="btn ghost sm" href="/portal/setup">Open the invite setup →</a>
+            <a className="btn secondary sm" href="/register">Register &amp; apply &gt;</a>
+            <a className="btn ghost sm" href="/portal/setup">Open the invite setup &gt;</a>
           </div>
         </div>
 
         <div className="row" style={{ justifyContent: "space-between", marginTop: "1.1rem" }}>
-          <a href="/student/login" className="small">Student portal →</a>
+          <a href="/student/login" className="small">Student portal &gt;</a>
           <a href="/" className="small">School home</a>
         </div>
       </div>

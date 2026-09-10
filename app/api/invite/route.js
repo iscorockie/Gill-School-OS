@@ -4,7 +4,7 @@ import { runAction } from "@/lib/actions";
 export const dynamic = "force-dynamic";
 
 // Invite flow steps: look up the invite link, create the family password,
-// resend the verification code, verify the code (→ shared family session).
+// resend the verification code, verify the code (> shared family session).
 export async function POST(req) {
   try {
     const { op, ...payload } = await req.json();

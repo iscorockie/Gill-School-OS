@@ -19,7 +19,7 @@ export async function POST(req) {
     }
     // "pending" = family created their own account on /register; they may sign
     // in to track the application, but the portal stays in application mode
-    // until the Admissions registrar verifies documents + tuition (→ "active").
+    // until the Admissions registrar verifies documents + tuition (> "active").
     if (account.status !== "active" && account.status !== "pending") {
       return NextResponse.json({ ok: false, error: "This family account is pending." }, { status: 403 });
     }

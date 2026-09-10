@@ -27,7 +27,7 @@ export default function LeavesPage() {
             <div className="list-item" key={l.id}>
               <div className="spread">
                 <div>
-                  <b>{kid?.name}</b> · <span className="small">{fam?.name} family · {l.from} → {l.to}</span>
+                  <b>{kid?.name}</b> · <span className="small">{fam?.name} family · {l.from} &gt; {l.to}</span>
                   <div className="small">{l.reason || "No reason given"}</div>
                   <div className="small muted"> Notified automatically: {teachers.join(", ") || "—"} · submitted {fmtDate(l.date)}
                   </div>

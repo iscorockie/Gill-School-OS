@@ -52,7 +52,7 @@ function PayModal({ inv, onClose }) {
         <Field label="Mobile money number"><input placeholder="07XX XXX XXX" value={phone} onChange={(e) => setPhone(e.target.value)} /></Field>
       )}
       <button className="btn" style={{ width: "100%" }} disabled={busy || !amount} onClick={pay}>
-        {busy ? "Processing…" : `Pay ${fmtUGX(amount)} →`}
+        {busy ? "Processing…" : `Pay ${fmtUGX(amount)} >`}
       </button>
       <p className="small muted" style={{ marginTop: "0.6rem", textAlign: "center" }}> Instant reconciliation: the Bursar's ledger clears automatically and a digital receipt is issued.
       </p>
@@ -149,7 +149,7 @@ export default function FeesPage() {
               <div className="small muted">{d}</div>
             </div>
           ))}
-          <Link href="#" onClick={(e) => e.preventDefault()} className="small">View payment methods policy →</Link>
+          <Link href="#" onClick={(e) => e.preventDefault()} className="small">View payment methods policy &gt;</Link>
         </div>
         <div className="card">
           <h3> Recent payments & receipts</h3>

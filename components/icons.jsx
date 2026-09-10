@@ -298,6 +298,23 @@ const paths = {
       <circle cx="12" cy="10" r="3" />
     </>
   ),
+  hash: (
+    <>
+      <path d="M10 3 8 21M16 3l-2 18M4 9h17M3 15h17" />
+    </>
+  ),
+  crosshair: (
+    <>
+      <circle cx="12" cy="12" r="7" />
+      <circle cx="12" cy="12" r="2" />
+      <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
+    </>
+  ),
+  navigation: (
+    <>
+      <path d="m3 11 19-9-9 19-2-8z" />
+    </>
+  ),
   eye: (
     <>
       <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
@@ -354,7 +371,8 @@ export default function Icon({ name, size = 18, className = "", style }) {
       width={size}
       height={size}
       className={className}
-      style={{ flex: "none", ...style }}
+      style={{ display: "inline-block", verticalAlign: "middle", overflow: "visible", flex: "none", ...style }}
+      focusable="false"
       aria-hidden="true"
     >
       {content}

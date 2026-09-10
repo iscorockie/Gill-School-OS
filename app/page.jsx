@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import Icon from "@/components/icons.jsx";
-import CampusMap, { CAMPUSES } from "@/components/CampusMap.jsx";
 import SchoolFooter from "@/components/SchoolFooter.jsx";
 
 const features = [
@@ -98,7 +97,7 @@ export default function Landing() {
             <a href="#platform">Platform</a>
             <a href="#journey">For Families</a>
             <a href="#gallery">Our School</a>
-            <a href="#find-us">Find Us</a>
+            <a href="#suggestions">Suggestions</a>
           </div>
           <div className="cta">
             <a href="#portals" className="btn gold" style={{ padding: "0.55rem 1.3rem", fontSize: "0.85rem" }}>Sign in</a>
@@ -128,7 +127,10 @@ export default function Landing() {
             ].map(([ico, t, d]) => (
               <div className="chip" key={t}>
                 <span className="ico">{ico}</span>
-                <span><b>{t}</b><br /><span>{d}</span></span>
+                <span className="hero-chip-copy">
+                  <b>{t}</b>
+                  <span>{d}</span>
+                </span>
               </div>
             ))}
           </div>
@@ -149,7 +151,7 @@ export default function Landing() {
               <div className="small muted">Create your family account and apply in the same 6 steps as the school admission form — Pre-School to Year 13.</div>
             </div>
           </div>
-          <a href="/register" className="btn gold sm">Register &amp; start application →</a>
+          <a href="/register" className="btn gold sm">Register &amp; start application &gt;</a>
         </div>
         <div className="grid grid-3">
           <a className="portal-card pc-parents" href="/portal/login">
@@ -158,7 +160,7 @@ export default function Landing() {
               <div className="ico"><Icon name="users" size={24} /></div>
               <h3>Parents' Portal</h3>
               <p>One shared family login for every parent on the admission form — children & progress, fees, notices, group chats and supervised student accounts.</p>
-              <span className="btn gold sm">Open Parents' Portal →</span>
+              <span className="btn gold sm">Open Parents' Portal &gt;</span>
               <div className="pc-note"><Icon name="checkCircle" size={14} style={{ verticalAlign: "-3px" }} /> One login per family · verified by sms code</div>
             </div>
           </a>
@@ -168,7 +170,7 @@ export default function Landing() {
               <div className="ico"><Icon name="grad" size={24} /></div>
               <h3>Staff Portal</h3>
               <p>Teachers, admissions, bursar and gate staff: classes, pupils, assessment remarks, family group chats and daily operations.</p>
-              <span className="btn gold sm">Open Staff Portal →</span>
+              <span className="btn gold sm">Open Staff Portal &gt;</span>
               <div className="pc-note"><Icon name="checkCircle" size={14} style={{ verticalAlign: "-3px" }} /> Role-based sign-in · named accounts</div>
             </div>
           </a>
@@ -178,7 +180,7 @@ export default function Landing() {
               <div className="ico"><Icon name="user" size={24} /></div>
               <h3>Student Portal</h3>
               <p>Each child's supervised account — today's classes, homework, progress, library and calendar. Parents decide what they can see.</p>
-              <span className="btn gold sm">Open Student Portal →</span>
+              <span className="btn gold sm">Open Student Portal &gt;</span>
               <div className="pc-note"><Icon name="checkCircle" size={14} style={{ verticalAlign: "-3px" }} /> Created & supervised by parents</div>
             </div>
           </a>
@@ -298,7 +300,7 @@ export default function Landing() {
           <div className="proof-photo">
             <img src="/photos/three-kids.jpg" alt="Gill pupils in uniform" loading="lazy" />
             <div className="proof-overlay">
-              <span className="chip-pre" style={{ display: "inline-flex" }}>Parent → Student accounts</span>
+              <span className="chip-pre" style={{ display: "inline-flex" }}>Parent &gt; Student accounts</span>
               <h3>Set up before day one</h3>
               <p className="small">The school already has your child's record on file. From the Parent Portal you create their supervised account — username, password, and exactly what they can see.</p>
               <div className="row">
@@ -361,67 +363,148 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ------- Find us: two campuses, two landmarks ------- */}
-      <section className="container" id="find-us" style={{ paddingTop: "3.2rem", paddingBottom: "2.2rem" }}>
-        <div className="section-head">
-          <div>
-            <span className="kicker-sm">Najjera · Kira Municipality</span>
-            <h2><Icon name="pin" size={24} /> Find us — two campuses</h2>
-          </div>
-          <span className="muted small">Two distinct landmarks about 1 km apart, both on Mbogo Road</span>
-        </div>
-
-        <div className="find-grid">
-          <div className="find-card gips">
-            <div className="find-top">
-              <span className="find-dot" style={{ background: "var(--gold)" }} />
-              <div>
-                <h3 style={{ fontFamily: "var(--fpd)", color: "var(--gips-deep)", margin: 0 }}>Gill Pre-School</h3>
-                <span className="small muted">Early Years · ages 1–5</span>
-              </div>
-            </div>
-            <ul className="find-list">
-              <li><Icon name="pin" size={15} /> White Close, Plot 341 — opposite <b>Hass Petrol Station</b></li>
-              <li><Icon name="file" size={15} /> Plus code 6GGJ9JGF+FQ</li>
-              <li><Icon name="phone" size={15} /> {CAMPUSES[0].phone}</li>
-              <li><Icon name="globe" size={15} /> Coordinates 0.3762226, 32.6244347</li>
-            </ul>
-            <a className="btn secondary sm" href={`https://www.google.com/maps/dir/?api=1&destination=${CAMPUSES[0].lat},${CAMPUSES[0].lng}`} target="_blank" rel="noreferrer">
-              <Icon name="pin" size={15} /> Get directions →
-            </a>
-          </div>
-
-          <div className="find-card main">
-            <div className="find-top">
-              <span className="find-dot" style={{ background: "var(--maroon)" }} />
-              <div>
-                <h3 style={{ color: "var(--maroon)", margin: 0 }}>Main School — Gill International School</h3>
-                <span className="small muted">Cambridge Primary to A Level</span>
-              </div>
-            </div>
-            <ul className="find-list">
-              <li><Icon name="pin" size={15} /> <b>Mbogo Road 1</b>, Najjera A–Bulabira, Kira Ward</li>
-              <li><Icon name="file" size={15} /> Plus code <b>9JMG+XH</b> Kampala (6GGJ9JMG+XH)</li>
-              <li><Icon name="phone" size={15} /> {CAMPUSES[1].phone}</li>
-              <li><Icon name="globe" size={15} /> Coordinates 0.384875, 32.626375</li>
-            </ul>
-            <a className="btn secondary sm" href={`https://www.google.com/maps/dir/?api=1&destination=${CAMPUSES[1].lat},${CAMPUSES[1].lng}`} target="_blank" rel="noreferrer">
-              <Icon name="pin" size={15} /> Get directions →
-            </a>
-          </div>
-        </div>
-
-        <CampusMap />
-        <p className="small muted" style={{ marginTop: "0.6rem" }}>
-          Landmark pins match the school's own Google Maps listings — Pre-School at White Close opposite Hass Petrol Station,
-          Main School at Mbogo Road 1 (plus code 9JMG+XH). Tap a pin to open the quickest driving route in Google Maps.
-          Tours run weekdays, 8:00 am – 4:00 pm; call ahead for the gate.
-        </p>
-      </section>
+      {/* ------- Suggestion box ------- */}
+      <SuggestionBox />
 
       {/* ------- Footer (shared, final content) ------- */}
       <SchoolFooter />
 
     </main>
+  );
+}
+
+
+function SuggestionBox() {
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    role: "Parent or guardian",
+    category: "Teaching and learning",
+    message: "",
+    anonymous: false,
+  });
+  const [status, setStatus] = useState({ type: "", message: "" });
+  const [sending, setSending] = useState(false);
+
+  const update = (key) => (event) => {
+    const value = event.target.type === "checkbox" ? event.target.checked : event.target.value;
+    setForm((current) => ({ ...current, [key]: value }));
+  };
+
+  async function submit(event) {
+    event.preventDefault();
+    setStatus({ type: "", message: "" });
+    setSending(true);
+    try {
+      const response = await fetch("/api/action", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "submitSuggestion", payload: form }),
+      });
+      const data = await response.json();
+      if (!data.ok) throw new Error(data.error || "We could not send your suggestion.");
+      setStatus({ type: "success", message: "Thank you. Your suggestion has been sent to the school team." });
+      setForm((current) => ({ ...current, name: "", email: "", message: "", anonymous: false }));
+    } catch (error) {
+      setStatus({ type: "error", message: error.message || "We could not send your suggestion." });
+    } finally {
+      setSending(false);
+    }
+  }
+
+  return (
+    <section className="suggestion-section" id="suggestions">
+      <div className="container suggestion-shell">
+        <div className="suggestion-intro">
+          <span className="kicker-line">Help us improve</span>
+          <h2><Icon name="chat" size={27} /> Suggestion box</h2>
+          <p>
+            Your ideas help us build a better school experience for every learner, family and member of staff.
+            Share an improvement, concern or new idea with the Gill School team.
+          </p>
+
+          <div className="suggestion-promises">
+            <div><span><Icon name="shield" size={18} /></span><p><b>Private and respectful</b><small>Submissions are reviewed only by the appropriate school team.</small></p></div>
+            <div><span><Icon name="eyeOff" size={18} /></span><p><b>Anonymous if preferred</b><small>You can send useful feedback without sharing your identity.</small></p></div>
+            <div><span><Icon name="checkCircle" size={18} /></span><p><b>Every idea is reviewed</b><small>We route suggestions to the team best placed to respond.</small></p></div>
+          </div>
+        </div>
+
+        <form className="suggestion-form" onSubmit={submit}>
+          <div className="suggestion-form-head">
+            <span className="heading-icon"><Icon name="pencil" size={18} /></span>
+            <div>
+              <h3>Share your suggestion</h3>
+              <p>Fields marked optional may be left blank.</p>
+            </div>
+          </div>
+
+          <label className="suggestion-anonymous">
+            <input type="checkbox" checked={form.anonymous} onChange={update("anonymous")} />
+            <span><b>Send anonymously</b><small>Your name and email will not be included.</small></span>
+          </label>
+
+          <div className="suggestion-fields two">
+            <label className="field">
+              <span>Your name <small>Optional</small></span>
+              <input value={form.name} onChange={update("name")} disabled={form.anonymous} placeholder="Full name" autoComplete="name" />
+            </label>
+            <label className="field">
+              <span>Email address <small>Optional</small></span>
+              <input type="email" value={form.email} onChange={update("email")} disabled={form.anonymous} placeholder="you@example.com" autoComplete="email" />
+            </label>
+          </div>
+
+          <div className="suggestion-fields two">
+            <label className="field">
+              <span>I am a</span>
+              <select value={form.role} onChange={update("role")}>
+                <option>Parent or guardian</option>
+                <option>Student</option>
+                <option>Staff member</option>
+                <option>Community member</option>
+                <option>Visitor</option>
+              </select>
+            </label>
+            <label className="field">
+              <span>Suggestion topic</span>
+              <select value={form.category} onChange={update("category")}>
+                <option>Teaching and learning</option>
+                <option>Student wellbeing</option>
+                <option>School facilities</option>
+                <option>Communication</option>
+                <option>Activities and events</option>
+                <option>Other</option>
+              </select>
+            </label>
+          </div>
+
+          <label className="field suggestion-message">
+            <span>Your suggestion</span>
+            <textarea
+              value={form.message}
+              onChange={update("message")}
+              placeholder="Tell us what could be improved and how your idea would help."
+              minLength={10}
+              maxLength={2000}
+              rows={5}
+              required
+            />
+            <small>{form.message.length}/2000 characters</small>
+          </label>
+
+          {status.message && (
+            <div className={`suggestion-status ${status.type}`} role="status">
+              <Icon name={status.type === "success" ? "checkCircle" : "alert"} size={17} /> {status.message}
+            </div>
+          )}
+
+          <button className="btn gold" disabled={sending}>
+            <Icon name="send" size={17} /> {sending ? "Sending…" : <>Send suggestion &gt;</>}
+          </button>
+          <p className="suggestion-note">For urgent safeguarding or medical concerns, please contact the school office directly.</p>
+        </form>
+      </div>
+    </section>
   );
 }

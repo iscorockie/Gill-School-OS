@@ -111,7 +111,7 @@ export default function OrdersPage() {
                 <b>Total</b>
                 <b style={{ fontSize: "1.15rem" }}>{fmtUGX(total)}</b>
               </div>
-              <button className="btn gold" disabled={busy} onClick={placeOrder}>Place pre-order →</button>
+              <button className="btn gold" disabled={busy} onClick={placeOrder}>Place pre-order &gt;</button>
             </>
           )}
 
