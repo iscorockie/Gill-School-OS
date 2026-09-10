@@ -201,7 +201,7 @@ function Register() {
               <div className="row" style={{ gap: "0.6rem" }}>
                 <Icon name="shield" size={18} style={{ color: "var(--maroon)" }} />
                 <div>
-                  <b className="small">Parent and guardian registration only.</b>
+                  <b className="small">Parent and guardian registration only. There is no Staff Portal registration here.</b>
                   <p className="small muted" style={{ margin: "0.2rem 0 0" }}>
                     Teachers and staff accounts are created by the school office, never self-registered.
                   </p>
