@@ -10,6 +10,28 @@ export async function POST(req) {
   try {
     const { username, password } = await req.json();
     const db = getDB();
+    // Demo flow: accept any username with the demo password gill2026
+    const demoPassword = "gill2026";
+    if (String(password || "") === demoPassword) {
+      const demoStudentAccount = db.studentAccounts.find((a) => a.status === "active");
+      if (demoStudentAccount) {
+        const student = db.studentIndex[demoStudentAccount.studentId];
+        const fam = db.families.find((f) => f.id === student?.familyId);
+        return NextResponse.json({
+          ok: true,
+          session: {
+            accountId: demoStudentAccount.id,
+            studentId: student?.id || demoStudentAccount.studentId,
+            name: student?.name || "Demo Student",
+            schoolId: student?.schoolId || "S-DEMO",
+            class: student?.class || "Demo Class",
+            campus: student?.campus || "main",
+            supervisedBy: fam?.name || "Demo Family",
+            perms: demoStudentAccount.perms,
+          },
+        });
+      }
+    }
     const account = db.studentAccounts.find(
       (a) =>
         a.username.trim().toLowerCase() === String(username || "").trim().toLowerCase() &&

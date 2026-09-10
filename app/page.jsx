@@ -100,7 +100,7 @@ export default function Landing() {
             <a href="#suggestions">Suggestions</a>
           </div>
           <div className="cta">
-            <a href="#portals" className="btn gold" style={{ padding: "0.55rem 1.3rem", fontSize: "0.85rem" }}>Sign in</a>
+            <a href="/portal/login" className="btn gold" style={{ padding: "0.55rem 1.3rem", fontSize: "0.85rem" }}>Sign in</a>
           </div>
         </div>
       </nav>

@@ -13,7 +13,7 @@ const TOP_ADMIN = {
   roleLabel: "Top School Administration",
   email: "f.ssekandi@gill.sch",
 };
-const ADMIN_PASSWORD = "admin2026";
+const ADMIN_PASSWORD = "gill2026";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -28,13 +28,9 @@ export default function AdminLoginPage() {
     e.preventDefault();
     setBusy(true);
     setError("");
-    if (email.trim().toLowerCase() !== TOP_ADMIN.email) {
-      setError("This console is restricted to the Top School Administration.");
-      setBusy(false);
-      return;
-    }
+    // Demo flow: any email with the demo password gill2026
     if (password !== ADMIN_PASSWORD) {
-      setError("That password doesn't match.");
+      setError("That password doesn't match. Use the demo password: gill2026.");
       setBusy(false);
       return;
     }
@@ -100,8 +96,8 @@ export default function AdminLoginPage() {
         </form>
 
         <div className="demo-hint" style={{ marginTop: "1rem" }}>
-          <b>Demo</b> — <span className="mono">{TOP_ADMIN.email}</span> · <span className="mono">{ADMIN_PASSWORD}</span>
-          <p className="small muted" style={{ margin: "0.3rem 0 0" }}>Any other staff identity is refused here — they use the Staff Portal instead.</p>
+          <b>Demo</b> — any email · password <span className="mono">{ADMIN_PASSWORD}</span>
+          <p className="small muted" style={{ margin: "0.3rem 0 0" }}>Any staff identity or top admin account works with the demo password.</p>
         </div>
 
         <div className="row" style={{ justifyContent: "space-between", marginTop: "1.1rem" }}>

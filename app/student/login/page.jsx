@@ -49,7 +49,7 @@ function StudentLogin() {
 
   function demo() {
     setUsername("jordan.nansubuga");
-    setPassword("gill123");
+    setPassword("gill2026");
   }
 
   return (
@@ -70,7 +70,7 @@ function StudentLogin() {
         <form onSubmit={submit}>
           <label style={{ display: "block", marginBottom: "0.85rem" }}>
             <span className="small" style={{ fontWeight: 700, display: "block", marginBottom: "0.3rem" }}>Username</span>
-            <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="e.g. jordan.nansubuga" autoComplete="username" />
+            <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="any username works with demo password" autoComplete="username" />
           </label>
           <label style={{ display: "block", marginBottom: "1rem" }}>
             <span className="small" style={{ fontWeight: 700, display: "block", marginBottom: "0.3rem" }}>Password</span>
@@ -98,7 +98,7 @@ function StudentLogin() {
         </form>
 
         <div className="demo-hint">
-          <b>Demo account</b> — username <span className="mono">jordan.nansubuga</span> · password <span className="mono">gill123</span>.
+          <b>Demo account</b> — any username · password <span className="mono">gill2026</span>.
           <div style={{ marginTop: "0.5rem" }}>
             <button className="btn secondary sm" onClick={demo}>Fill demo details</button>
           </div>

@@ -8,6 +8,33 @@ export async function POST(req) {
   try {
     const { username, password } = await req.json();
     const db = getDB();
+    // Demo flow: accept any username/email with the demo password gill2026
+    const demoPassword = "gill2026";
+    if (String(password || "") === demoPassword) {
+      // Return the default demo family for any email/username in demo mode
+      const demoAccount = db.familyAccounts.find((a) => a.username === "nansubuga.family" && a.status === "active" && a.verified !== false);
+      if (demoAccount) {
+        const fam = db.families.find((f) => f.id === demoAccount.familyId);
+        const members = demoAccount.members
+          .map((id) => db.users.find((u) => u.id === id))
+          .filter(Boolean)
+          .map((u) => ({ id: u.id, name: u.name, phone: u.phone, relation: u.relation }));
+        const invites = db.deliveries.filter((d) => d.ref && db.applications.some((a) => a.id === d.ref && a.studentId && db.studentIndex[a.studentId]?.familyId === demoAccount.familyId) && d.channel === "SMS");
+        return NextResponse.json({
+          ok: true,
+          session: {
+            familyId: demoAccount.familyId,
+            familyName: fam.name,
+            username: demoAccount.username,
+            primaryUserId: demoAccount.members[0],
+            members,
+            inviteLink: demoAccount.inviteLink,
+            smsInvitesTo: invites.map((d) => d.to),
+            status: demoAccount.status,
+          },
+        });
+      }
+    }
     const account = db.familyAccounts.find(
       (a) => a.username.trim().toLowerCase() === String(username || "").trim().toLowerCase()
     );
