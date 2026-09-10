@@ -128,7 +128,10 @@ export default function Landing() {
             ].map(([ico, t, d]) => (
               <div className="chip" key={t}>
                 <span className="ico">{ico}</span>
-                <span><b>{t}</b><br /><span>{d}</span></span>
+                <span className="hero-chip-copy">
+                  <b>{t}</b>
+                  <span>{d}</span>
+                </span>
               </div>
             ))}
           </div>
