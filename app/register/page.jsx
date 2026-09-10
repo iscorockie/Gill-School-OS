@@ -22,7 +22,7 @@ export default function RegisterPage() {
 }
 
 const nextSteps = [
-  { ico: "users", t: "Create your family account", d: "One login for every parent on the application form — you choose the password right here." },
+  { ico: "users", t: "Create your family account", d: "One login for every parent on the application form. You choose the password right here." },
   { ico: "file", t: "Complete the 6-step application", d: "Basic information, parent details, emergency contacts, documents, payment and review." },
   { ico: "key", t: "Get the child's portal link", d: "Once the Admissions registrar verifies your records, we SMS the link to your child's portal." },
 ];
@@ -105,7 +105,7 @@ function Register() {
         <div className="container inner">
           <span className="kicker">Gill International School · Najjera, Kampala · Cambridge Curriculum</span>
           <h1>Join Our Community</h1>
-          <p>Begin your journey with Christ-centred Cambridge education in Najjera by creating your account. Parents and guardians only — staff accounts are issued by the school office.</p>
+          <p>Begin your journey with Christ-centred Cambridge education in Najjera by creating your account. This registration is for parents and guardians. Staff accounts are issued by the school office.</p>
         </div>
       </header>
 
@@ -115,7 +115,7 @@ function Register() {
             <div className="reg-side-card">
               <span className="kicker-sm">Gill International School</span>
               <h3>Cambridge International</h3>
-              <p className="small muted">Reception to Year 13 — Early Years at Gill Pre-School, Primary, Lower Secondary, IGCSE and A Levels.</p>
+              <p className="small muted">Reception to Year 13: Early Years at Gill Pre-School, Primary, Lower Secondary, IGCSE and A Levels.</p>
               <div className="reg-side-points">
                 <div className="row"><Icon name="users" size={17} /> One shared family login</div>
                 <div className="row"><Icon name="file" size={17} /> 6-step application, one afternoon</div>
@@ -125,7 +125,7 @@ function Register() {
               <div className="quote" style={{ margin: "1rem 0 0", padding: "0.8rem 0.9rem" }}>
                 <b>Start your application journey with us…</b>
                 <div className="small" style={{ marginTop: "0.25rem", color: "var(--muted)" }}>
-                  Create the account first — the wizard opens automatically and you can finish it in one sitting.
+                  Create the account first. The wizard opens automatically, and you can finish it in one sitting.
                 </div>
               </div>
               <p className="small" style={{ marginTop: "1rem", color: "var(--muted)" }}>
@@ -140,7 +140,7 @@ function Register() {
               <img src="/logo.png" alt="Gill International School logo" />
               <div>
                 <h1>Create Account</h1>
-                <div className="sub">Parents' &amp; guardians' platform — Gill School OS</div>
+                <div className="sub">Parents' &amp; guardians' platform · Gill School OS</div>
               </div>
             </div>
 
@@ -201,7 +201,7 @@ function Register() {
               <div className="row" style={{ gap: "0.6rem" }}>
                 <Icon name="shield" size={18} style={{ color: "var(--maroon)" }} />
                 <div>
-                  <b className="small">Parents only — no Staff Portal here.</b>
+                  <b className="small">Parent and guardian registration only.</b>
                   <p className="small muted" style={{ margin: "0.2rem 0 0" }}>
                     Teachers and staff accounts are created by the school office, never self-registered.
                   </p>

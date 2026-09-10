@@ -102,14 +102,14 @@ export default function StaffHome() {
               ) : (
                 <div className="list-item">
                   <div className="spread">
-                    <div><b>{staff.id === "t-sharon" ? "Nursery — full day programme" : "Year 5 class programme"}</b>
+                    <div><b>{staff.id === "t-sharon" ? "Nursery, full-day programme" : "Year 5 class programme"}</b>
                       <div className="small muted">{staff.id === "t-sharon" ? "Pre-School Lead · morning circle, phonics, play-based learning" : "English & Mathematics cycles"}</div>
                     </div>
                     <Badge tone="green">ready</Badge>
                   </div>
                 </div>
               )}
-              <p className="small muted" style={{ marginTop: "0.6rem" }}>Assessment results you record go to the family instantly — with the private remark stream for parents.</p>
+              <p className="small muted" style={{ marginTop: "0.6rem" }}>Assessment results you record go to the family instantly, including the private remark stream for parents.</p>
             </div>
 
             <div className="card">
@@ -125,7 +125,7 @@ export default function StaffHome() {
                   </div>
                 </div>
               ))}
-              {upcoming.length === 0 && <p className="small muted">Nothing scheduled yet — check the OS calendar for the latest.</p>}
+              {upcoming.length === 0 && <p className="small muted">Nothing scheduled yet. Check the OS calendar for the latest.</p>}
             </div>
           </div>
         </div>
@@ -166,7 +166,7 @@ export default function StaffHome() {
             </div>
           ))}
           {classes.length === 0 && (
-            <div className="card soon">No teaching classes for this role — your work appears in “My desk”.</div>
+            <div className="card soon">No teaching classes for this role. Your work appears in “My desk”.</div>
           )}
         </div>
       )}
@@ -206,7 +206,7 @@ export default function StaffHome() {
               </div>
             );
           })}
-          {myChats.length === 0 && <div className="card soon">No group chats yet — they open when a parent ticks “Receive messages from teachers” for their child.</div>}
+          {myChats.length === 0 && <div className="card soon">No group chats yet. They open when a parent selects “Receive messages from teachers” for their child.</div>}
         </div>
       )}
 
@@ -243,15 +243,15 @@ export default function StaffHome() {
           {["t-aisha", "t-brian", "t-sharon"].includes(staff.id) && (
             <div className="card">
               <h3>Teacher desk</h3>
-              <div className="list-item"><b>Two remark streams per assessment</b><div className="small muted">one for the pupil's portal, one private for the family — parents choose what the child sees.</div></div>
+              <div className="list-item"><b>Two remark streams per assessment</b><div className="small muted">one for the pupil's portal and one private for the family. Parents choose what the child sees.</div></div>
               <div className="list-item"><b>Groups post instantly</b><div className="small muted">your messages reach every parent on the admission form.</div></div>
             </div>
           )}
           <div className="card">
             <h3>OS administration is separate</h3>
             <p className="small muted" style={{ margin: "0.3rem 0 0" }}>
-              The monitoring console is restricted to the Top School Administration. Staff work happens here in the Staff Portal —
-              same records, no shared desk logins.
+              The monitoring console is restricted to the Top School Administration. Staff work happens here in the Staff Portal
+              with the same records and no shared desk logins.
             </p>
           </div>
         </div>

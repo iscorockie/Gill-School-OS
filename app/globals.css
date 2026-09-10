@@ -852,8 +852,17 @@ tr:last-child td { border-bottom: none; }
 .staff-onboard-head .heading-icon { margin-bottom: 0.7rem; }
 .staff-onboard-head h1 { font-size: clamp(1.65rem, 4vw, 2.1rem); }
 .staff-onboard-head p { color: var(--muted); margin: 0.35rem 0 0; }
-.staff-onboard-form { display: grid; gap: 0.9rem; }
-.staff-onboard-form .field { display: grid; gap: 0.35rem; }
+.staff-onboard-form { display: grid; gap: 1.25rem; }
+.staff-form-section {
+  min-width: 0; margin: 0; padding: 0; border: 0; display: grid; gap: 0.8rem;
+}
+.staff-form-section + .staff-form-section { padding-top: 1.25rem; border-top: 1px solid var(--line); }
+.staff-form-section legend {
+  width: 100%; margin: 0 0 0.1rem; padding: 0; color: var(--maroon);
+  font-family: var(--fd); font-size: 0.76rem; font-weight: 800; letter-spacing: 0.09em; text-transform: uppercase;
+}
+.staff-field-grid { display: grid; gap: 0.8rem; }
+.staff-onboard-form .field { display: grid; gap: 0.4rem; margin: 0; }
 .staff-onboard-form .field > span:first-child { font-size: 0.86rem; }
 .staff-onboard-form input, .staff-onboard-form select { min-height: 48px; border-radius: 14px; padding-inline: 0.95rem; }
 .staff-onboard-form input[readonly] { color: var(--ink); background: #f7f8fb; }

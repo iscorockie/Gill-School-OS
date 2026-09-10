@@ -12,9 +12,9 @@ const ROLES = [
 ];
 
 const STAFF_DB = {
-  "t-aisha": { id: "t-aisha", name: "Ms. Aisha Hassan", title: "English & Class Teacher — Year 5", email: "a.hassan@gill.sch" },
-  "t-brian": { id: "t-brian", name: "Mr. Brian Mugisha", title: "Mathematics & Science — Year 5", email: "b.mugisha@gill.sch" },
-  "t-sharon": { id: "t-sharon", name: "Ms. Sharon Namukasa", title: "Pre-School Lead — Nursery", email: "s.namukasa@gill.sch" },
+  "t-aisha": { id: "t-aisha", name: "Ms. Aisha Hassan", title: "English & Class Teacher, Year 5", email: "a.hassan@gill.sch" },
+  "t-brian": { id: "t-brian", name: "Mr. Brian Mugisha", title: "Mathematics & Science, Year 5", email: "b.mugisha@gill.sch" },
+  "t-sharon": { id: "t-sharon", name: "Ms. Sharon Namukasa", title: "Pre-School Lead, Nursery", email: "s.namukasa@gill.sch" },
   "u-admissions": { id: "u-admissions", name: "Mrs. Mary Kyomukama", title: "Head of Admissions", email: "m.kyomukama@gill.sch" },
   "u-bursar": { id: "u-bursar", name: "Mr. Isaac Twesigye", title: "Bursar", email: "i.twesigye@gill.sch" },
   "u-gate": { id: "u-gate", name: "Mr. Peter Othieno", title: "Security & Gate Officer", email: "p.othieno@gill.sch" },
@@ -70,39 +70,52 @@ export default function StaffPortalPage() {
         </div>
 
         <form onSubmit={submit} className="staff-onboard-form">
-          <label className="field">
-            <span className="fw700">Select your role</span>
-            <select value={role} onChange={changeRole}>
-              {ROLES.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
-            </select>
-          </label>
-
-          {activeRole.users.length > 1 && (
+          <fieldset className="staff-form-section">
+            <legend>Staff role</legend>
             <label className="field">
-              <span className="fw700">Issued staff profile</span>
-              <select value={userId} onChange={(event) => setUserId(event.target.value)}>
-                {activeRole.users.map((id) => <option key={id} value={id}>{STAFF_DB[id].name}</option>)}
+              <span className="fw700">Select your role</span>
+              <select value={role} onChange={changeRole}>
+                {ROLES.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
               </select>
             </label>
-          )}
 
-          <div className="staff-role-note">
-            <Icon name={activeRole.icon} size={18} />
-            <span><b>{activeRole.label}</b><small>{activeRole.copy}</small></span>
-          </div>
+            {activeRole.users.length > 1 && (
+              <label className="field">
+                <span className="fw700">Issued staff profile</span>
+                <select value={userId} onChange={(event) => setUserId(event.target.value)}>
+                  {activeRole.users.map((id) => <option key={id} value={id}>{STAFF_DB[id].name}</option>)}
+                </select>
+              </label>
+            )}
 
-          <label className="field">
-            <span className="fw700">Full name</span>
-            <input value={person.name} readOnly aria-readonly="true" />
-          </label>
+            <div className="staff-role-note">
+              <Icon name={activeRole.icon} size={18} />
+              <span><b>{activeRole.label}</b><small>{activeRole.copy}</small></span>
+            </div>
+          </fieldset>
 
-          <label className="field">
-            <span className="fw700">School email address</span>
-            <input type="email" value={person.email} readOnly aria-readonly="true" />
-          </label>
+          <fieldset className="staff-form-section">
+            <legend>Staff details</legend>
+            <div className="staff-field-grid">
+              <label className="field">
+                <span className="fw700">Full name</span>
+                <input value={person.name} readOnly aria-readonly="true" />
+              </label>
 
-          <PasswordField label="Password" value={password} setValue={setPassword} visible={showPassword} setVisible={setShowPassword} autoComplete="new-password" />
-          <PasswordField label="Confirm password" value={confirm} setValue={setConfirm} visible={showConfirm} setVisible={setShowConfirm} autoComplete="new-password" />
+              <label className="field">
+                <span className="fw700">School email address</span>
+                <input type="email" value={person.email} readOnly aria-readonly="true" />
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset className="staff-form-section">
+            <legend>Secure your account</legend>
+            <div className="staff-field-grid">
+              <PasswordField label="Password" value={password} setValue={setPassword} visible={showPassword} setVisible={setShowPassword} autoComplete="new-password" />
+              <PasswordField label="Confirm password" value={confirm} setValue={setConfirm} visible={showConfirm} setVisible={setShowConfirm} autoComplete="new-password" />
+            </div>
+          </fieldset>
 
           {error && <p className="staff-form-error" role="alert"><Icon name="alert" size={16} /> {error}</p>}
 
