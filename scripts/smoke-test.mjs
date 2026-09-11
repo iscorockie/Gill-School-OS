@@ -26,7 +26,7 @@ check("sibling discount auto-applied", inv.siblingDiscount === 45000 && inv.line
 
 // 2) Late checkout at 17:07 → UGX 20,000 auto-billed + SMS
 let r = await action("checkout", { studentId: "s-pres-3", collector: "David Okello", timeOut: "17:07" });
-check("late checkout flagged", r.ok && r.result.late === true, `(fee ${r.result.fee})`);
+check("late checkout flagged", r.ok && r.result?.late === true, `(fee ${r.result?.fee}${r.error ? ` · error: ${r.error}` : ""})`);
 inv = r.db.invoices.find((i) => i.id === r.result.billedTo);
 check("late fee billed to invoice", inv.total === 620000, `(total ${inv.total})`);
 check("SMS + audit logged", r.db.messages.some((m) => m.subject.includes("Late collection")) && r.db.feesAudit[0]?.amount === 20000);
@@ -38,7 +38,7 @@ check("on-time checkout no fee", r.ok && r.result.late === false && r.result.fee
 // 4) Mobile money payment → instant reconciliation, invoice cleared
 r = await action("payInvoice", { invoiceId: "inv-fam2-t3", amount: 450000, channel: "Airtel Money" });
 inv = r.db.invoices.find((i) => i.id === "inv-fam2-t3");
-check("payment settled + reconciled", r.ok && r.result.receipt && inv.status === "paid" && inv.balance === 0, `(${r.result.receipt})`);
+check("payment settled + reconciled", r.ok && r.result?.receipt && inv?.status === "paid" && inv?.balance === 0, `(${r.result?.receipt}${r.error ? ` · error: ${r.error}` : ""})`);
 
 // 5) Leave request auto-notifies teachers
 r = await action("requestLeave", { studentId: "s-main-1", from: "2026-09-14", to: "2026-09-15", reason: "Family wedding." });
@@ -46,7 +46,7 @@ check("leave pending + teachers notified", r.ok && r.result.status === "pending"
 
 // 6) Pre-School → Main School one-click transition
 r = await action("initiateTransition", { studentId: "s-pres-1", by: "t-sharon", notes: "Demo" });
-const trId = r.result.id;
+const trId = r.result?.id;
 check("transition initiated", r.ok && r.result.status === "initiated");
 r = await action("enrollTransition", { transitionId: trId, targetClass: "Primary 1 (Cambridge)" });
 const kid = r.db.studentIndex["s-pres-1"];
@@ -97,7 +97,7 @@ check("wrong password rejected", badLogin.ok === false);
 
 // 12) Pause/resume from the parent's account manager
 r = await action("updateStudentAccount", { accountId: r.db.studentAccounts[0].id, status: "paused" });
-check("parent can pause account", r.result.status === "paused");
+check("parent can pause account", r.ok && r.result?.status === "paused", `${r.error ? `error: ${r.error}` : ""}`);
 
 // 13) AUTO ONBOARDING — negative: Okello (fam-3) has a pending doc + unpaid tuition
 const preState = await state();
@@ -139,7 +139,7 @@ const token = fam4Acc.inviteToken;
 check("new family has invite token + no password yet", !!token && fam4Acc.passwordSet === false && fam4Acc.verified === false);
 r = await action("inviteSetup", { token, password: "ssem2026!", channel: "sms" });
 const demoCode = r.result ? r.result.demoCode : null;
-check("password created + code sent to parent phone", r.ok && r.result.channel === "sms" && r.result.to === "+256771444555" && /^\d{6}$/.test(demoCode), `(to ${r.result.to})`);
+check("password created + code sent to parent phone", r.ok && r.result?.channel === "sms" && r.result?.to === "+256771444555" && /^\d{6}$/.test(demoCode), `(to ${r.result?.to}${r.error ? ` · error: ${r.error}` : ""})`);
 r = await action("inviteVerify", { token, code: "000000" });
 check("wrong verification code rejected", r.ok === false);
 r = await action("inviteVerify", { token, code: demoCode });
@@ -235,7 +235,7 @@ r = await action("saveApplication", { familyId: mukasaFam, step: "parent", data:
   { name: "Joy Mukasa", relation: "Mother / Guardian", phone: "+256702333444", email: "joy@example.com", alive: true },
   { name: "Sam Mukasa", relation: "Father", phone: "+256707555666", email: "sam@example.com", alive: true },
 ] } });
-check("parent details saved → both parents on ONE account", r.ok && r.result.application.parentContacts.length === 2, `(members: ${r.result.application.parentContacts.map((p) => p.name).join(", ")})`);
+check("parent details saved → both parents on ONE account", r.ok && r.result?.application?.parentContacts?.length === 2, `(members: ${r.result?.application?.parentContacts?.map((p) => p.name).join(", ")}${r.error ? ` · error: ${r.error}` : ""})`);
 const mukasaAccount = r.db.familyAccountByFamily[mukasaFam];
 check("shared login grows to both parents", mukasaAccount.members.length === 2 && mukasaAccount.members.includes(mukasaUserId));
 r = await action("saveApplication", { familyId: mukasaFam, step: "emergency", data: { contacts: [{ name: "Grace Achieng", relation: "Aunt", phone: "+256701333444" }] } });
