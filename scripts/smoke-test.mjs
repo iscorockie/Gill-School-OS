@@ -20,6 +20,28 @@ await fetch(`${BASE}/api/reset`, { method: "POST" });
 let s = await state();
 check("seed loads", !!s.meta && s.families.length === 4);
 
+// Shared email sign-in routes staff/admin and parents to their own portals.
+const sharedAdminLogin = await (await fetch(`${BASE}/api/login`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ email: "f.ssekandi@gill.ac.ug", password: "gill2026" }),
+})).json();
+check("shared login routes admin email", sharedAdminLogin.ok && sharedAdminLogin.destination === "/admin");
+
+const sharedParentLogin = await (await fetch(`${BASE}/api/login`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ email: "amina.nansubuga@example.com", password: "gill2026" }),
+})).json();
+check("shared login routes parent email", sharedParentLogin.ok && sharedParentLogin.kind === "parent" && sharedParentLogin.session.familyId === "fam-1");
+
+const invalidSharedLoginResponse = await fetch(`${BASE}/api/login`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ email: "f.ssekandi@gill.ac.ug", password: "wrong" }),
+});
+check("shared login rejects wrong password", invalidSharedLoginResponse.status === 401);
+
 // 1) Automated sibling discount (family with children in BOTH campuses)
 let inv = s.invoices.find((i) => i.id === "inv-fam1-t3");
 check("sibling discount auto-applied", inv.siblingDiscount === 45000 && inv.lines.find((l) => l.studentId === "s-pres-1")?.discount === 45000, `(${inv.siblingDiscount})`);

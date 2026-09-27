@@ -94,7 +94,7 @@ function Register() {
             <a href="/#find-us">Find Us</a>
           </div>
           <div className="cta">
-            <a href="/portal/login" className="btn gold" style={{ padding: "0.55rem 1.3rem", fontSize: "0.85rem" }}>Sign In</a>
+            <a href="/login" className="btn gold" style={{ padding: "0.55rem 1.3rem", fontSize: "0.85rem" }}>Sign In</a>
           </div>
         </div>
       </nav>
@@ -194,7 +194,7 @@ function Register() {
             </form>
 
             <p className="small" style={{ textAlign: "center", margin: "1rem 0 0" }}>
-              Already have an account? <a href="/portal/login" style={{ fontWeight: 700 }}>Sign In</a>
+              Already have an account? <a href="/login" style={{ fontWeight: 700 }}>Sign In</a>
             </p>
 
             <div className="card" style={{ marginTop: "1rem", background: "var(--peri-l)", borderColor: "var(--peri-2)", boxShadow: "none", padding: "0.75rem 0.9rem" }}>
