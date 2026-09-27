@@ -100,6 +100,12 @@ Redeploy / restart after saving. A full template lives in `.env.example`.
 
 ## Testing checklist
 
+> Fastest check from anywhere with internet: open **Admin → Staff Accounts**
+> and use the **SMTP status card** to send yourself a test email. If it fails,
+> the error is shown with the fix; staff invites still work via a manual
+> setup link (shown in the console) until SMTP is fixed.
+
+
 - [ ] Admin → Staff Accounts → invite a test address → email arrives, link
       opens `/staff/setup`, password sets, sign-in works.
 - [ ] `/staff/forgot` with your own school email → code arrives in webmail.

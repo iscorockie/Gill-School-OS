@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useApp, Badge, Field } from "@/components/ui.jsx";
 import Icon from "@/components/icons.jsx";
 
@@ -19,6 +19,28 @@ export default function StaffAccountsPage() {
   const [form, setForm] = useState({ name: "", email: "", role: "teacher", phone: "" });
   const [busy, setBusy] = useState(false);
   const [invite, setInvite] = useState(null);
+  const [mail, setMail] = useState(null);
+  const [testTo, setTestTo] = useState("");
+  const [testBusy, setTestBusy] = useState(false);
+  const [testMsg, setTestMsg] = useState(null);
+
+  useEffect(() => {
+    fetch("/api/mail-status").then((r) => r.json()).then(setMail).catch(() => setMail({ ok: false }));
+  }, []);
+
+  async function sendTest(e) {
+    e.preventDefault();
+    setTestBusy(true);
+    setTestMsg(null);
+    try {
+      const r = await act("sendTestEmail", { to: testTo });
+      setTestMsg({ ok: true, text: r.message });
+    } catch (err) {
+      setTestMsg({ ok: false, text: err.message });
+    } finally {
+      setTestBusy(false);
+    }
+  }
 
   if (!db) return <div className="card">Loading…</div>;
 
@@ -65,6 +87,53 @@ export default function StaffAccountsPage() {
       <div className="section-head">
         <h2>Staff Accounts</h2>
         <Badge tone="blue">{accounts.filter((a) => a.status === "active").length} active · school emails</Badge>
+      </div>
+
+      <div className="card" style={{ marginBottom: "1.2rem", background: "var(--peri-l)", borderColor: "var(--peri-2)" }}>
+        <div className="spread" style={{ marginBottom: "0.6rem" }}>
+          <h3 style={{ margin: 0 }}><Icon name="mail" size={18} /> School email (SMTP) status</h3>
+          {!mail ? <Badge tone="gray">checking…</Badge>
+            : mail.configured ? <Badge tone="green">live — {mail.host}</Badge>
+            : <Badge tone="gold">simulated demo mode</Badge>}
+        </div>
+        {mail && !mail.configured && (
+          <p className="small muted" style={{ margin: "0 0 0.6rem" }}>
+            No <span className="mono">SMTP_*</span> variables set — invites and codes are shown on screen instead of
+            emailed. See <span className="mono">docs/email-setup.md</span> to connect cPanel/Webuzo webmail.
+          </p>
+        )}
+        {mail?.configured && (
+          <p className="small muted" style={{ margin: "0 0 0.6rem" }}>
+            Sending as <span className="mono">{mail.from}</span> via <span className="mono">{mail.host}:{mail.port}</span>.
+            Send yourself a test email to confirm delivery:
+          </p>
+        )}
+        <form onSubmit={sendTest} className="row" style={{ gap: "0.5rem", flexWrap: "wrap" }}>
+          <input
+            type="email" value={testTo} onChange={(e) => setTestTo(e.target.value)}
+            placeholder="you@gill.ac.ug" style={{ flex: 1, minWidth: 200 }} required
+          />
+          <button className="btn sm" disabled={testBusy}>{testBusy ? "Sending…" : "Send test email"}</button>
+        </form>
+        {testMsg && (
+          <p className="small" style={{ margin: "0.5rem 0 0", color: testMsg.ok ? "var(--green)" : "var(--red)" }}>
+            {testMsg.text}
+          </p>
+        )}
+        {invite?.mailError && (
+          <div className="quote" style={{ background: "#fff3f0", borderColor: "#eec2b8", marginTop: "0.9rem" }}>
+            <b className="small">Email send failed — {invite.mailError}.</b>
+            <div className="small" style={{ marginTop: "0.3rem" }}>
+              The account was still created. Share this setup link manually (e.g. WhatsApp) until SMTP is fixed:
+            </div>
+            <div className="small" style={{ marginTop: "0.3rem" }}>
+              Invite code: <span className="mono">{invite.inviteToken}</span>
+            </div>
+            <div className="small" style={{ marginTop: "0.3rem" }}>
+              Setup link: <span className="mono" style={{ wordBreak: "break-all" }}>{invite.setupLink}</span>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-2">
