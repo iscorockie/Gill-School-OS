@@ -304,6 +304,20 @@ check("cannot submit before completing steps", (await action("submitApplication"
 const applyPage = await (await fetch(`${BASE}/apply`)).status;
 check("application wizard route serves", applyPage === 200);
 
+// 27) Email activation plumbing — SMTP settings never leak the password and
+// revert cleanly. (No real mail is sent: the test server is 127.0.0.1:1.)
+const mailBefore = await (await fetch(`${BASE}/api/mail-status?verify=0`)).json();
+check("mail-status shape is safe (no password field)", mailBefore.ok === true && typeof mailBefore.configured === "boolean" && !("pass" in mailBefore) && !("password" in mailBefore));
+r = await action("saveMailConfig", { host: "127.0.0.1", port: "1", user: "noreply@test.invalid", pass: "smoke-secret-pass", from: "Smoke <noreply@test.invalid>" });
+check("SMTP settings save from the admin console", r.ok === true && r.result?.status?.configured === true && r.result?.status?.source === "saved", r.error || "");
+const mailSaved = await (await fetch(`${BASE}/api/mail-status?verify=0`)).json();
+check("saved settings activate the mailer", mailSaved.configured === true && mailSaved.source === "saved" && mailSaved.host === "127.0.0.1");
+check("password is write-only (never returned to a client)", !JSON.stringify(mailSaved).includes("smoke-secret-pass"));
+r = await action("verifyMailConfig", {});
+check("connection check reports failure gracefully", r.ok === true && r.result?.ok === false && Boolean(r.result?.error), r.result?.error);
+r = await action("clearMailConfig", {});
+check("forgetting saved settings reverts the mailer", r.result?.status?.configured === mailBefore.configured && r.result?.status?.source === mailBefore.source);
+
 // Reset so the demo starts from a clean seed
 await fetch(`${BASE}/api/reset`, { method: "POST" });
 const clean = await state();

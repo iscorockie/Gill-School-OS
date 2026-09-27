@@ -77,6 +77,12 @@ Environment Variables → **Add** each of these:
 | `SMTP_FROM` | `Gill School OS <noreply@gill.ac.ug>` |
 | `DATA_DIR` *(optional but recommended)* | `/home/gillacug/portal-data` |
 
+> Email note: `SMTP_PASS` is the only *required* mail variable — the host,
+> port, mailbox and sender above are the app's built-in defaults. And if the
+> panel's variable screen doesn't work, skip `SMTP_*` entirely and save the
+> password from **Admin → Staff Accounts →  SMTP settings** (it lands in
+> `DATA_DIR/mail.json`, git-ignored) — see `docs/email-setup.md` Part 2.
+
 > `DATA_DIR` keeps the live database **outside** the app folder, so re-uploading
 > the app can never wipe school data. Create that folder once in File Manager.
 
@@ -114,6 +120,32 @@ boot seeds demo data automatically.
       (or `portal/data/db.json` if you skipped `DATA_DIR`).
 - [ ] Keep the demo families for training, or tell us when you want a clean
       production seed + real-data import before admitting families.
+
+## If the site shows a "50X error" (Webuzo page)
+
+That page means the panel's proxy can't reach the app — the Node process is
+down, not built, or not listening where the proxy expects it. Work through:
+
+1. **Is the app started?** Panel → Applications → List Applications → the row
+   for `Gill School OS` → **Start** (or **Restart** after any change).
+2. **Read the app log** (the panel's log/console link for the app). The
+   launcher prints `[gill-os] …` lines that name the exact problem:
+   - `No production build found` → in the panel **Terminal**:
+     `cd /home/gillacug/portal && npm install && npm run build`, then **Start**.
+   - `Node.js X.Y.Z is too old` → Application type → pick **Node 20 or 22** → Start.
+   - `failed to listen on … (EADDRINUSE)` → the panel's `PORT` doesn't match
+     what the app read — check the Environment Variables, then **Restart**.
+   - `ready on http://0.0.0.0:…` → the app is healthy; the 50X is then the
+     proxy/DNS side — confirm the Deployment Domain is `portal.gill.ac.ug`
+     and that DNS still points at the server IP.
+3. **Environment variables are read at boot** — after adding/changing any
+   (SMTP_*, DATA_DIR, …) always **Restart** the app.
+4. The launcher binds `0.0.0.0` automatically (a stray `HOSTNAME` variable
+   from the panel can't break it anymore; set `BIND_HOST` only if you really
+   want a specific interface).
+
+Health check from anywhere: `https://portal.gill.ac.ug/api/state` should
+return JSON (not the Webuzo error page).
 
 ## Updating later
 

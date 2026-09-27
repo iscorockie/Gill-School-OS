@@ -20,7 +20,7 @@ export default function CommunicationsPage() {
       await act(
         "publishNotice",
         { title, body, audience, author: "Head of School" },
-        channel === "app" ? "Notice published to the app noticeboard for all families." : `${channel} broadcast queued — delivery simulated in the log below.`
+        channel === "app" ? "Notice published to the app noticeboard for all families." : `${channel} broadcast sent — see the delivery log below for status.`
       );
       if (channel !== "app") {
         await act("sendMessage", { from: "u-admin", to: "u-parent-1", subject: title, body, channel: channel === "sms" ? "sms" : "email" });

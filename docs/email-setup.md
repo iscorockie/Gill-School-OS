@@ -88,25 +88,46 @@ confuse the two.
 
 ## Part 2 — on the portal host (Vercel or VPS)
 
-Set these environment variables (Vercel: Project → Settings →
-Environment Variables; VPS: a `.env` file next to the app):
+The app already knows the school's mail server (`mail.gill.ac.ug`, mailbox
+`noreply@gill.ac.ug`, port 465 SSL/TLS) — **the only secret it needs is the
+mailbox password**. Provide it whichever way is easier:
 
-| Variable | Value |
-|---|---|
-| `SMTP_HOST` | `mail.gill.ac.ug` (from step 3) |
-| `SMTP_PORT` | `465` |
-| `SMTP_SECURE` | `true` (use `false` with port 587) |
-| `SMTP_USER` | `noreply@gill.ac.ug` |
-| `SMTP_PASS` | the mailbox password from step 1 |
-| `SMTP_FROM` | `Gill School OS <noreply@gill.ac.ug>` |
-| `APP_URL` | `https://portal.gill.ac.ug` (your public portal address) |
-| `STAFF_EMAIL_DOMAIN` | `gill.ac.ug` |
+**Option A — environment variables** (Vercel: Project → Settings →
+Environment Variables; VPS/shared hosting: the panel's Environment Variables,
+or a `.env` file next to `server.js` — the launcher loads it explicitly):
+
+| Variable | Value | Required? |
+|---|---|---|
+| `SMTP_PASS` | the noreply mailbox password from step 1 | **yes — the only one** |
+| `SMTP_HOST` | `mail.gill.ac.ug` (from step 3) | no — this is the default |
+| `SMTP_PORT` | `465` | no — default |
+| `SMTP_SECURE` | `true` (use `false` with port 587) | no — default |
+| `SMTP_USER` | `noreply@gill.ac.ug` | no — default |
+| `SMTP_FROM` | `Gill School OS <noreply@gill.ac.ug>` | no — default |
+| `APP_URL` | `https://portal.gill.ac.ug` (your public portal address) | no — default |
+| `STAFF_EMAIL_DOMAIN` | `gill.ac.ug` | no — default |
 
 Redeploy / restart after saving. A full template lives in `.env.example`.
 
-> Without these variables the portal still works fully in **simulated-mail
+**Option B — save it from the Admin console (no redeploy):** sign in as the
+Head of School → **Staff Accounts** → **School email (SMTP) status** →
+** SMTP settings**. Enter the mailbox password (server, port and mailbox are
+pre-filled) and press **Save settings**. It is stored in
+`DATA_DIR/mail.json` (git-ignored, file mode 600) and picked up immediately —
+useful when the host panel won't hold environment variables. Saved settings
+**override** environment variables per setting; "Forget saved settings"
+reverts to the environment. The password is write-only: it is never displayed
+again and never returned by any API.
+
+Either way, the status card turns green (`live — mail.gill.ac.ug · verified`)
+once the server accepts the login — and shows the exact SMTP error if not.
+Press **Send test email** for the end-to-end proof.
+
+> Without a mailbox password the portal still works fully in **simulated-mail
 > demo mode**: emails are logged (Admin → Communications → Delivery log) and
-> codes are shown on screen so nothing is ever blocked.
+> codes are shown on screen so nothing is ever blocked. Note that the demo
+> sign-in shortcuts (any email + `gill2026`) close automatically as soon as
+> real mail is configured.
 
 ## Part 3 — issue the staff logins (Head of School)
 
@@ -150,7 +171,7 @@ Redeploy / restart after saving. A full template lives in `.env.example`.
 | Emails arrive in spam | Finish Part 1 step 4 (SPF/DKIM/DMARC). Also avoid sending the first real broadcast to hundreds of parents at once — warm up with staff/family mail first. |
 | Staff invite email never arrives, no failure logged | Check the mailbox exists in Webuzo and the address was typed correctly; look in spam. Re-send from Staff Accounts. |
 | `Staff accounts must use the school domain` | The invite address isn't `@gill.ac.ug`. Create the mailbox in Webuzo first. |
-| Codes shown on screen instead of emailed | SMTP env vars aren't set on the host (simulated mode). Set them and redeploy. |
+| Codes shown on screen instead of emailed | No mailbox password is reaching the app (simulated mode). Set `SMTP_PASS` (panel env or `.env`), or save it from **Admin → Staff Accounts →  SMTP settings** — see Part 2. |
 
 ## Security notes
 

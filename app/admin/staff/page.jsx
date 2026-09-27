@@ -23,10 +23,61 @@ export default function StaffAccountsPage() {
   const [testTo, setTestTo] = useState("");
   const [testBusy, setTestBusy] = useState(false);
   const [testMsg, setTestMsg] = useState(null);
+  const [smtp, setSmtp] = useState({ host: "", port: "465", secure: "true", user: "", pass: "", from: "" });
+  const [saveBusy, setSaveBusy] = useState(false);
+  const [saveMsg, setSaveMsg] = useState(null);
+  const [verifyBusy, setVerifyBusy] = useState(false);
 
-  useEffect(() => {
-    fetch("/api/mail-status").then((r) => r.json()).then(setMail).catch(() => setMail({ ok: false }));
-  }, []);
+  async function loadMail() {
+    try {
+      const m = await (await fetch("/api/mail-status")).json();
+      setMail(m);
+      setSmtp((s) => ({
+        host: m.host || s.host,
+        port: String(m.port ?? s.port),
+        secure: String(m.secure ?? true),
+        user: m.user || s.user,
+        pass: s.pass, // password is write-only — never echoed back
+        from: m.from || s.from,
+      }));
+    } catch {
+      setMail({ ok: false });
+    }
+  }
+
+  useEffect(() => { loadMail(); }, []);
+
+  async function recheck() {
+    setVerifyBusy(true);
+    try { await loadMail(); } finally { setVerifyBusy(false); }
+  }
+
+  async function saveSmtp(e) {
+    e.preventDefault();
+    setSaveBusy(true);
+    setSaveMsg(null);
+    try {
+      const r = await act("saveMailConfig", smtp);
+      setSaveMsg({ ok: true, text: r.message });
+      setSmtp((s) => ({ ...s, pass: "" }));
+      await loadMail();
+    } catch (err) {
+      setSaveMsg({ ok: false, text: err.message });
+    } finally {
+      setSaveBusy(false);
+    }
+  }
+
+  async function forgetSmtp() {
+    if (!confirm("Remove the saved SMTP settings? Email falls back to the server environment, or to simulated demo mode.")) return;
+    try {
+      const r = await act("clearMailConfig", {});
+      setSaveMsg({ ok: true, text: r.message });
+      await loadMail();
+    } catch (err) {
+      setSaveMsg({ ok: false, text: err.message });
+    }
+  }
 
   async function sendTest(e) {
     e.preventDefault();
@@ -92,20 +143,40 @@ export default function StaffAccountsPage() {
       <div className="card" style={{ marginBottom: "1.2rem", background: "var(--peri-l)", borderColor: "var(--peri-2)" }}>
         <div className="spread" style={{ marginBottom: "0.6rem" }}>
           <h3 style={{ margin: 0 }}><Icon name="mail" size={18} /> School email (SMTP) status</h3>
-          {!mail ? <Badge tone="gray">checking…</Badge>
-            : mail.configured ? <Badge tone="green">live — {mail.host}</Badge>
-            : <Badge tone="gold">simulated demo mode</Badge>}
+          <div className="row" style={{ gap: "0.4rem" }}>
+            {!mail ? <Badge tone="gray">checking…</Badge>
+              : !mail.configured ? <Badge tone="gold">simulated demo mode</Badge>
+              : mail.verified === false ? <Badge tone="red">configured, but not delivering</Badge>
+              : <Badge tone="green">live — {mail.host}{mail.verified ? " · verified" : ""}</Badge>}
+            {mail?.configured && (
+              <button className="btn ghost sm" onClick={recheck} disabled={verifyBusy}>
+                {verifyBusy ? "Checking…" : "Check connection"}
+              </button>
+            )}
+          </div>
         </div>
         {mail && !mail.configured && (
           <p className="small muted" style={{ margin: "0 0 0.6rem" }}>
-            No <span className="mono">SMTP_*</span> variables set — invites and codes are shown on screen instead of
-            emailed. See <span className="mono">docs/email-setup.md</span> to connect cPanel/Webuzo webmail.
+            Email runs in simulated mode (codes &amp; invites shown on screen) until the
+            <b> noreply@gill.ac.ug mailbox password</b> is added — that one password is all it takes.
+            The server, port and sender are already pre-filled in SMTP settings below; or set
+            <span className="mono"> SMTP_PASS</span> on the host. See <span className="mono">docs/email-setup.md</span>.
           </p>
         )}
-        {mail?.configured && (
+        {mail?.configured && mail.verified === false && (
+          <div className="quote" style={{ background: "#fff3f0", borderColor: "#eec2b8", margin: "0 0 0.6rem" }}>
+            <b className="small">The mail server rejected the connection — {mail.verifyError}</b>
+            <div className="small" style={{ marginTop: "0.3rem" }}>
+              Usual causes: wrong mailbox password, wrong port/encryption (465 = SSL/TLS, 587 = STARTTLS),
+              or the host&rsquo;s SMTP restrictions. Fix the values below, press “Save settings”, then “Check connection”.
+            </div>
+          </div>
+        )}
+        {mail?.configured && mail.verified && (
           <p className="small muted" style={{ margin: "0 0 0.6rem" }}>
-            Sending as <span className="mono">{mail.from}</span> via <span className="mono">{mail.host}:{mail.port}</span>.
-            Send yourself a test email to confirm delivery:
+            Sending as <span className="mono">{mail.from}</span> via <span className="mono">{mail.host}:{mail.port}</span>
+            {" "}({mail.secure ? "SSL/TLS" : "STARTTLS"}) · source: {mail.source === "saved" ? "settings saved from this console" : "server environment"}.
+            Send yourself a test email to confirm end-to-end delivery:
           </p>
         )}
         <form onSubmit={sendTest} className="row" style={{ gap: "0.5rem", flexWrap: "wrap" }}>
@@ -134,6 +205,58 @@ export default function StaffAccountsPage() {
             </div>
           </div>
         )}
+
+        <details style={{ marginTop: "0.9rem" }} open={!mail?.configured}>
+          <summary style={{ cursor: "pointer", fontSize: "0.85rem", fontWeight: 600 }}> SMTP settings</summary>
+          <form onSubmit={saveSmtp} style={{ marginTop: "0.6rem" }}>
+            <div className="grid grid-2" style={{ gap: "0.6rem" }}>
+              <Field label="Mail server">
+                <input value={smtp.host} onChange={(e) => setSmtp((s) => ({ ...s, host: e.target.value }))} placeholder="mail.gill.ac.ug" required />
+              </Field>
+              <Field label="Port & encryption">
+                <select
+                  value={`${smtp.port}|${smtp.secure}`}
+                  onChange={(e) => {
+                    const [port, secure] = e.target.value.split("|");
+                    setSmtp((s) => ({ ...s, port, secure }));
+                  }}
+                >
+                  <option value="465|true">465 — SSL/TLS</option>
+                  <option value="587|false">587 — STARTTLS</option>
+                </select>
+              </Field>
+              <Field label="Mailbox (username)">
+                <input value={smtp.user} onChange={(e) => setSmtp((s) => ({ ...s, user: e.target.value }))} placeholder="noreply@gill.ac.ug" required />
+              </Field>
+              <Field label="Mailbox password">
+                <input
+                  type="password" autoComplete="new-password"
+                  value={smtp.pass} onChange={(e) => setSmtp((s) => ({ ...s, pass: e.target.value }))}
+                  placeholder={mail?.savedSettings ? "unchanged — type to replace" : "the webmail mailbox password"}
+                />
+              </Field>
+            </div>
+            <Field label="Sender (from)">
+              <input value={smtp.from} onChange={(e) => setSmtp((s) => ({ ...s, from: e.target.value }))} placeholder="Gill School OS <noreply@gill.ac.ug>" />
+            </Field>
+            <div className="row" style={{ gap: "0.5rem", flexWrap: "wrap", marginTop: "0.2rem" }}>
+              <button className="btn sm" disabled={saveBusy}>{saveBusy ? "Saving…" : "Save settings"}</button>
+              {mail?.savedSettings && (
+                <button type="button" className="btn ghost sm" onClick={forgetSmtp}>Forget saved settings</button>
+              )}
+            </div>
+            {saveMsg && (
+              <p className="small" style={{ margin: "0.5rem 0 0", color: saveMsg.ok ? "var(--green)" : "var(--red)" }}>
+                {saveMsg.text}
+              </p>
+            )}
+            <p className="small muted" style={{ margin: "0.5rem 0 0" }}>
+              Saved to <span className="mono">data/mail.json</span> (alongside the database — never committed to Git,
+              never shown again after saving). When nothing is saved here the server environment (panel or
+              <span className="mono"> .env</span>) is used instead.
+            </p>
+          </form>
+        </details>
       </div>
 
       <div className="grid grid-2">

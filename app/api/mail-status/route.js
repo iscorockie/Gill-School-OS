@@ -1,18 +1,21 @@
 import { NextResponse } from "next/server";
-import { mailConfig } from "@/lib/mail";
+import { mailStatus, verifyMailConnection } from "@/lib/mail";
 
 export const dynamic = "force-dynamic";
 
 // Email health summary for the Head console. Never exposes the password.
-export async function GET() {
-  const c = mailConfig();
-  return NextResponse.json({
-    ok: true,
-    configured: c.configured,
-    host: c.configured ? c.host : null,
-    port: c.configured ? c.port : null,
-    secure: c.configured ? c.secure : null,
-    user: c.configured ? c.user : null,
-    from: c.configured ? c.from : null,
-  });
+// When SMTP is configured we also verify the live connection (EHLO + auth)
+// unless the caller passes ?verify=0, so the console can show
+// "live — verified" vs "configured but failing" with the actual error.
+export async function GET(req) {
+  const status = mailStatus();
+  const skipVerify = new URL(req.url).searchParams.get("verify") === "0";
+  let verified = null;
+  let verifyError = null;
+  if (status.configured && !skipVerify) {
+    const v = await verifyMailConnection();
+    verified = v.ok;
+    verifyError = v.ok ? null : v.error;
+  }
+  return NextResponse.json({ ok: true, ...status, verified, verifyError });
 }
