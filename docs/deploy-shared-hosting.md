@@ -106,7 +106,7 @@ boot seeds demo data automatically.
 - [ ] **Admin → Staff Accounts → Send test email** to yourself — confirms SMTP.
 - [ ] **Admin → Security → Force password reset for everyone** — rotates all
       demo passwords; every holder re-verifies by email.
-- [ ] Invite any real staff missing from the seed (must match their cPanel mailbox).
+- [ ] Invite any real staff missing from the seed (must match their Webuzo mailbox).
 - [ ] Panel → **Backuply** (or Backup): schedule backups including `portal-data`
       (or `portal/data/db.json` if you skipped `DATA_DIR`).
 - [ ] Keep the demo families for training, or tell us when you want a clean

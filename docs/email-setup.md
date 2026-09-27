@@ -1,4 +1,4 @@
-# Gill School OS — webmail & email-login setup (cPanel + portal)
+# Gill School OS — webmail & email-login setup (Webuzo + portal)
 
 > Goal: staff sign in with their `@gill.ac.ug` webmail addresses, and every
 > portal (staff · parent · student) sends real emails for invites,
@@ -6,19 +6,19 @@
 
 How it works (the model you chose):
 
-- **The mailbox and the portal password are separate.** cPanel webmail owns the
+- **The mailbox and the portal password are separate.** Webuzo webmail owns the
   `you@gill.ac.ug` mailbox; the portal owns a separate portal password for
   that same address. If a staff member forgets the portal password they reset
   it themselves from the login screen — the webmail password never changes.
-- **cPanel is the postman.** The portal (hosted on Vercel/VPS) connects to
-  your cPanel SMTP to *send* mail. It never reads mailboxes and never needs
-  your cPanel login — only the SMTP username/password of one mailbox.
+- **Webuzo is the postman.** The portal (hosted on Vercel/VPS) connects to
+  your Webuzo SMTP to *send* mail. It never reads mailboxes and never needs
+  your Webuzo login — only the SMTP username/password of one mailbox.
 
-## Part 1 — in cPanel (about 15 minutes)
+## Part 1 — in Webuzo (about 15 minutes)
 
 ### 1. Create the sender mailbox
 
-1. cPanel → **Email Accounts** → **Create**.
+1. Webuzo → **Email Accounts** → **Create**.
 2. Domain: `gill.ac.ug`, username: `noreply`, password: generate a strong one
    and save it (this becomes `SMTP_PASS`).
 3. Mailbox quota: 1 GB is plenty (it only sends).
@@ -38,14 +38,15 @@ Same screen → **Create** for each person, e.g.:
 | Mr. Francis Ssekandi | `f.ssekandi@gill.ac.ug` |
 
 Give each person their webmail password privately (they can change it in
-webmail later). Staff access webmail at `https://gill.ac.ug:2096` or
-`https://webmail.gill.ac.ug`.
+webmail later). Staff access webmail at
+`https://nexus.crystalcloudhost.com:2003/` (Roundcube), or the branded
+`https://webmail.gill.ac.ug:2003/` once set up below.
 
 ### 3. Copy the SMTP settings
 
-1. cPanel → **Email Accounts** → next to `noreply@` → **Connect Devices**
+1. Webuzo → **Email Accounts** → next to `noreply@` → **Connect Devices**
    (or *Set Up Mail Client*).
-2. Note the **outgoing (SMTP)** host and port. Typical cPanel values:
+2. Note the **outgoing (SMTP)** host and port. Typical Webuzo values:
    - Host: `mail.gill.ac.ug`
    - Port **465** with SSL/TLS (`SMTP_SECURE=true`), **or** port **587**
      with STARTTLS (`SMTP_SECURE=false`).
@@ -53,9 +54,16 @@ webmail later). Staff access webmail at `https://gill.ac.ug:2096` or
 
 ### 4. Deliverability (so Gmail/Yahoo don't flag you)
 
-1. cPanel → **Email Deliverability** → make sure `gill.ac.ug` shows valid
-   **SPF** and **DKIM** (click *Repair* if offered).
-2. Optional but recommended: ask your host to add a **DMARC** record.
+> ✅ **Verified live 2026-09-27:** SPF
+`v=spf1 a mx ip4:104.194.11.128 ~all` and the `default._domainkey` DKIM
+key are both published in DNS. The Webuzo SPF screen only edits the
+panel's *local* zone (ignored while nameservers stay at Vercel) — nothing
+to click there.
+
+Final proof: send any mailbox → Gmail, open **Show original**, and confirm
+`SPF: PASS` and `DKIM: PASS`.
+
+Optional but recommended: ask your host to add a **DMARC** record.
 
 ## Branded webmail URL (optional, recommended)
 
@@ -132,16 +140,16 @@ Redeploy / restart after saving. A full template lives in `.env.example`.
 - [ ] `/staff/forgot` with your own school email → code arrives in webmail.
 - [ ] `/portal/forgot` with a parent email → code arrives.
 - [ ] Pay a demo invoice → parent email receives the receipt.
-- [ ] Admin → Communications → Delivery log shows `cPanel SMTP … (live)`.
+- [ ] Admin → Communications → Delivery log shows `Webuzo SMTP … (live)`.
 
 ## Troubleshooting
 
 | Symptom | Likely cause / fix |
 |---|---|
-| `cPanel SMTP (failed: …)` in the delivery log | Wrong `SMTP_PASS`, or host/port mismatch. Re-check *Connect Devices*; try port 587 + `SMTP_SECURE=false`. Some hosts require *SMTP Restrictions* disabled — ask your host. |
+| `Webuzo SMTP (failed: …)` in the delivery log | Wrong `SMTP_PASS`, or host/port mismatch. Re-check *Connect Devices*; try port 587 + `SMTP_SECURE=false`. Some hosts require *SMTP Restrictions* disabled — ask your host. |
 | Emails arrive in spam | Finish Part 1 step 4 (SPF/DKIM/DMARC). Also avoid sending the first real broadcast to hundreds of parents at once — warm up with staff/family mail first. |
-| Staff invite email never arrives, no failure logged | Check the mailbox exists in cPanel and the address was typed correctly; look in spam. Re-send from Staff Accounts. |
-| `Staff accounts must use the school domain` | The invite address isn't `@gill.ac.ug`. Create the mailbox in cPanel first. |
+| Staff invite email never arrives, no failure logged | Check the mailbox exists in Webuzo and the address was typed correctly; look in spam. Re-send from Staff Accounts. |
+| `Staff accounts must use the school domain` | The invite address isn't `@gill.ac.ug`. Create the mailbox in Webuzo first. |
 | Codes shown on screen instead of emailed | SMTP env vars aren't set on the host (simulated mode). Set them and redeploy. |
 
 ## Security notes
