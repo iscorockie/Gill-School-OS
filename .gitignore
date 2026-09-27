@@ -6,5 +6,6 @@ out/
 .env
 .env*.local
 data/db.json
+data/mail.json
 data/uploads/*
 !data/uploads/.gitkeep

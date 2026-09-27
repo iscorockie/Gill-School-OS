@@ -77,6 +77,12 @@ Environment Variables → **Add** each of these:
 | `SMTP_FROM` | `Gill School OS <noreply@gill.ac.ug>` |
 | `DATA_DIR` *(optional but recommended)* | `/home/gillacug/portal-data` |
 
+> Email note: `SMTP_PASS` is the only *required* mail variable — the host,
+> port, mailbox and sender above are the app's built-in defaults. And if the
+> panel's variable screen doesn't work, skip `SMTP_*` entirely and save the
+> password from **Admin → Staff Accounts →  SMTP settings** (it lands in
+> `DATA_DIR/mail.json`, git-ignored) — see `docs/email-setup.md` Part 2.
+
 > `DATA_DIR` keeps the live database **outside** the app folder, so re-uploading
 > the app can never wipe school data. Create that folder once in File Manager.
 

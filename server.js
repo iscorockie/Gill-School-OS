@@ -17,6 +17,30 @@ const { parse } = require("url");
 const path = require("path");
 const fs = require("fs");
 
+// Load .env / .env.local / .env.production explicitly, before anything else.
+// Next.js loads these itself for `next dev` / `next start`, but shared-hosting
+// panels run this file directly (`node server.js`) and start the process with a
+// bare environment — without this, SMTP_* sitting in a .env next to the app
+// would never reach the mailer and email would silently stay in simulated
+// mode ("the emails are not active"). Real environment variables always win
+// over .env values (@next/env does not overwrite existing process.env).
+try {
+  require("@next/env").loadEnvConfig(__dirname, process.env.NODE_ENV !== "production");
+} catch (e) {
+  // Fallback loader if @next/env is ever unavailable: parse KEY=VALUE lines.
+  try {
+    const envFile = path.join(__dirname, ".env");
+    if (fs.existsSync(envFile)) {
+      for (const line of fs.readFileSync(envFile, "utf8").split("\n")) {
+        const m = /^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)\s*$/.exec(line);
+        if (m && process.env[m[1]] === undefined) {
+          process.env[m[1]] = m[2].replace(/^["']|["']$/g, "");
+        }
+      }
+    }
+  } catch { /* keep going — the app still runs (simulated mail) */ }
+}
+
 const port = parseInt(process.env.PORT || "3000", 10);
 const hostname = process.env.HOSTNAME || "0.0.0.0";
 
