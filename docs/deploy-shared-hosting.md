@@ -36,9 +36,10 @@
 Pick one:
 
 **Option A — Git (recommended, easiest updates):**
-1. Panel → **Git™ Version Control** (or use the Terminal/SSH) and clone:
-   `https://github.com/iscorockie/Gill-School-OS.git` into `/home/gillacug/portal`.
-2. Check out the branch you want live (e.g. `main` once merged).
+1. Webuzo → **Git** → **Create Repository**: Clone ON, URL
+   `https://github.com/iscorockie/Gill-School-OS.git`, path
+   `/home/gillacug/portal` → **Save**. (Clones `main`, which carries all
+   production fixes and the `server.js` launcher.)
 
 **Option B — ZIP upload:**
 1. On your computer: download the repo as ZIP (Code → Download ZIP).
