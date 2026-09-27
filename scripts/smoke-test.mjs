@@ -289,9 +289,13 @@ const childPortalSms = r.deliveries.filter((d) => d.ref === mukasaApp.id && d.ch
 check("verification SMS carries the child's portal link", childPortalSms.length === 2 && childPortalSms.every((d) => d.subject.includes("/student/login?u=") && d.subject.includes(mukasaAccount.username)), `(sample: ${childPortalSms[0]?.subject?.slice(0, 90)})`);
 const kidSa = r.accountByStudent?.[mukasaKid];
 check("child's supervised account auto-provisioned", !!kidSa && kidSa.supervisedBy === mukasaUserId && kidSa.status === "active");
+// Passwords never leave the server in state snapshots, so the test takes the
+// same path as a real parent: Parent Portal → Student Accounts → reset,
+// which returns the new password directly (shown in the portal's alert).
+const kidPwReset = await action("resetStudentAccount", { accountId: kidSa.id });
 const kidLogin = await (await fetch(`${BASE}/api/student-login`, {
   method: "POST", headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ username: kidSa.username, password: kidSa.password }),
+  body: JSON.stringify({ username: kidSa.username, password: kidPwReset.result.password }),
 })).json();
 check("child can sign in with the provisioned credentials", kidLogin.ok && kidLogin.session.studentId === mukasaKid);
 
