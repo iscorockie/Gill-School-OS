@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { getDB } from "@/lib/store";
+import { getPublicDB } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  return NextResponse.json(getDB());
+  return NextResponse.json(getPublicDB());
 }

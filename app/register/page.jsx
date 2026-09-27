@@ -130,7 +130,7 @@ function Register() {
               </div>
               <p className="small" style={{ marginTop: "1rem", color: "var(--muted)" }}>
                 <Icon name="phone" size={14} style={{ verticalAlign: "-2px" }} /> Admissions: +256 771 648 684 ·
-                Email <a href="mailto:info.gillschool@gmail.com" className="small">info.gillschool@gmail.com</a>
+                Email <a href="mailto:info@gill.ac.ug" className="small">info@gill.ac.ug</a>
               </p>
             </div>
           </aside>

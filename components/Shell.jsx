@@ -51,6 +51,8 @@ const ADMIN_NAV = [
   { href: "/admin/fees", icon: "card", label: "Fees & Payments" },
   { href: "/admin/pickups", icon: "gate", label: "Gate & Checkouts" },
   { href: "/admin/leaves", icon: "send", label: "Leave Approvals" },
+  { href: "/admin/staff", icon: "key", label: "Staff Accounts" },
+  { href: "/admin/security", icon: "shield", label: "Security" },
   { section: "School" },
   { href: "/admin/communications", icon: "chat", label: "Communications" },
   { href: "/admin/academics", icon: "chart", label: "Assessments" },

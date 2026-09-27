@@ -8,7 +8,7 @@ export default function StaffLayout({ children }) {
   const { staff, ready } = useStaff();
   const router = useRouter();
   const pathname = usePathname();
-  const onLogin = pathname === "/staff";
+  const onLogin = pathname === "/staff" || pathname === "/staff/setup" || pathname === "/staff/forgot";
 
   useEffect(() => {
     if (ready && !onLogin && !staff) router.replace("/staff");

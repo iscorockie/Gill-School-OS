@@ -4,59 +4,49 @@ import { useRouter } from "next/navigation";
 import Icon from "@/components/icons.jsx";
 import { useStaff } from "@/components/StaffSession.jsx";
 
-const ROLES = [
-  { id: "teacher", label: "Teacher", icon: "grad", copy: "Assessments, remarks and family group chats", users: ["t-aisha", "t-brian", "t-sharon"] },
-  { id: "admissions", label: "Admissions", icon: "file", copy: "Documents, transitions and family onboarding", users: ["u-admissions"] },
-  { id: "bursar", label: "Bursar", icon: "card", copy: "Fees, payments, receipts and reconciliation", users: ["u-bursar"] },
-  { id: "frontdesk", label: "Front Desk & Gate", icon: "gate", copy: "Check-ins, checkouts and late pickup handling", users: ["u-gate"] },
+// Staff sign-in: school webmail address (@gill.ac.ug) + portal password.
+// Accounts are issued by the Head of School (Admin → Staff Accounts); the
+// emailed invite sets the first password.
+const DEMO = [
+  { email: "a.hassan@gill.ac.ug", label: "Teacher · Ms. Aisha Hassan" },
+  { email: "i.twesigye@gill.ac.ug", label: "Bursar · Mr. Isaac Twesigye" },
+  { email: "m.kyomukama@gill.ac.ug", label: "Admissions · Mrs. Mary Kyomukama" },
 ];
-
-const STAFF_DB = {
-  "t-aisha": { id: "t-aisha", name: "Ms. Aisha Hassan", title: "English & Class Teacher, Year 5", email: "a.hassan@gill.sch" },
-  "t-brian": { id: "t-brian", name: "Mr. Brian Mugisha", title: "Mathematics & Science, Year 5", email: "b.mugisha@gill.sch" },
-  "t-sharon": { id: "t-sharon", name: "Ms. Sharon Namukasa", title: "Pre-School Lead, Nursery", email: "s.namukasa@gill.sch" },
-  "u-admissions": { id: "u-admissions", name: "Mrs. Mary Kyomukama", title: "Head of Admissions", email: "m.kyomukama@gill.sch" },
-  "u-bursar": { id: "u-bursar", name: "Mr. Isaac Twesigye", title: "Bursar", email: "i.twesigye@gill.sch" },
-  "u-gate": { id: "u-gate", name: "Mr. Peter Othieno", title: "Security & Gate Officer", email: "p.othieno@gill.sch" },
-};
 
 export default function StaffPortalPage() {
   const router = useRouter();
   const { signIn } = useStaff();
-  const [role, setRole] = useState("teacher");
-  const [userId, setUserId] = useState("t-aisha");
-  const [email, setEmail] = useState("a.hassan@gill.sch");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
+  const [show, setShow] = useState(false);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const activeRole = ROLES.find((item) => item.id === role);
-  const person = STAFF_DB[userId];
-
-  function changeRole(event) {
-    const nextRole = ROLES.find((item) => item.id === event.target.value);
-    setRole(nextRole.id);
-    setUserId(nextRole.users[0]);
+  async function submit(event) {
+    event.preventDefault();
+    setBusy(true);
     setError("");
+    try {
+      const r = await fetch("/api/staff-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const j = await r.json();
+      if (!j.ok) throw new Error(j.error || "Sign in failed");
+      signIn(j.session);
+      router.push(j.session.id === "u-admin" ? "/admin" : "/staff/home");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(false);
+    }
   }
 
-  function submit(event) {
-    event.preventDefault();
+  function fillDemo(addr) {
+    setEmail(addr);
+    setPassword("gill2026");
     setError("");
-    // Demo flow: any staff profile works with the demo password gill2026
-    if (password !== "gill2026") {
-      if (password.length < 8) return setError("Password must be at least 8 characters.");
-      if (password !== confirm) return setError("Passwords don't match.");
-      return setError("Use the school-issued demo password: gill2026");
-    }
-    if (confirm !== "gill2026") return setError("Please confirm the demo password: gill2026");
-
-    setBusy(true);
-    signIn({ ...person, role: "staff", roleLabel: activeRole.label, actor: true });
-    router.push("/staff/home");
   }
 
   return (
@@ -65,96 +55,73 @@ export default function StaffPortalPage() {
         <img src="/logo.png" alt="Gill International School logo" />
       </a>
 
-      <section className="staff-onboard-card" aria-labelledby="staff-onboard-title">
+      <section className="staff-onboard-card" aria-labelledby="staff-login-title">
         <a className="staff-back" href="/"><Icon name="arrowRight" size={16} /> Back</a>
 
         <div className="staff-onboard-head">
           <span className="heading-icon"><Icon name="shield" size={19} /></span>
-          <h1 id="staff-onboard-title">Set up your staff account</h1>
-          <p>Use your school-issued profile to access the Gill School workspace.</p>
+          <h1 id="staff-login-title">Staff sign in</h1>
+          <p>Use your school email address and portal password to open your workspace.</p>
         </div>
 
         <form onSubmit={submit} className="staff-onboard-form">
           <fieldset className="staff-form-section">
-            <legend>Staff role</legend>
-            <label className="field">
-              <span className="fw700">Select your role</span>
-              <select value={role} onChange={changeRole}>
-                {ROLES.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
-              </select>
-            </label>
-
-            {activeRole.users.length > 1 && (
-              <label className="field">
-                <span className="fw700">Issued staff profile</span>
-                <select value={userId} onChange={(event) => setUserId(event.target.value)}>
-                  {activeRole.users.map((id) => <option key={id} value={id}>{STAFF_DB[id].name}</option>)}
-                </select>
-              </label>
-            )}
-
-            <div className="staff-role-note">
-              <Icon name={activeRole.icon} size={18} />
-              <span><b>{activeRole.label}</b><small>{activeRole.copy}</small></span>
-            </div>
-          </fieldset>
-
-          <fieldset className="staff-form-section">
             <legend>Staff details</legend>
-            <div className="staff-field-grid">
-              <label className="field">
-                <span className="fw700">Full name</span>
-                <input value={person.name} readOnly aria-readonly="true" />
-              </label>
-
-              <label className="field">
-                <span className="fw700">School email address</span>
-                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="any staff email works with demo password" autoComplete="email" />
-              </label>
-            </div>
-          </fieldset>
-
-          <fieldset className="staff-form-section">
-            <legend>Secure your account</legend>
-            <div className="staff-field-grid">
-              <PasswordField label="Password" value={password} setValue={setPassword} visible={showPassword} setVisible={setShowPassword} autoComplete="new-password" />
-              <PasswordField label="Confirm password" value={confirm} setValue={setConfirm} visible={showConfirm} setVisible={setShowConfirm} autoComplete="new-password" />
-            </div>
+            <label className="field">
+              <span className="fw700">School email address</span>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@gill.ac.ug"
+                autoComplete="username"
+                required
+              />
+            </label>
+            <label className="field">
+              <span className="fw700">Portal password</span>
+              <span className="password-input">
+                <input
+                  type={show ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Your portal password"
+                  autoComplete="current-password"
+                  required
+                />
+                <button type="button" onClick={() => setShow(!show)} aria-label={`${show ? "Hide" : "Show"} password`}>
+                  <Icon name={show ? "eyeOff" : "eye"} size={19} />
+                </button>
+              </span>
+            </label>
           </fieldset>
 
           {error && <p className="staff-form-error" role="alert"><Icon name="alert" size={16} /> {error}</p>}
 
-          <button className="btn" disabled={busy}>{busy ? "Opening your workspace…" : "Complete staff setup"}</button>
+          <button className="btn" disabled={busy}>{busy ? "Signing in…" : "Sign in to my workspace"}</button>
         </form>
+
+        <div className="spread" style={{ marginTop: "0.9rem" }}>
+          <a className="small" href="/staff/setup">First time? Open your invite &gt;</a>
+          <a className="small" href="/staff/forgot">Forgot password?</a>
+        </div>
 
         <div className="staff-security-note">
           <Icon name="lock" size={17} />
-          <span><b>School-managed access</b> · Any staff profile works with the demo password: <span className="mono">gill2026</span>.</span>
+          <span><b>School-managed access</b> · Accounts are issued by the Head of School — there is no self-registration.</span>
         </div>
 
-        <p className="staff-onboard-foot">Already set up? Completing this form securely opens your existing staff workspace.</p>
+        <div className="demo-hint" style={{ marginTop: "1rem" }}>
+          <b>Demo</b> — pick a profile, password <span className="mono">gill2026</span>
+          <div style={{ marginTop: "0.5rem", display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
+            {DEMO.map((d) => (
+              <button key={d.email} type="button" className="btn secondary sm" onClick={() => fillDemo(d.email)}>
+                {d.label}
+              </button>
+            ))}
+          </div>
+        </div>
       </section>
     </main>
-  );
-}
-
-function PasswordField({ label, value, setValue, visible, setVisible, autoComplete }) {
-  return (
-    <label className="field">
-      <span className="fw700">{label}</span>
-      <span className="password-input">
-        <input
-          type={visible ? "text" : "password"}
-          value={value}
-          onChange={(event) => setValue(event.target.value)}
-          placeholder="At least 8 characters"
-          autoComplete={autoComplete}
-          required
-        />
-        <button type="button" onClick={() => setVisible(!visible)} aria-label={`${visible ? "Hide" : "Show"} ${label.toLowerCase()}`}>
-          <Icon name={visible ? "eyeOff" : "eye"} size={19} />
-        </button>
-      </span>
-    </label>
   );
 }

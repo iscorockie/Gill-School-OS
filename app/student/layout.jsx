@@ -9,7 +9,7 @@ function Gate({ children }) {
   const { session, ready } = useStudent();
   const router = useRouter();
   const pathname = usePathname();
-  const publicPath = pathname === "/student/login";
+  const publicPath = pathname === "/student/login" || pathname === "/student/forgot";
 
   useEffect(() => {
     if (!ready) return;
@@ -40,7 +40,7 @@ function StudentShell({ children }) {
   const pathname = usePathname();
   // Public pages (login) render without the portal chrome — no session yet,
   // so the shell must NOT touch session fields or it throws client-side.
-  if (pathname === "/student/login") return children;
+  if (pathname === "/student/login" || pathname === "/student/forgot") return children;
   return (
     <Shell mode="student"
       user={{ name: session.name, role: `${session.class} · supervised by ${session.supervisedBy}`, title: null }}

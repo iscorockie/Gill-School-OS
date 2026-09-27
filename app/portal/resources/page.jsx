@@ -35,7 +35,7 @@ export default function ResourcesPage() {
                 <td className="small">{r.stage}</td>
                 <td className="small">{r.campus === "preschool" ? " Pre-School" : r.campus === "all" ? "All" : " Main"}</td>
                 <td>{r.downloads}</td>
-                <td><a className="btn secondary sm" href="#" onClick={(e) => e.preventDefault()}>Open ↗</a></td>
+                <td><a className="btn secondary sm" href={r.file} target="_blank" rel="noreferrer">Open ↗</a></td>
               </tr>
             ))}
           </tbody>
