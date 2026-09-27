@@ -57,6 +57,27 @@ webmail later). Staff access webmail at `https://gill.ac.ug:2096` or
    **SPF** and **DKIM** (click *Repair* if offered).
 2. Optional but recommended: ask your host to add a **DMARC** record.
 
+## Branded webmail URL (optional, recommended)
+
+Staff don't have to use the ugly server URL (`nexus.crystalcloudhost.com:2003`).
+Put webmail on your own subdomain instead:
+
+1. In **Vercel → Domains → `gill.ac.ug` → DNS**, add an **A record**:
+   - Name: `webmail`, value: `104.194.11.128` (the CrystalCloud server;
+     this overrides the wildcard that points everything at the website host).
+2. Wait ~5 minutes, then open `https://webmail.gill.ac.ug:2003/`.
+3. The `:2003` port and the `/sessXXXX/` session token stay — only the
+   hostname changes. That is normal for panel webmail.
+4. First visit may show a certificate warning (*“Your connection is not
+   private”*). That just means the server certificate names the hosting
+   company's hostname, not yours. Either click Advanced → Proceed, or ask
+   CrystalCloud support to cover `webmail.gill.ac.ug` (or set up port-less
+   `https://webmail.gill.ac.ug/` proxying) — both are standard requests.
+
+Naming tip: use `webmail.gill.ac.ug` for mail and reserve
+`portal.gill.ac.ug` for the Gill School OS portal itself, so staff never
+confuse the two.
+
 ## Part 2 — on the portal host (Vercel or VPS)
 
 Set these environment variables (Vercel: Project → Settings →
