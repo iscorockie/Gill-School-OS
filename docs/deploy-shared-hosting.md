@@ -10,20 +10,23 @@
 - Node.js **18.18 or newer** available in the panel (20 or 22 preferred — check
   the *Application type* dropdown; if the newest is older than 18, ask
   CrystalCloud support to enable a newer Node.js).
-- The **server's shared/web IP** (shown in the panel sidebar as *Shared IP* /
-  *Server IP*, or ask support). Mail lives on different IPs — use the web one.
+- The **server's shared/web IP**: `104.194.11.128` (confirmed in Webuzo →
+  Domain → Manage Domains). Mail lives on different IPs — use this one for
+  `portal` and `webmail` A records.
 - The SMTP values from `docs/email-setup.md`.
 
 ## Step 1 — create the subdomain (2 min)
 
-1. Panel → **Domains** (or *Subdomains*) → create `portal.gill.ac.ug`.
-2. Point its document root anywhere harmless (e.g. `portal_html`) — the Node.js
-   app manager, not the document root, will serve it.
+1. Webuzo → **Domain → Subdomains** → create `portal.gill.ac.ug` (default
+   path `public_html/portal` is fine — leave it; the app itself goes in
+   `/home/gillacug/portal` in Step 3, outside the web root).
+2. Leave **Force HTTPS OFF** for now — it goes ON after SSL in Step 6.
 
 ## Step 2 — point DNS at the server (2 min + propagation)
 
 1. **Vercel → Domains → `gill.ac.ug` → DNS** → add an **A record**:
-   - Name: `portal`, value: the **shared/web IP** from the panel.
+   - Name: `portal`, value: `104.194.11.128` (confirmed in
+     Webuzo → Domain → Manage Domains, the IP column).
    - This overrides the wildcard that currently sends `portal.*` to the website host.
 2. Wait ~5 minutes, then check: `portal.gill.ac.ug` should stop showing the
    school website (it may show a default/hosting page until Step 5 — normal).
@@ -130,7 +133,7 @@ without a fresh build and says exactly what's missing.
 | Symptom | Fix |
 |---|---|
 | `No production build found` in the app log | Run `npm install && npm run build` in `/home/gillacug/portal`, then Restart. |
-| `portal.gill.ac.ug` shows the school website | DNS still on the wildcard — check the Vercel A record points at the **shared/web IP**, and wait out propagation (up to ~30 min). |
+| `portal.gill.ac.ug` shows the school website | DNS still on the wildcard — check the Vercel A record is `portal` → `104.194.11.128`, and wait out propagation (up to ~30 min). |
 | `503 / app won't start` | Open the app log in the panel: wrong Node.js version (< 18.18) is the usual cause — switch *Application type* to Node 20/22 and Restart. |
 | `SMTP … failed` in Admin → Communications → Delivery log | Re-check `SMTP_*` variables (host `mail.gill.ac.ug`, port `465`, full `noreply@` username). Test from webmail first to prove the mailbox works. |
 | Invite/reset emails land in spam (or Gmail bounces) | Finish SPF + DKIM from `docs/email-setup.md` — same fix as webmail. |
