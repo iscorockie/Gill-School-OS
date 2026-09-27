@@ -34,6 +34,12 @@ export async function POST(req) {
         { status: 403 }
       );
     }
+    if (account.mustReset) {
+      return NextResponse.json(
+        { ok: false, resetRequired: true, error: "Password reset required — open Forgot password and enter the code we email to this address." },
+        { status: 403 }
+      );
+    }
     if (!verifyPassword(password, account.password)) {
       return NextResponse.json(
         { ok: false, error: "That password doesn't match. Use Forgot password if you need a reset." },

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getDB } from "@/lib/store";
 import { findFamilyAccount } from "@/lib/actions";
 import { verifyPassword } from "@/lib/password";
+import { isMailConfigured } from "@/lib/mail";
 
 export const dynamic = "force-dynamic";
 
@@ -20,13 +21,15 @@ export async function POST(req) {
       return NextResponse.json({ ok: true, session: familySession(db, account) });
     }
 
-    // Demo shortcut: the demo password opens the Nansubuga demo family from
-    // any username or email.
-    if (String(password || "") === "gill2026") {
+    // Demo shortcut (simulated mode only): once real SMTP is configured this
+    // backdoor closes and every family must use their own password.
+    if (!isMailConfigured() && String(password || "") === "gill2026") {
       const demoAccount = db.familyAccounts.find(
         (a) => a.username === "nansubuga.family" && a.status === "active" && a.verified !== false
       );
       if (demoAccount) {
+        const blocked = guard(demoAccount);
+        if (blocked) return blocked;
         return NextResponse.json({ ok: true, session: familySession(db, demoAccount), demo: true });
       }
     }
@@ -55,6 +58,12 @@ function guard(account) {
   if (account.verified === false) {
     return NextResponse.json(
       { ok: false, error: "Open your invite link (from the SMS) to create a password and verify your number first." },
+      { status: 403 }
+    );
+  }
+  if (account.mustReset) {
+    return NextResponse.json(
+      { ok: false, resetRequired: true, error: "Password reset required — open Forgot password and enter the code emailed to the parent address on file." },
       { status: 403 }
     );
   }

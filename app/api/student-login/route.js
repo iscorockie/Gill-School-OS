@@ -1,35 +1,27 @@
 import { NextResponse } from "next/server";
 import { getDB } from "@/lib/store";
+import { isMailConfigured } from "@/lib/mail";
 
 export const dynamic = "force-dynamic";
 
-// Demo authentication: validates the parent-created student account and
-// returns the linked student profile. In production this becomes a real
-// session (JWT + bcrypt) with the exact same supervised-account model.
+// Supervised student sign-in: the parent-created username + password.
+// Students never see fees; every account is supervised by the family.
 export async function POST(req) {
   try {
     const { username, password } = await req.json();
     const db = getDB();
-    // Demo flow: accept any username with the demo password gill2026
-    const demoPassword = "gill2026";
-    if (String(password || "") === demoPassword) {
+    // Demo shortcut (simulated mode only): once real SMTP is configured this
+    // backdoor closes and every student must use their own password.
+    if (!isMailConfigured() && String(password || "") === "gill2026") {
       const demoStudentAccount = db.studentAccounts.find((a) => a.status === "active");
       if (demoStudentAccount) {
-        const student = db.studentIndex[demoStudentAccount.studentId];
-        const fam = db.families.find((f) => f.id === student?.familyId);
-        return NextResponse.json({
-          ok: true,
-          session: {
-            accountId: demoStudentAccount.id,
-            studentId: student?.id || demoStudentAccount.studentId,
-            name: student?.name || "Demo Student",
-            schoolId: student?.schoolId || "S-DEMO",
-            class: student?.class || "Demo Class",
-            campus: student?.campus || "main",
-            supervisedBy: fam?.name || "Demo Family",
-            perms: demoStudentAccount.perms,
-          },
-        });
+        if (demoStudentAccount.mustReset) {
+          return NextResponse.json(
+            { ok: false, resetRequired: true, error: "Password reset required — ask your parent to open Forgot password; the code goes to their email." },
+            { status: 403 }
+          );
+        }
+        return NextResponse.json({ ok: true, session: studentSession(db, demoStudentAccount), demo: true });
       }
     }
     const account = db.studentAccounts.find(
@@ -46,22 +38,29 @@ export async function POST(req) {
     if (account.status !== "active") {
       return NextResponse.json({ ok: false, error: "This account is paused. Ask a parent or the school office." }, { status: 403 });
     }
-    const student = db.studentIndex[account.studentId];
-    const fam = db.families.find((f) => f.id === student.familyId);
-    return NextResponse.json({
-      ok: true,
-      session: {
-        accountId: account.id,
-        studentId: student.id,
-        name: student.name,
-        schoolId: student.schoolId,
-        class: student.class,
-        campus: student.campus,
-        supervisedBy: fam.name,
-        perms: account.perms,
-      },
-    });
+    if (account.mustReset) {
+      return NextResponse.json(
+        { ok: false, resetRequired: true, error: "Password reset required — ask your parent to open Forgot password; the code goes to their email." },
+        { status: 403 }
+      );
+    }
+    return NextResponse.json({ ok: true, session: studentSession(db, account) });
   } catch (e) {
     return NextResponse.json({ ok: false, error: e.message }, { status: 400 });
   }
+}
+
+function studentSession(db, account) {
+  const student = db.studentIndex[account.studentId];
+  const fam = db.families.find((f) => f.id === student?.familyId);
+  return {
+    accountId: account.id,
+    studentId: student?.id || account.studentId,
+    name: student?.name || "Demo Student",
+    schoolId: student?.schoolId || "S-DEMO",
+    class: student?.class || "Demo Class",
+    campus: student?.campus || "main",
+    supervisedBy: fam?.name || "Demo Family",
+    perms: account.perms,
+  };
 }

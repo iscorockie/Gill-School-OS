@@ -7,6 +7,11 @@
 > Real email delivery (cPanel SMTP) is optional: without `SMTP_*` env vars the
 > portal shows every code on screen and logs every email instead of sending
 > it. See **`docs/email-setup.md`** to connect your webmail.
+>
+> **Going live closes the demo shortcuts:** once `SMTP_*` is configured, the
+> *any email + `gill2026`* backdoors stop working and every account must use
+> its own password. Use **Admin → Security → Force password reset for
+> everyone** on launch day to rotate all seeded passwords at once.
 
 ## Credentials table
 
