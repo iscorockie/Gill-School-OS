@@ -40,7 +40,7 @@ export default function SecurityPage() {
       const r = await act(
         "forcePasswordResetAll",
         {},
-        `Reset forced for ${r.total} account(s).`
+        "Reset forced — every account must re-verify by email."
       );
       setResult(r);
       setConfirm(false);
