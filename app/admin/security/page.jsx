@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useApp, Badge } from "@/components/ui.jsx";
 import Icon from "@/components/icons.jsx";
 
-const legacy = (a) => !String(a.password || "").startsWith("scrypt$");
+const legacy = (a) => a.authStrength === "legacy"; // derived server-side; passwords never reach the UI
 
 // Head of School console: launch-day password safety. One click flags every
 // active account so each holder re-verifies with an emailed code on next
