@@ -121,6 +121,7 @@ function ParentLogin() {
         </div>
 
         <div className="row" style={{ justifyContent: "space-between", marginTop: "1.1rem" }}>
+          <a href="/portal/forgot" className="small">Forgot password?</a>
           <a href="/student/login" className="small">Student portal &gt;</a>
           <a href="/" className="small">School home</a>
         </div>

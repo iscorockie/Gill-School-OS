@@ -107,8 +107,8 @@ function StudentLogin() {
         </div>
 
         <div className="row" style={{ justifyContent: "space-between", marginTop: "1.1rem" }}>
+          <a href="/student/forgot" className="small">Forgot password?</a>
           <a href="/portal" className="small">← Parent Portal</a>
-          <a href="/" className="small">School home</a>
         </div>
       </div>
     </div>

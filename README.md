@@ -68,6 +68,10 @@ node scripts/smoke-test.mjs
 
 To go to production: swap `lib/store.js` for Postgres (the `reconcile` logic becomes views/triggers), connect a real SMS aggregator (MTN/Airtel Uganda) and payment gateway (MTN MoMo API, Flutterwave/Paystack for cards), and move document uploads to object storage with virus scanning.
 
+## Production email (cPanel webmail)
+
+Staff sign in with their `@gill.ac.ug` webmail addresses, and all three portals send real email (staff invites, verification codes, password resets, fee receipts) through your cPanel SMTP. Without configuration the portal runs in simulated-mail demo mode. Full walkthrough: **`docs/email-setup.md`** (copy `.env.example` → `.env`, set `SMTP_*`, invite staff from Admin → Staff Accounts).
+
 ## Layout
 
 ```

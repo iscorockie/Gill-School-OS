@@ -6,36 +6,44 @@ import { useStaff } from "@/components/StaffSession.jsx";
 
 // Restricted sign-in: only the Top School Administration can open the OS
 // console here. Everyone else uses their own portal (Parents / Staff / Student).
-const TOP_ADMIN = {
-  id: "u-admin",
-  name: "Mr. Francis Ssekandi",
-  title: "Head of School",
-  roleLabel: "Top School Administration",
-  email: "f.ssekandi@gill.sch",
-};
-const ADMIN_PASSWORD = "gill2026";
-
+// Authentication is server-side against the staff account for f.ssekandi@gill.ac.ug.
 export default function AdminLoginPage() {
   const router = useRouter();
   const { signIn } = useStaff();
-  const [email, setEmail] = useState(TOP_ADMIN.email);
+  const [email, setEmail] = useState("f.ssekandi@gill.ac.ug");
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
-  function submit(e) {
+  async function submit(e) {
     e.preventDefault();
     setBusy(true);
     setError("");
-    // Demo flow: any email with the demo password gill2026
-    if (password !== ADMIN_PASSWORD) {
-      setError("That password doesn't match. Use the demo password: gill2026.");
+    try {
+      const r = await fetch("/api/staff-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const j = await r.json();
+      if (!j.ok) throw new Error(j.error || "Sign in failed");
+      if (j.session.id !== "u-admin") {
+        throw new Error("Restricted — this console is for the Head of School only. Staff sign in at /staff.");
+      }
+      signIn(j.session);
+      router.replace("/admin");
+    } catch (err) {
+      setError(err.message);
+    } finally {
       setBusy(false);
-      return;
     }
-    signIn({ ...TOP_ADMIN, actor: true });
-    router.replace("/admin");
+  }
+
+  function demo() {
+    setEmail("f.ssekandi@gill.ac.ug");
+    setPassword("gill2026");
+    setError("");
   }
 
   return (
@@ -96,11 +104,14 @@ export default function AdminLoginPage() {
         </form>
 
         <div className="demo-hint" style={{ marginTop: "1rem" }}>
-          <b>Demo</b> — any email · password <span className="mono">{ADMIN_PASSWORD}</span>
-          <p className="small muted" style={{ margin: "0.3rem 0 0" }}>Any staff identity or top admin account works with the demo password.</p>
+          <b>Demo</b> — <span className="mono">f.ssekandi@gill.ac.ug</span> · password <span className="mono">gill2026</span>
+          <div style={{ marginTop: "0.5rem" }}>
+            <button className="btn secondary sm" onClick={demo}>Fill demo details</button>
+          </div>
         </div>
 
         <div className="row" style={{ justifyContent: "space-between", marginTop: "1.1rem" }}>
+          <a href="/staff/forgot" className="small">Forgot password?</a>
           <a href="/" className="small">← Back to the OS</a>
         </div>
       </div>

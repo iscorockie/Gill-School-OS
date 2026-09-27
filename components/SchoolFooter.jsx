@@ -44,8 +44,8 @@ export default function SchoolFooter() {
                   </span>
                 );
               })}
-              <a href="mailto:info.gillschool@gmail.com" className="row" style={{ gap: "0.5rem", color: "#efe4e5", marginTop: "0.25rem" }}>
-                <Icon name="mail" size={15} /> info.gillschool@gmail.com
+              <a href="mailto:info@gill.ac.ug" className="row" style={{ gap: "0.5rem", color: "#efe4e5", marginTop: "0.25rem" }}>
+                <Icon name="mail" size={15} /> info@gill.ac.ug
               </a>
             </div>
           </div>

@@ -245,8 +245,13 @@ function Setup() {
               {demoCode && (
                 <div className="quote" style={{ background: "#fffbe8", borderColor: "var(--gold-2)", marginBottom: "0.9rem" }}>
                   <b className="small">Demo gateway</b>
-                  <div className="small">Since SMS is simulated here, your code is <span className="mono">{demoCode}</span>.</div>
+                  <div className="small">Since delivery is simulated here, your code is <span className="mono">{demoCode}</span>.</div>
                 </div>
+              )}
+              {!demoCode && sender?.channel === "email" && (
+                <p className="small muted" style={{ marginBottom: "0.9rem" }}>
+                  Check your inbox (and spam folder) for the email from Gill School OS.
+                </p>
               )}
               {error && <p className="small" style={{ color: "var(--red)", margin: "0 0 0.7rem" }}>{error}</p>}
               <button className="btn" style={{ width: "100%" }} disabled={busy || code.length !== 6}>
