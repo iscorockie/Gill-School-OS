@@ -15,7 +15,7 @@ Production:
 
 ```bash
 npm run build
-npm run start      # or: node .next/standalone/server.js
+node server.js     # production launcher (PORT/HOSTNAME/DATA_DIR aware)
 ```
 
 First run seeds the demo database (`data/db.json` is generated and git-ignored). Use **↺ Reset demo data** on the admin dashboard to restore the seed at any time.
@@ -71,6 +71,10 @@ To go to production: swap `lib/store.js` for Postgres (the `reconcile` logic bec
 ## Production email (cPanel webmail)
 
 Staff sign in with their `@gill.ac.ug` webmail addresses, and all three portals send real email (staff invites, verification codes, password resets, fee receipts) through your cPanel SMTP. Without configuration the portal runs in simulated-mail demo mode. Full walkthrough: **`docs/email-setup.md`** (copy `.env.example` → `.env`, set `SMTP_*`, invite staff from Admin → Staff Accounts).
+
+## Deploying on shared hosting
+
+Run the portal itself on the CrystalCloud account at `portal.gill.ac.ug` via the panel's Node.js app manager (`server.js` launcher, `PORT`/`DATA_DIR` env support). Full walkthrough: **`docs/deploy-shared-hosting.md**`.
 
 ## Layout
 
