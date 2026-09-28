@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { getDB } from "@/lib/store";
 import { findFamilyAccount, staffSessionFor } from "@/lib/actions";
 import { verifyPassword } from "@/lib/password";
-import { isMailConfigured } from "@/lib/mail";
 import { familyLoginBlock, familySession } from "@/lib/parent-auth";
 
 export const dynamic = "force-dynamic";
@@ -64,19 +63,6 @@ export async function POST(req) {
       const blocked = familyLoginBlock(match.account);
       if (blocked) return NextResponse.json(blocked.body, { status: blocked.status });
       return NextResponse.json({ ok: true, kind: "parent", session: familySession(db, match.account) });
-    }
-
-    // Match the existing demo sign-in behavior without falling through from a
-    // real staff account with a mistyped password into a different account.
-    if (!staff && !family && !isMailConfigured() && String(password) === "gill2026") {
-      const demoAccount = db.familyAccounts.find(
-        (account) => account.username === "nansubuga.family" && account.status === "active" && account.verified !== false
-      );
-      if (demoAccount) {
-        const blocked = familyLoginBlock(demoAccount);
-        if (blocked) return NextResponse.json(blocked.body, { status: blocked.status });
-        return NextResponse.json({ ok: true, kind: "parent", session: familySession(db, demoAccount), demo: true });
-      }
     }
 
     return NextResponse.json(

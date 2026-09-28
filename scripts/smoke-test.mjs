@@ -1,7 +1,23 @@
-// Gill School OS — end-to-end business-rule smoke test.
-// Requires the app to be running on localhost:3000 (`npm run dev` or `npm run start`).
+// Gill School OS — end-to-end business-rule smoke test (self-seeding).
+//
+// The product ships WITHOUT a demo dataset, and so does this test: it builds
+// its own families, applications, invoices and accounts through the same
+// public flows real users use (register → apply → verify docs → clear tuition
+// → accounts → tenure → deletion). Verification codes are captured from a
+// local SMTP sink — the exact production delivery path; codes never appear on
+// screen anywhere.
+//
+// Requires the app to be running (`npm run dev` or `node server.js`).
+// Idempotent: every run creates uniquely-named records, so re-runs are safe on
+// a working database. The test briefly saves SMTP settings pointing at its
+// sink and clears them before finishing (DATA_DIR/mail.json).
+//
 // Usage: node scripts/smoke-test.mjs
+import net from "net";
+
 const BASE = process.env.BASE_URL || "http://localhost:3000";
+const RUN = Date.now().toString(36).toUpperCase();
+const run = RUN.toLowerCase();
 const ok = (name, cond, extra = "") => console.log(`${cond ? "PASS" : "FAIL"}  ${name} ${extra}`);
 let failures = 0;
 const check = (name, cond, extra) => { if (!cond) failures++; ok(name, cond, extra); };
@@ -13,337 +29,428 @@ const action = async (type, payload) =>
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ type, payload }),
   })).json();
+const post = async (url, body) =>
+  (await fetch(`${BASE}${url}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  })).json();
 
-// Start from a clean seed so the test is idempotent
-await fetch(`${BASE}/api/reset`, { method: "POST" });
+// Unique phone numbers per run (valid-looking UG mobiles).
+let seq = 0;
+const uphone = () => `+2567${String((Date.now() % 90000000) + seq++).padStart(8, "0").slice(-8)}`;
 
+// ---- Local SMTP sink (captures what the app really sends) --------------------
+const inbox = [];
+function startSink() {
+  return new Promise((resolve) => {
+    const server = net.createServer((sock) => {
+      sock.setEncoding("utf8");
+      let buf = "", inData = false, msg = "", authStage = 0;
+      sock.write("220 sink ESMTP\r\n");
+      const handle = (line) => {
+        if (authStage === 1) { authStage = 2; sock.write("334 UGFzc3dvcmQ6\r\n"); return; } // LOGIN → username
+        if (authStage === 2) { authStage = 0; sock.write("235 2.7.0 ok\r\n"); return; }       // LOGIN → password
+        const u = line.toUpperCase();
+        if (inData) {
+          if (line === ".") { inData = false; inbox.push(msg); msg = ""; sock.write("250 OK\r\n"); }
+          else msg += (line.startsWith("..") ? line.slice(1) : line) + "\r\n";
+          return;
+        }
+        if (u.startsWith("EHLO") || u.startsWith("HELO")) sock.write("250-sink\r\n250-AUTH PLAIN LOGIN\r\n250 OK\r\n");
+        else if (u.startsWith("AUTH") && u.includes("LOGIN")) { authStage = 1; sock.write("334 VXNlcm5hbWU6\r\n"); }
+        else if (u.startsWith("AUTH")) sock.write("235 2.7.0 ok\r\n"); // PLAIN (single line)
+        else if (u.startsWith("DATA")) { inData = true; msg = ""; sock.write("354 end with .\r\n"); }
+        else if (u.startsWith("QUIT")) { sock.write("221 bye\r\n"); sock.end(); }
+        else sock.write("250 OK\r\n");
+      };
+      sock.on("data", (d) => {
+        buf += d;
+        let i;
+        while ((i = buf.indexOf("\r\n")) >= 0) {
+          const line = buf.slice(0, i);
+          buf = buf.slice(i + 2);
+          handle(line);
+        }
+      });
+      sock.on("error", () => {});
+    });
+    server.listen(0, "127.0.0.1", () => resolve({ server, port: server.address().port }));
+  });
+}
+const lastMail = () => inbox[inbox.length - 1] || "";
+const codeFrom = (mail) =>
+  (mail.match(/(?:verification code is:|reset code is:|verification code:|reset code:)\s*(\d{6})/) || mail.match(/(\d{6})/) || [])[1];
+
+// A complete application journey through the 6-step wizard → submitted.
+async function fullApplication(familyId, { first, last, campus, class: klass, pay, parents }) {
+  let rr = await action("saveApplication", {
+    familyId, step: "basic",
+    data: { firstName: first, lastName: last, dob: "2022-06-15", gender: "F", campus, class: klass, intake: "Term 3 2026" },
+  });
+  const app = rr.result.application;
+  rr = await action("saveApplication", { familyId, step: "parent", data: { contacts: parents } });
+  const membersAfterParents = rr.result?.application?.parentContacts?.length;
+  await action("saveApplication", { familyId, step: "emergency", data: { contacts: [{ name: "Grace Atim", relation: "Aunt", phone: uphone() }] } });
+  await action("saveApplication", {
+    familyId, step: "documents", data: { files: [
+      { type: "Birth certificate", name: `${first.toLowerCase()}_birth.pdf`, size: "1.1 MB" },
+      { type: "Immunisation record", name: `${first.toLowerCase()}_imm.jpg`, size: "760 KB" },
+      { type: "Passport photographs", name: `${first.toLowerCase()}_photos.jpg`, size: "420 KB" },
+    ] },
+  });
+  await action("saveApplication", {
+    familyId, step: "payment",
+    data: pay === "now" ? { method: "payNow", channel: "MTN Mobile Money", phone: uphone() } : { method: "payLater" },
+  });
+  rr = await action("submitApplication", { applicationId: app.id });
+  return { app: rr.result?.application || app, submit: rr, membersAfterParents };
+}
+
+async function verifyAllDocs(studentId) {
+  let st = await state();
+  let docs = st.documents.filter((d) => d.studentId === studentId && d.status !== "verified");
+  let guard = 0;
+  while (docs.length && guard++ < 6) {
+    for (const d of docs) await action("verifyDocument", { docId: d.id, status: "verified" });
+    st = await state();
+    docs = st.documents.filter((d) => d.studentId === studentId && d.status !== "verified");
+  }
+}
+
+// =============================================================================
+const { server: sinkServer, port: sinkPort } = await startSink();
+console.log(`[smoke] run ${RUN} · SMTP sink on 127.0.0.1:${sinkPort}`);
+
+// ---- 0) Live seed + staff bootstrap (the production first-sign-in path) ------
 let s = await state();
-check("seed loads", !!s.meta && s.families.length === 4);
+check("live seed loads", !!s.meta && Array.isArray(s.families) && Array.isArray(s.staffAccounts));
+const mailBaseline = await (await fetch(`${BASE}/api/mail-status?verify=0`)).json();
 
-// Shared email sign-in routes staff/admin and parents to their own portals.
-const sharedAdminLogin = await (await fetch(`${BASE}/api/login`, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ email: "f.ssekandi@gill.ac.ug", password: "gill2026" }),
-})).json();
-check("shared login routes admin email", sharedAdminLogin.ok && sharedAdminLogin.destination === "/admin");
+const roster = ["f.ssekandi@gill.ac.ug", "i.twesigye@gill.ac.ug", "m.kyomukama@gill.ac.ug", "a.hassan@gill.ac.ug", "b.mugisha@gill.ac.ug", "s.namukasa@gill.ac.ug", "p.othieno@gill.ac.ug"];
+check("staff roster present as accounts", roster.every((e) => (s.staffAccounts || []).some((a) => a.email === e)));
+const adminAcc = (s.staffAccounts || []).find((a) => a.email === "f.ssekandi@gill.ac.ug");
+let bossPw = null;
+if (adminAcc?.inviteToken && !adminAcc.passwordSet) {
+  const look = await action("staffInviteLookup", { token: adminAcc.inviteToken });
+  check("staff invite link resolves (no SMTP needed)", look.ok && look.result.email === "f.ssekandi@gill.ac.ug");
+  const setup = await action("staffInviteSetup", { token: adminAcc.inviteToken, password: `Boss${RUN}!` });
+  bossPw = `Boss${RUN}!`;
+  check("Head of School sets a password via the one-time link", setup.ok && !!setup.result.session);
+  const staffLogin = await post("/api/staff-login", { email: "f.ssekandi@gill.ac.ug", password: bossPw });
+  check("staff sign-in with the new password", staffLogin.ok);
+} else {
+  console.log("SKIP  staff bootstrap (already set up on this database)");
+}
+const noStaffShortcut = await post("/api/staff-login", { email: "f.ssekandi@gill.ac.ug", password: "gill2026" });
+check("no shared password shortcut on staff login", noStaffShortcut.ok === false);
 
-const sharedParentLogin = await (await fetch(`${BASE}/api/login`, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ email: "amina.nansubuga@example.com", password: "gill2026" }),
-})).json();
-check("shared login routes parent email", sharedParentLogin.ok && sharedParentLogin.kind === "parent" && sharedParentLogin.session.familyId === "fam-1");
-
-const invalidSharedLoginResponse = await fetch(`${BASE}/api/login`, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ email: "f.ssekandi@gill.ac.ug", password: "wrong" }),
+// ---- 1) Point the app's SMTP at the local sink (test harness only) -----------
+const savedMail = await action("saveMailConfig", {
+  host: "127.0.0.1", port: String(sinkPort), user: "noreply@smoke.test",
+  pass: "smoke-sink-pass", from: "Smoke Sink <noreply@smoke.test>",
 });
-check("shared login rejects wrong password", invalidSharedLoginResponse.status === 401);
+check("SMTP settings activate the mailer", savedMail.ok && savedMail.result?.status?.configured === true, savedMail.error || "");
+const mailNow = await (await fetch(`${BASE}/api/mail-status?verify=0`)).json();
+check("saved settings apply (host/port from the console)", mailNow.configured === true && mailNow.host === "127.0.0.1" && mailNow.port === sinkPort);
+check("password is write-only (never returned to a client)", !JSON.stringify(mailNow).includes("smoke-sink-pass"));
 
-// 1) Automated sibling discount (family with children in BOTH campuses)
-let inv = s.invoices.find((i) => i.id === "inv-fam1-t3");
-check("sibling discount auto-applied", inv.siblingDiscount === 45000 && inv.lines.find((l) => l.studentId === "s-pres-1")?.discount === 45000, `(${inv.siblingDiscount})`);
-
-// 2) Late checkout at 17:07 → UGX 20,000 auto-billed + SMS
-let r = await action("checkout", { studentId: "s-pres-3", collector: "David Okello", timeOut: "17:07" });
-check("late checkout flagged", r.ok && r.result?.late === true, `(fee ${r.result?.fee}${r.error ? ` · error: ${r.error}` : ""})`);
-inv = r.db.invoices.find((i) => i.id === r.result.billedTo);
-check("late fee billed to invoice", inv.total === 620000, `(total ${inv.total})`);
-check("SMS + audit logged", r.db.messages.some((m) => m.subject.includes("Late collection")) && r.db.feesAudit[0]?.amount === 20000);
-
-// 3) On-time checkout → no fee
-r = await action("checkout", { studentId: "s-pres-2", collector: "Grace Achieng", timeOut: "16:05" });
-check("on-time checkout no fee", r.ok && r.result.late === false && r.result.fee === 0);
-
-// 4) Mobile money payment → instant reconciliation, invoice cleared
-r = await action("payInvoice", { invoiceId: "inv-fam2-t3", amount: 450000, channel: "Airtel Money" });
-inv = r.db.invoices.find((i) => i.id === "inv-fam2-t3");
-check("payment settled + reconciled", r.ok && r.result?.receipt && inv?.status === "paid" && inv?.balance === 0, `(${r.result?.receipt}${r.error ? ` · error: ${r.error}` : ""})`);
-
-// 5) Leave request auto-notifies teachers
-r = await action("requestLeave", { studentId: "s-main-1", from: "2026-09-14", to: "2026-09-15", reason: "Family wedding." });
-check("leave pending + teachers notified", r.ok && r.result.status === "pending" && r.result.teacherNotified.length === 3);
-
-// 6) Pre-School → Main School one-click transition
-r = await action("initiateTransition", { studentId: "s-pres-1", by: "t-sharon", notes: "Demo" });
-const trId = r.result?.id;
-check("transition initiated", r.ok && r.result.status === "initiated");
-r = await action("enrollTransition", { transitionId: trId, targetClass: "Primary 1 (Cambridge)" });
-const kid = r.db.studentIndex["s-pres-1"];
-const newInv = r.db.invoices[r.db.invoices.length - 1];
-check("student migrated to main", kid.campus === "main" && kid.class === "Primary 1 (Cambridge)", `(${kid.campus})`);
-check("invoice auto-created", newInv && newInv.total === 900000 && newInv.familyId === "fam-1", `(${newInv?.total})`);
-check("bursar notified", r.db.messages.some((m) => m.subject.toLowerCase().includes("enrolment")));
-
-// 7) Uniform/book pre-order
-r = await action("placeOrder", { studentId: "s-main-1", items: [{ sku: "U-PE", name: "PE uniform set", type: "uniform", size: "M", price: 55000, qty: 2 }] });
-check("pre-order placed", r.ok && r.result.total === 110000);
-
-// 8) Notice, assessment, event publishing
-r = await action("publishNotice", { title: "Term 2 closing day", body: "All classes end at noon.", audience: "all", author: "Head of School" });
-check("notice published", r.ok && r.db.notices[0]?.title === "Term 2 closing day");
-r = await action("addAssessment", { studentId: "s-main-1", subject: "Science", type: "Checkpoint practice", title: "Life cycles practice", score: 54, max: 60, feedback: "Great progress.", teacher: "t-brian" });
-check("assessment saved + graded", r.ok && r.result.grade === "A");
-r = await action("addEvent", { title: "Parent–Teacher Conferences", date: "2026-11-21", time: "09:00–14:00", location: "Classrooms", category: "Community" });
-check("event published", r.ok && r.db.events.some((e) => e.title.includes("Conferences")));
-
-// 9) ICS feed serves the published events
-const ics = await (await fetch(`${BASE}/api/ics?campus=all`)).text();
-check("ICS contains new event", ics.includes("Parent–Teacher Conferences") && ics.includes("BEGIN:VCALENDAR"));
-
-// 10) Student portal account: parent creates a supervised account for a child
-r = await action("createStudentAccount", {
-  studentId: "s-pres-1",
-  username: "maya.nansubuga",
-  password: "maya123",
-  perms: { progress: true, homework: true, library: true, calendar: true, messages: true, fees: false },
+// ---- 2) FAMILY A — children in BOTH campuses, real registration journey ------
+const famAName = `Wasswa${RUN}`;
+const aParents = [
+  { name: "Nancy Wasswa", relation: "Mother / Guardian", phone: uphone(), email: `nancy+${run}@example.com`, alive: true },
+  { name: "Peter Wasswa", relation: "Father", phone: uphone(), email: `peter+${run}@example.com`, alive: true },
+];
+let r = await action("registerFamily", {
+  familyName: famAName, parentName: "Nancy Wasswa", relation: "Mother / Guardian",
+  phone: aParents[0].phone, email: aParents[0].email, password: `pass${RUN}a!`, terms: true,
 });
-check("student account created + supervised", r.ok && r.db.studentAccounts[0].supervisedBy === "u-parent-1" && r.db.studentAccounts[0].status === "active");
+check("register creates the one-time pending account", r.ok && r.result.account.status === "pending" && r.result.account.username.endsWith(".family"), r.error || "");
+const famA = r.result.familyId;
+const parentA = r.result.userId;
+const userA = r.result.account.username;
+const aLogin = await post("/api/parent-login", { username: userA, password: `pass${RUN}a!` });
+check("pending family can sign in to track the application", aLogin.ok && aLogin.session.status === "pending" && aLogin.session.familyId === famA);
+check("register rejects short password", (await action("registerFamily", { familyName: `Bad${RUN}`, parentName: "X", phone: uphone(), email: `bad+${run}@example.com`, password: "short", terms: true })).ok === false);
+check("register requires terms", (await action("registerFamily", { familyName: `Bad2${RUN}`, parentName: "X", phone: uphone(), email: `bad2+${run}@example.com`, password: "longenough123", terms: false })).ok === false);
 
-// 11) Student sign-in with the parent-created credentials
-const login = await (await fetch(`${BASE}/api/student-login`, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ username: "maya.nansubuga", password: "maya123" }),
-})).json();
-check("student login works", login.ok && login.session.studentId === "s-pres-1" && login.session.perms.fees === false);
+const kid1 = await fullApplication(famA, { first: "Amina", last: famAName, campus: "preschool", class: "Nursery (3–4 yrs)", pay: "now", parents: aParents });
+check("wizard → application submitted + fee invoice opened", kid1.submit.ok && kid1.submit.result.application.status === "applied" && kid1.submit.result.invoice.status === "paid", kid1.submit.error || "");
+check("parent step puts BOTH parents on ONE account", kid1.membersAfterParents === 2, `(contacts ${kid1.membersAfterParents})`);
+s = await state();
+check("not on-boarded before docs are verified", s.familyAccountByFamily?.[famA]?.status === "pending" && s.applications.find((a) => a.id === kid1.app.id)?.status === "applied");
+check("both parents SMS'd on submission", s.deliveries.filter((d) => d.ref === kid1.app.id && d.channel === "SMS").length === 2);
+check("docs land in vault as pending review", s.documents.filter((d) => d.studentId === kid1.app.studentId).length === 3 && s.documents.filter((d) => d.studentId === kid1.app.studentId).every((d) => d.status === "pending review"));
+check("admissions notified of new application", s.messages.some((m) => m.to === "u-admissions" && m.subject.includes("New application received")));
+check("register page serves, old-school style", ((await (await fetch(`${BASE}/register`)).text()).includes("Join Our Community")));
 
-const badLogin = await (await fetch(`${BASE}/api/student-login`, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ username: "maya.nansubuga", password: "nope" }),
-})).json();
-check("wrong password rejected", badLogin.ok === false);
+// ---- 2b) SHARED EMAIL SIGN-IN (from main): /login + /api/login ---------------
+// Routes staff/admin and parents by email using REAL credentials from this run
+// — there is never a magic/demo password in the live product.
+const loginPost = async (body) => {
+  const res = await fetch(`${BASE}/api/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  return { status: res.status, body: await res.json() };
+};
+const sharedAdminLogin = bossPw ? await loginPost({ email: "f.ssekandi@gill.ac.ug", password: bossPw }) : null;
+if (sharedAdminLogin) {
+  check("shared login routes admin email to /admin", sharedAdminLogin.body.ok === true && sharedAdminLogin.body.destination === "/admin");
+} else {
+  console.log("SKIP  shared admin login (staff password set in an earlier run)");
+}
+const sharedParentLogin = await loginPost({ email: aParents[0].email, password: `pass${RUN}a!` });
+check("shared login routes parent email to the family portal", sharedParentLogin.body.ok === true && sharedParentLogin.body.kind === "parent" && !!sharedParentLogin.body.session?.familyId);
+const sharedWrongPw = await loginPost({ email: aParents[0].email, password: "gill2026" });
+check("shared login rejects the old magic password with 401", sharedWrongPw.status === 401 && sharedWrongPw.body.ok === false);
+const sharedNoEmail = await loginPost({ email: "not-an-email", password: "whatever" });
+check("shared login requires an email-format identifier", sharedNoEmail.status === 400);
+const parentLoginShortcut = await post("/api/parent-login", { username: userA, password: "gill2026" });
+check("no magic password on the family login route", parentLoginShortcut.ok === false);
+check("/login serves the shared sign-in page", (await fetch(`${BASE}/login`)).status === 200);
 
-// 12) Pause/resume from the parent's account manager
-r = await action("updateStudentAccount", { accountId: r.db.studentAccounts[0].id, status: "paused" });
-check("parent can pause account", r.ok && r.result?.status === "paused", `${r.error ? `error: ${r.error}` : ""}`);
+// ---- 3) Verification → activation → supervised student accounts --------------
+await verifyAllDocs(kid1.app.studentId);
+s = await state();
+check("registered family auto-activates after verification + payment",
+  s.familyAccountByFamily?.[famA]?.status === "active" && s.applications.find((a) => a.id === kid1.app.id)?.status === "activated");
+const childSms = s.deliveries.filter((d) => d.ref === kid1.app.id && d.channel === "SMS" && d.subject.includes("Admission verified"));
+check("verification SMS carries the child's portal link", childSms.length === 2 && childSms.every((d) => d.subject.includes("/student/login?u=") && d.subject.includes(userA)), `(sample: ${childSms[0]?.subject?.slice(0, 80) || "none"})`);
+const sa1 = s.accountByStudent?.[kid1.app.studentId];
+check("child's supervised account auto-provisioned", !!sa1 && sa1.supervisedBy === parentA && sa1.status === "active");
+check("student account is one-time (no duplicates)", (await action("createStudentAccount", { studentId: kid1.app.studentId, username: `dup.${run}`, password: "whatever123" })).ok === false);
 
-// 13) AUTO ONBOARDING — negative: Okello (fam-3) has a pending doc + unpaid tuition
-const preState = await state();
-const okello = Object.values(preState.familyAccountByFamily || {}).find((a) => a.familyId === "fam-3");
-check("fam-3 not on-boarded (doc pending + tuition unpaid)", !okello && preState.applications.find((a) => a.studentId === "s-pres-3")?.status === "applied");
+const pw1 = await action("resetStudentAccount", { accountId: sa1.id });
+const kidLogin = await post("/api/student-login", { username: sa1.username, password: pw1.result?.password || "missing" });
+check("child can sign in with the provisioned credentials", kidLogin.ok && kidLogin.session.studentId === kid1.app.studentId);
+const badKidLogin = await post("/api/student-login", { username: sa1.username, password: "nope" });
+check("wrong student password rejected", badKidLogin.ok === false);
 
-// 14) AUTO ONBOARDING — positive: clear inv-fam4-t3 → family account + SMS to BOTH parents, one shared login
-r = await action("payInvoice", { invoiceId: "inv-fam4-t3", amount: 500000, channel: "MTN Mobile Money" });
-check("full tuition cleared (inv-fam4-t3)", r.ok && r.db.invoices.find((i) => i.id === "inv-fam4-t3").status === "paid");
-const fam4Acc = Object.values(r.db.familyAccountByFamily || {}).find((a) => a.familyId === "fam-4");
-const app1 = r.db.applications.find((a) => a.id === "app-1");
-check("fam-4 account auto-created on reconcile", !!fam4Acc && fam4Acc.username === "ssemwanga.family" && fam4Acc.status === "active");
-check("one shared login for BOTH parents", app1?.status === "activated" && fam4Acc?.members.length === 2 && fam4Acc.members.includes("u-parent-4") && fam4Acc.members.includes("u-parent-4b"), `(members: ${fam4Acc?.members?.join(",")})`);
-const inviteSms = r.db.deliveries.filter((d) => d.ref === "app-1" && d.channel === "SMS");
-check("SMS sent to every parent number", inviteSms.length === 2 && inviteSms.some((d) => d.to === "+256771444555") && inviteSms.some((d) => d.to === "+256756666777"), `(to: ${inviteSms.map((d) => d.to).join(", ")})`);
-check("invite SMS carries the OS link + shared login", inviteSms.every((d) => d.subject.includes(r.db.meta.inviteLink) && d.subject.includes("ssemwanga.family")));
-check("audit trail records the activation", r.db.feesAudit[0]?.action.includes("Auto-onboarded Ssemwanga") && r.db.activatedNow?.some((a) => a.familyId === "fam-4"));
+r = await action("updateStudentAccount", { accountId: sa1.id, status: "paused" });
+check("parent can pause the account", r.ok && r.result?.status === "paused", r.error || "");
+r = await action("updateStudentAccount", { accountId: sa1.id, status: "active" });
+check("parent can resume the account", r.ok && r.result?.status === "active");
 
-// 15) Before setup, the new family can't sign in — the SMS link is the first step
-const parentLogin = await (await fetch(`${BASE}/api/parent-login`, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ username: "ssemwanga.family", password: "gill2026" }),
-})).json();
-check("demo flow allows any family username with gill2026", parentLogin.ok === true && parentLogin.session.username === "nansubuga.family");
-const badParent = await (await fetch(`${BASE}/api/parent-login`, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ username: "ssemwanga.family", password: "wrong" }),
-})).json();
-check("wrong family password rejected", badParent.ok === false);
+// ---- 4) Second child — a NEW application (one at a time per family) ----------
+const kid2 = await fullApplication(famA, { first: "Brian", last: famAName, campus: "main", class: "Year 5 — Cambridge Primary", pay: "now", parents: aParents });
+check("second child gets their own application", kid2.submit.ok && kid2.app.studentId !== kid1.app.studentId, kid2.submit.error || "");
+s = await state();
+const preInv = s.invoices.find((i) => i.familyId === famA && i.lines.some((l) => l.kind === "tuition" && l.studentId === kid1.app.studentId));
+check("sibling discount auto-applied (children in both campuses)",
+  preInv && preInv.siblingDiscount === 45000 && preInv.lines.find((l) => l.kind === "tuition")?.discount === 45000,
+  `(discount ${preInv?.siblingDiscount})`);
+await verifyAllDocs(kid2.app.studentId);
+s = await state();
+const sa2 = s.accountByStudent?.[kid2.app.studentId] || { id: "missing", username: "missing" };
+check("second child activated with their own supervised account", s.applications.find((a) => a.id === kid2.app.id)?.status === "activated" && sa2.id !== "missing" && sa2.id !== sa1.id);
 
-// 16) Admissions can re-send the invite SMS to both parents
-r = await action("resendFamilyInvite", { applicationId: "app-1" });
-check("invite re-send hits both parent numbers", r.ok && r.result.parents === 2 && r.db.deliveries.filter((d) => d.ref === "app-1" && d.channel === "SMS").length === 4);
-
-// 17) SMS link → landing: create password → verification code → verified session
-const token = fam4Acc.inviteToken;
-check("new family has invite token + no password yet", !!token && fam4Acc.passwordSet === false && fam4Acc.verified === false);
-r = await action("inviteSetup", { token, password: "ssem2026!", channel: "sms" });
-const demoCode = r.result ? r.result.demoCode : null;
-check("password created + code sent to parent phone", r.ok && r.result?.channel === "sms" && r.result?.to === "+256771444555" && /^\d{6}$/.test(demoCode), `(to ${r.result?.to}${r.error ? ` · error: ${r.error}` : ""})`);
-r = await action("inviteVerify", { token, code: "000000" });
-check("wrong verification code rejected", r.ok === false);
-r = await action("inviteVerify", { token, code: demoCode });
-check("correct code verifies + shared session returned", r.ok && r.result.session.members.length === 2 && r.result.session.familyName === "Ssemwanga");
-const newLogin = await (await fetch(`${BASE}/api/parent-login`, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ username: "ssemwanga.family", password: "ssem2026!" }),
-})).json();
-check("verified family signs in with the new password", newLogin.ok && newLogin.session.members.length === 2);
-
-// 18) Assessment: separate teacher remarks for parent vs student
-r = await action("addAssessment", {
-  studentId: "s-main-1", subject: "English", type: "Continuous assessment", title: "Term 3 — persuasive writing",
-  score: 14, max: 20, teacher: "t-aisha",
-  remarkStudent: "Great argument, Jordan — add facts to make it stronger.",
-  remarkParent: "Jordan argues well. At home, discuss one news story weekly so he adds real facts to his writing.",
-});
-const as = r.db.assessments[0];
-check("two separate remarks stored", r.ok && as.remarkStudent.includes("Jordan") && as.remarkParent.includes("news story") && as.feedback === as.remarkStudent);
-
-// 19) Group chat auto-created when "Receive messages from teachers" is on
-r = await action("createStudentAccount", { studentId: "s-pres-2", username: "daniel.achieng", password: "daniel123", perms: { messages: true } });
-const achiengChat = r.db.chats.find((c) => c.studentId === "s-pres-2");
-check("chat auto-created (Achieng, pre-school)", !!achiengChat && achiengChat.status === "active" && achiengChat.members.some((m) => m.userId === "t-sharon") && achiengChat.members.filter((m) => m.role === "parent").length === 1);
-const mayaChat = r.db.chats.find((c) => c.studentId === "s-pres-1");
-check("Maya chat has both parents", !!mayaChat && mayaChat.members.filter((m) => m.role === "parent").length === 2);
-
-// 20) Parents read-only except attendance issues
-r = await action("sendChatMessage", { chatId: mayaChat.id, from: "t-aisha", text: "Maya brought her reading bag today — lovely.", tag: "general" });
+// ---- 5) Family group chats ---------------------------------------------------
+await action("updateStudentAccount", { accountId: sa2.id, perms: { messages: false } });
+r = await action("updateStudentAccount", { accountId: sa2.id, perms: { messages: true } });
+s = await state();
+const chat2 = s.chats.find((c) => c.studentId === kid2.app.studentId) || { id: null };
+check("chat auto-created when messages are on", r.ok && !!chat2.id && chat2.status === "active" && chat2.members.some((m) => m.role === "teacher") && chat2.members.filter((m) => m.role === "parent").length === 2, `(members: ${chat2.members ? chat2.members.map((m) => m.role).join(",") : "none"}${r.error ? ` · error: ${r.error}` : ""})`);
+r = await action("sendChatMessage", { chatId: chat2.id, from: "t-aisha", text: "Lovely work in class today.", tag: "general" });
 check("teacher can post freely", r.ok);
-r = await action("sendChatMessage", { chatId: mayaChat.id, from: "u-parent-1", text: "What are we covering next week?", tag: "general" });
+r = await action("sendChatMessage", { chatId: chat2.id, from: parentA, text: "What are we covering next week?", tag: "general" });
 check("parent general reply blocked", r.ok === false);
-r = await action("sendChatMessage", { chatId: mayaChat.id, from: "u-parent-1", text: "Maya will be absent tomorrow — she has a clinic visit.", tag: "attendance" });
+r = await action("sendChatMessage", { chatId: chat2.id, from: parentA, text: "Brian will be absent tomorrow — clinic visit.", tag: "attendance" });
 check("parent attendance reply allowed", r.ok && r.result.tag === "attendance" && r.result.role === "parent");
+await action("updateStudentAccount", { accountId: sa2.id, perms: { messages: false } });
+check("turning messages off pauses the chat", (await state()).chats.find((c) => c.studentId === kid2.app.studentId)?.status === "paused");
+await action("updateStudentAccount", { accountId: sa2.id, perms: { messages: true } });
+check("turning messages back on resumes it", (await state()).chats.find((c) => c.studentId === kid2.app.studentId)?.status === "active");
 
-// 21) Parent access toggle creates/pauses the chat
-r = await action("updateStudentAccount", { accountId: r.db.accountByStudent["s-main-1"].id, perms: { messages: true } });
-const jordanChat = r.db.chats.find((c) => c.studentId === "s-main-1");
-check("Jordan chat already active (seeded)", !!jordanChat && jordanChat.status === "active");
-r = await action("updateStudentAccount", { accountId: r.db.accountByStudent["s-main-1"].id, perms: { messages: false } });
-check("turning messages off pauses the chat", r.db.chats.find((c) => c.studentId === "s-main-1").status === "paused");
-r = await action("updateStudentAccount", { accountId: r.db.accountByStudent["s-main-1"].id, perms: { messages: true } });
-check("turning messages back on resumes it", r.db.chats.find((c) => c.studentId === "s-main-1").status === "active");
+const pw2 = await action("resetStudentAccount", { accountId: sa2.id });
+let sLogin = await post("/api/student-login", { username: sa2.username, password: pw2.result?.password || "missing" });
+check("student session carries the remarks perm", sLogin.ok && sLogin.session.perms.remarks === true);
+await action("updateStudentAccount", { accountId: sa2.id, perms: { remarks: false } });
+sLogin = await post("/api/student-login", { username: sa2.username, password: pw2.result?.password || "missing" });
+check("parent can hide remarks from the child", sLogin.ok && sLogin.session.perms.remarks === false);
 
-// 22) Student portal respects the remarks permission
-const studentLogin = await (await fetch(`${BASE}/api/student-login`, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ username: "jordan.nansubuga", password: "gill123" }),
-})).json();
-check("student session carries remarks perm", studentLogin.ok && studentLogin.session.perms.remarks === true);
-r = await action("updateStudentAccount", { accountId: r.db.accountByStudent["s-main-1"].id, perms: { remarks: false } });
-const studentLogin2 = await (await fetch(`${BASE}/api/student-login`, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ username: "jordan.nansubuga", password: "gill123" }),
-})).json();
-check("parent can hide remarks from the child", studentLogin2.ok && studentLogin2.session.perms.remarks === false);
-
-// Portal routes respond
-const loginPage = await (await fetch(`${BASE}/portal/login`)).status;
-const setupPage = await (await fetch(`${BASE}/portal/setup?invite=${token}`)).status;
-check("parent login page serves", loginPage === 200);
-check("invite setup landing serves", setupPage === 200);
-
-// 23) PUBLIC REGISTRATION — new family creates an OS account (parents only)
-const registerHtml = await (await fetch(`${BASE}/register`)).text();
-check("register page serves, old-school style", registerHtml.includes("Join Our Community") && registerHtml.includes("Create Account"));
-check("register page rules out Staff Portal", registerHtml.includes("no Staff Portal") && !registerHtml.includes("staff-can-register"));
-r = await action("registerFamily", {
-  familyName: "Mukasa", parentName: "Joy Mukasa", relation: "Mother / Guardian",
-  phone: "+256702333444", email: "joy@example.com", password: "mukasa2026!", terms: true,
+// ---- 6) Academics, gate, leave, transition, orders, noticeboard --------------
+r = await action("addAssessment", {
+  studentId: kid2.app.studentId, subject: "English", type: "Continuous assessment",
+  title: "Persuasive writing", score: 18, max: 20, teacher: "t-aisha",
+  remarkStudent: "Great argument — add facts to make it stronger.",
+  remarkParent: "Discuss one news story weekly at home so he adds real facts.",
 });
-check("register creates pending family account", r.ok && r.result.account.status === "pending" && r.result.account.username === "mukasa.family");
-const mukasaFam = r.result.familyId;
-const mukasaUserId = r.result.userId;
-check("register rejects short password", (await action("registerFamily", { familyName: "Bad", parentName: "X", phone: "+256700000000", password: "short", terms: true })).ok === false);
-check("register requires terms", (await action("registerFamily", { familyName: "Bad2", parentName: "X", phone: "+256700000001", password: "longenough123", terms: false })).ok === false);
+const as = r.db.assessments.find((a) => a.studentId === kid2.app.studentId);
+check("two separate remarks stored (student vs parent)", r.ok && as.remarkStudent.includes("facts") && as.remarkParent.includes("news story") && as.feedback === as.remarkStudent);
+check("assessment graded", Boolean(r.result?.grade), `(grade ${r.result?.grade})`);
 
-const mukasaLogin = await (await fetch(`${BASE}/api/parent-login`, {
-  method: "POST", headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ username: "mukasa.family", password: "mukasa2026!" }),
-})).json();
-check("pending family can sign in to track the application", mukasaLogin.ok && mukasaLogin.session.status === "pending" && mukasaLogin.session.familyId === mukasaFam);
+r = await action("checkout", { studentId: kid1.app.studentId, collector: "David Okello", timeOut: "17:07" });
+check("late checkout flagged", r.ok && r.result?.late === true, `(fee ${r.result?.fee})`);
+const billedInv = r.db.invoices.find((i) => i.id === r.result.billedTo);
+check("late fee billed to the family invoice", billedInv && billedInv.lines.some((l) => l.kind === "latefee" && l.amount === 20000));
+check("SMS + audit logged", r.db.messages.some((m) => m.subject.includes("Late collection")) && r.db.feesAudit[0]?.amount === 20000);
+r = await action("checkout", { studentId: kid1.app.studentId, collector: "Grace Achieng", timeOut: "16:05" });
+check("on-time checkout — no fee", r.ok && r.result.late === false && r.result.fee === 0);
 
-// 24) 6-step wizard → application submitted (Basic → Parent → Emergency → Docs → Payment → Review)
-r = await action("saveApplication", { familyId: mukasaFam, step: "basic", data: { firstName: "Amani", lastName: "Mukasa", dob: "2022-06-15", gender: "F", campus: "preschool", class: "Nursery (3–4 yrs)", intake: "Term 3 2026" } });
-const mukasaApp = r.result.application;
-const mukasaKid = r.result.application.studentId;
-check("wizard creates child + application (Basic)", r.ok && mukasaApp.status === "in_progress" && mukasaApp.steps.basic === true && r.db.studentIndex[mukasaKid]?.campus === "preschool");
-r = await action("saveApplication", { familyId: mukasaFam, step: "parent", data: { contacts: [
-  { name: "Joy Mukasa", relation: "Mother / Guardian", phone: "+256702333444", email: "joy@example.com", alive: true },
-  { name: "Sam Mukasa", relation: "Father", phone: "+256707555666", email: "sam@example.com", alive: true },
-] } });
-check("parent details saved → both parents on ONE account", r.ok && r.result?.application?.parentContacts?.length === 2, `(members: ${r.result?.application?.parentContacts?.map((p) => p.name).join(", ")}${r.error ? ` · error: ${r.error}` : ""})`);
-const mukasaAccount = r.db.familyAccountByFamily[mukasaFam];
-check("shared login grows to both parents", mukasaAccount.members.length === 2 && mukasaAccount.members.includes(mukasaUserId));
-r = await action("saveApplication", { familyId: mukasaFam, step: "emergency", data: { contacts: [{ name: "Grace Achieng", relation: "Aunt", phone: "+256701333444" }] } });
-check("emergency contacts saved", r.ok && r.result.application.emergencyContacts.length === 1);
-r = await action("saveApplication", { familyId: mukasaFam, step: "documents", data: { files: [
-  { type: "Birth certificate", name: "amani_birth.pdf", size: "1.1 MB" },
-  { type: "Immunisation record", name: "amani_immunisation.jpg", size: "760 KB" },
-  { type: "Passport photographs", name: "amani_photos.jpg", size: "420 KB" },
-] } });
-check("documents attached", r.ok && r.result.application.documents.length === 3);
-r = await action("saveApplication", { familyId: mukasaFam, step: "payment", data: { method: "payNow", channel: "MTN Mobile Money", phone: "+256702333444" } });
-check("payment step saved (pay now)", r.ok && r.result.application.payment.method === "payNow");
-r = await action("submitApplication", { applicationId: mukasaApp.id });
-check("application submitted + invoice opened", r.ok && r.result.application.status === "applied" && r.result.invoice.total === 500000 && r.result.invoice.status === "paid");
-check("docs land in vault as pending review", r.db.documents.filter((d) => d.studentId === mukasaKid).length === 3 && r.db.documents.filter((d) => d.studentId === mukasaKid).every((d) => d.status === "pending review"));
-check("admissions notified of new application", r.db.messages.some((m) => m.to === "u-admissions" && m.subject.includes("New application received")));
-const mukasaSms = r.db.deliveries.filter((d) => d.ref === mukasaApp.id && d.channel === "SMS");
-check("both parents SMS'd on submission", mukasaSms.length === 2 && mukasaSms.some((d) => d.to === "+256707555666"));
+r = await action("requestLeave", { studentId: kid2.app.studentId, from: "2026-10-05", to: "2026-10-06", reason: "Family wedding." });
+check("leave pending + all teachers notified", r.ok && r.result.status === "pending" && r.result.teacherNotified.length === 3, `(${r.result?.teacherNotified?.length})`);
 
-// 24b) Parents' dashboard — apply again while the admission awaits review
-r = await action("reopenApplication", { applicationId: mukasaApp.id });
-check("apply-again reopens application awaiting review", r.ok && r.result.application.status === "in_progress" && !!r.result.application.previousSubmit);
-const reopenedInvCount = r.db.invoices.length;
-const reopenedDocCount = r.db.documents.filter((d) => d.studentId === mukasaKid).length;
-r = await action("saveApplication", { familyId: mukasaFam, step: "documents", data: { files: [
-  { type: "Birth certificate", name: "amani_birth_v2.pdf", size: "1.0 MB" },
-  { type: "Immunisation record", name: "amani_immunisation.jpg", size: "760 KB" },
-  { type: "Passport photographs", name: "amani_photos.jpg", size: "420 KB" },
-] } });
-check("reopened application accepts edits", r.ok && r.result.application.documents.length === 3);
-r = await action("submitApplication", { applicationId: mukasaApp.id });
-check("resubmit keeps ONE invoice + vault docs (no duplicates)", r.ok && r.db.invoices.length === reopenedInvCount && r.db.documents.filter((d) => d.studentId === mukasaKid).length === reopenedDocCount);
-check("resubmit SMS says 'updated', not new", r.db.deliveries.some((d) => d.ref === mukasaApp.id && d.subject.includes("Application updated")));
-check("submit after resubmit still guarded", (await action("submitApplication", { applicationId: mukasaApp.id })).ok === false);
-r = await action("updateApplicationSettings", { applicationId: mukasaApp.id, settings: { updatesChannel: "sms", intake: "January 2027" } });
+r = await action("initiateTransition", { studentId: kid1.app.studentId, by: "t-sharon", notes: "Ready for Primary 1." });
+check("pre-school → main transition initiated", r.ok && r.result.status === "initiated");
+r = await action("enrollTransition", { transitionId: r.result.id, targetClass: "Primary 1 (Cambridge)" });
+const trInv = r.db.invoices.find((i) => i.familyId === famA && i.lines.some((l) => l.label.includes("Main School Tuition") && l.studentId === kid1.app.studentId));
+check("student migrated + first-term invoice auto-created", r.ok && r.db.studentIndex[kid1.app.studentId].campus === "main" && trInv && trInv.total === 900000, `(${trInv?.total})`);
+check("bursar notified of the enrolment", r.db.messages.some((m) => m.to === "u-bursar" && m.subject.toLowerCase().includes("enrolment")));
+
+r = await action("placeOrder", { studentId: kid2.app.studentId, items: [{ sku: "U-PE", name: "PE uniform set", type: "uniform", size: "M", price: 55000, qty: 2 }] });
+check("uniform pre-order placed", r.ok && r.result.total === 110000);
+
+r = await action("publishNotice", { title: `Term closing day ${RUN}`, body: "All classes end at noon.", audience: "all", author: "Head of School" });
+check("notice published", r.ok && r.db.notices[0]?.title === `Term closing day ${RUN}`);
+r = await action("addEvent", { title: `Parent–Teacher Conferences ${RUN}`, date: "2026-11-21", time: "09:00–14:00", location: "Classrooms", category: "Community" });
+check("event published", r.ok && r.db.events.some((e) => e.title.includes(RUN)));
+const ics = await (await fetch(`${BASE}/api/ics?campus=all`)).text();
+check("ICS feed contains the new event", ics.includes("Parent–Teacher Conferences") && ics.includes("BEGIN:VCALENDAR"));
+check("cannot submit before completing steps", (await action("submitApplication", { applicationId: (await action("saveApplication", { familyId: famA, step: "basic", data: { firstName: "Test", lastName: "Kid", campus: "preschool", class: "Nursery (3–4 yrs)", dob: "2022-06-15", intake: "Term 3 2026" } })).result.application.id })).ok === false);
+
+// ---- 7) FAMILY B — tuition-gated auto-onboarding ----------------------------
+const famBName = `Nakato${RUN}`;
+const bParents = [
+  { name: "Sarah Nakato", relation: "Mother / Guardian", phone: uphone(), email: `sarah+${run}@example.com`, alive: true },
+  { name: "John Nakato", relation: "Father", phone: uphone(), email: `john+${run}@example.com`, alive: true },
+];
+r = await action("registerFamily", {
+  familyName: famBName, parentName: "Sarah Nakato", relation: "Mother / Guardian",
+  phone: bParents[0].phone, email: bParents[0].email, password: `pass${RUN}b!`, terms: true,
+});
+const famB = r.result.familyId;
+const userB = r.result.account.username;
+const kidB = await fullApplication(famB, { first: "Kato", last: famBName, campus: "preschool", class: "Toddlers (2–3 yrs)", pay: "later", parents: bParents });
+s = await state();
+const invB = s.invoices.find((i) => i.familyId === famB && i.term === "Term 3 2026");
+check("tuition invoice opened unpaid (pay at the office)", kidB.submit.ok && invB && invB.status === "unpaid" && invB.balance > 0);
+check("unpaid tuition + pending docs → not on-boarded", s.familyAccountByFamily?.[famB]?.status === "pending" && s.applications.find((a) => a.id === kidB.app.id)?.status === "applied");
+await verifyAllDocs(kidB.app.studentId);
+s = await state();
+check("docs verified but tuition outstanding → still pending", s.familyAccountByFamily?.[famB]?.status === "pending");
+r = await action("payInvoice", { invoiceId: invB.id, amount: invB.balance, channel: "MTN Mobile Money" });
+check("mobile-money payment settles + reconciles", r.ok && r.result?.receipt && r.db.invoices.find((i) => i.id === invB.id).status === "paid", `(${r.result?.receipt})`);
+s = await state();
+const accB = s.familyAccountByFamily?.[famB];
+check("family account auto-activates on reconcile", accB?.status === "active" && accB.username.endsWith(".family"));
+check("one shared login for BOTH parents", s.applications.find((a) => a.id === kidB.app.id)?.status === "activated" && accB.members.length === 2, `(members: ${accB?.members?.length})`);
+const welcomeSms = s.deliveries.filter((d) => d.ref === kidB.app.id && d.channel === "SMS" && d.subject.includes("Admission verified"));
+check("SMS sent to every parent number", welcomeSms.length === 2 && new Set(welcomeSms.map((d) => d.to)).size === 2, `(to: ${welcomeSms.map((d) => d.to).join(", ")})`);
+check("invite SMS carries the OS link + shared login", welcomeSms.every((d) => d.subject.includes(s.meta.inviteLink) && d.subject.includes(accB.username)));
+check("audit trail records the activation", s.feesAudit.some((a) => a.action.includes(famBName)));
+r = await action("resendFamilyInvite", { applicationId: kidB.app.id });
+check("admissions can re-send the invite to both parents", r.ok && r.result.parents === 2);
+
+// ---- 8) Forgot-password codes travel by REAL email (the SMTP sink) -----------
+check("no sign-in shortcut — wrong password is wrong", (await post("/api/parent-login", { username: userB, password: "gill2026" })).ok === false);
+check("no shared password shortcut on student login", (await post("/api/student-login", { username: sa1.username, password: "gill2026" })).ok === false);
+
+inbox.length = 0;
+r = await action("requestPasswordReset", { portal: "parent", identifier: userB });
+check("reset code requested (delivered by email only)", r.ok && !("demoCode" in (r.result || {})), r.error || "");
+const resetMail = lastMail();
+const resetCode = codeFrom(resetMail);
+check("reset code arrives in the parent's mailbox", Boolean(resetCode), `(inbox ${inbox.length} msg${inbox.length === 1 ? "" : "s"})`);
+check("wrong reset code rejected", (await action("verifyResetCode", { portal: "parent", identifier: userB, code: "000000" })).ok === false);
+check("correct reset code verifies", (await action("verifyResetCode", { portal: "parent", identifier: userB, code: resetCode })).ok === true);
+check("new password set with the code", (await action("resetPasswordWithCode", { portal: "parent", identifier: userB, code: resetCode, newPassword: `pass${RUN}c!` })).ok === true);
+check("family signs in with the new password", (await post("/api/parent-login", { username: userB, password: `pass${RUN}c!` })).ok === true);
+check("old password no longer works", (await post("/api/parent-login", { username: userB, password: `pass${RUN}b!` })).ok === false);
+
+// Staff forgot-password uses the same live email path.
+inbox.length = 0;
+r = await action("requestPasswordReset", { portal: "staff", identifier: "f.ssekandi@gill.ac.ug" });
+const staffCode = codeFrom(lastMail());
+check("staff reset code arrives by email", r.ok && Boolean(staffCode));
+if (staffCode) {
+  check("staff password reset with the emailed code", (await action("resetPasswordWithCode", { portal: "staff", identifier: "f.ssekandi@gill.ac.ug", code: staffCode, newPassword: `Boss${RUN}#` })).ok === true);
+  check("staff signs in with the reset password", (await post("/api/staff-login", { email: "f.ssekandi@gill.ac.ug", password: `Boss${RUN}#` })).ok === true);
+}
+
+// ---- 9) ACCOUNT LIFECYCLE (family C) ----------------------------------------
+const famCName = `Opio${RUN}`;
+const cParents = [
+  { name: "Joy Opio", relation: "Mother", phone: uphone(), email: `joy+${run}@example.com`, alive: true },
+];
+r = await action("registerFamily", {
+  familyName: famCName, parentName: "Joy Opio", relation: "Mother",
+  phone: cParents[0].phone, email: cParents[0].email, password: `pass${RUN}d!`, terms: true,
+});
+const famC = r.result.familyId;
+const userC = r.result.account.username;
+const kidC = await fullApplication(famC, { first: "Amani", last: famCName, campus: "preschool", class: "Nursery (3–4 yrs)", pay: "now", parents: cParents });
+
+// Apply-again while the admission awaits review (dedupe rules).
+r = await action("reopenApplication", { applicationId: kidC.app.id });
+check("apply-again reopens an application awaiting review", r.ok && r.result.application.status === "in_progress" && !!r.result.application.previousSubmit);
+const invCountBefore = (await state()).invoices.filter((i) => i.familyId === famC).length;
+const docCountBefore = (await state()).documents.filter((d) => d.studentId === kidC.app.studentId).length;
+await action("saveApplication", {
+  familyId: famC, step: "documents", data: { files: [
+    { type: "Birth certificate", name: "amani_birth_v2.pdf", size: "1.0 MB" },
+    { type: "Immunisation record", name: "amani_imm.jpg", size: "760 KB" },
+    { type: "Passport photographs", name: "amani_photos.jpg", size: "420 KB" },
+  ] },
+});
+r = await action("submitApplication", { applicationId: kidC.app.id });
+s = await state();
+check("resubmit keeps ONE invoice + vault docs (no duplicates)",
+  r.ok && s.invoices.filter((i) => i.familyId === famC).length === invCountBefore && s.documents.filter((d) => d.studentId === kidC.app.studentId).length === docCountBefore);
+check("resubmit SMS says 'updated', not new", s.deliveries.some((d) => d.ref === kidC.app.id && d.subject.includes("Application updated")));
+check("submit after resubmit still guarded", (await action("submitApplication", { applicationId: kidC.app.id })).ok === false);
+r = await action("updateApplicationSettings", { applicationId: kidC.app.id, settings: { updatesChannel: "sms", intake: "January 2027" } });
 check("application settings saved on the application", r.ok && r.result.application.settings?.updatesChannel === "sms" && r.result.application.settings?.intake === "January 2027");
 
-// 25) Registrar verification → account auto-activates + STUDENT PORTAL LINK sent
-r = await action("verifyDocument", { docId: r.db.documents.find((d) => d.studentId === mukasaKid).id, status: "verified" });
-let doc = r.db.documents.find((d) => d.studentId === mukasaKid && d.status !== "verified");
-let guard = 0;
-while (doc && guard++ < 5) {
-  r = await action("verifyDocument", { docId: doc.id, status: "verified" });
-  doc = r.db.documents.find((d) => d.studentId === mukasaKid && d.status !== "verified");
-}
-r = await state();
-const mukasaNow = r.familyAccountByFamily[mukasaFam];
-const mukasaAppNow = r.applications.find((a) => a.id === mukasaApp.id);
-check("registered family auto-activates after verification+payment", mukasaNow?.status === "active" && mukasaAppNow?.status === "activated");
-const childPortalSms = r.deliveries.filter((d) => d.ref === mukasaApp.id && d.channel === "SMS" && d.subject.includes("Admission verified"));
-check("verification SMS carries the child's portal link", childPortalSms.length === 2 && childPortalSms.every((d) => d.subject.includes("/student/login?u=") && d.subject.includes(mukasaAccount.username)), `(sample: ${childPortalSms[0]?.subject?.slice(0, 90)})`);
-const kidSa = r.accountByStudent?.[mukasaKid];
-check("child's supervised account auto-provisioned", !!kidSa && kidSa.supervisedBy === mukasaUserId && kidSa.status === "active");
-// Passwords never leave the server in state snapshots, so the test takes the
-// same path as a real parent: Parent Portal → Student Accounts → reset,
-// which returns the new password directly (shown in the portal's alert).
-const kidPwReset = await action("resetStudentAccount", { accountId: kidSa.id });
-const kidLogin = await (await fetch(`${BASE}/api/student-login`, {
-  method: "POST", headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ username: kidSa.username, password: kidPwReset.result.password }),
-})).json();
-check("child can sign in with the provisioned credentials", kidLogin.ok && kidLogin.session.studentId === mukasaKid);
+// One-time account rules.
+check("register rejects duplicate email (one-time account)", (await action("registerFamily", {
+  familyName: famCName, parentName: "Joy", relation: "Mother", phone: uphone(), email: cParents[0].email, password: `pass${RUN}e!`, terms: true,
+})).ok === false);
+check("register rejects duplicate phone (one-time account)", (await action("registerFamily", {
+  familyName: `Other${RUN}`, parentName: "X", relation: "Parent", phone: cParents[0].phone, email: `other+${run}@example.com`, password: "longenough123", terms: true,
+})).ok === false);
 
-// 26) Guard rails on the wizard
-check("cannot submit before completing steps", (await action("submitApplication", { applicationId: (await action("saveApplication", { familyId: "fam-2", step: "basic", data: { firstName: "Test", lastName: "Kid", campus: "preschool", class: "Nursery (3–4 yrs)", dob: "2022-06-15", intake: "Term 3 2026" } })).result.application.id })).ok === false);
-const applyPage = await (await fetch(`${BASE}/apply`)).status;
-check("application wizard route serves", applyPage === 200);
+// Activate family C, then run the tenure rules.
+await verifyAllDocs(kidC.app.studentId);
+s = await state();
+const saC = s.accountByStudent?.[kidC.app.studentId] || { id: "missing", username: "missing" };
+check("family C activated with a provisioned child account", s.familyAccountByFamily?.[famC]?.status === "active" && saC.id !== "missing");
+r = await action("initiateTransition", { studentId: kidC.app.studentId, by: "u-admissions", notes: "Ready for Year 1." });
+r = await action("enrollTransition", { transitionId: r.result.id, targetClass: "Primary 1 (Cambridge)" });
+check("new term invoice opens with a balance", r.ok && r.db.invoices.some((i) => i.familyId === famC && i.balance > 0));
+const balLogin = await post("/api/parent-login", { username: userC, password: `pass${RUN}d!` });
+check("balance for another term never locks the OS", balLogin.ok === true && balLogin.session.familyId === famC, balLogin.error || "");
+check("accounts can't be deleted mid-tenure", (await action("deleteFamilyAccounts", { familyId: famC, confirm: famCName })).ok === false);
 
-// 27) Email activation plumbing — SMTP settings never leak the password and
-// revert cleanly. (No real mail is sent: the test server is 127.0.0.1:1.)
-const mailBefore = await (await fetch(`${BASE}/api/mail-status?verify=0`)).json();
-check("mail-status shape is safe (no password field)", mailBefore.ok === true && typeof mailBefore.configured === "boolean" && !("pass" in mailBefore) && !("password" in mailBefore));
-r = await action("saveMailConfig", { host: "127.0.0.1", port: "1", user: "noreply@test.invalid", pass: "smoke-secret-pass", from: "Smoke <noreply@test.invalid>" });
-check("SMTP settings save from the admin console", r.ok === true && r.result?.status?.configured === true && r.result?.status?.source === "saved", r.error || "");
-const mailSaved = await (await fetch(`${BASE}/api/mail-status?verify=0`)).json();
-check("saved settings activate the mailer", mailSaved.configured === true && mailSaved.source === "saved" && mailSaved.host === "127.0.0.1");
-check("password is write-only (never returned to a client)", !JSON.stringify(mailSaved).includes("smoke-secret-pass"));
+const pwC = await action("resetStudentAccount", { accountId: saC.id });
+r = await action("retireStudent", { studentId: kidC.app.studentId, outcome: "completed", note: "Graduated Nursery.", actor: "Admissions" });
+check("retiring the last student closes student + family accounts", r.ok && r.result.studentAccountClosed === true && r.result.familyClosed === true);
+const kidClosed = await post("/api/student-login", { username: saC.username, password: pwC.result?.password || "missing" });
+check("student login refused after the tenure ends", kidClosed.ok === false && /closed/i.test(kidClosed.error || ""), kidClosed.error || "");
+const famClosed = await post("/api/parent-login", { username: userC, password: `pass${RUN}d!` });
+check("family login closed once every student is done", famClosed.ok === false && /closed/i.test(famClosed.error || ""), famClosed.error || "");
+check("retiring twice is blocked", (await action("retireStudent", { studentId: kidC.app.studentId, outcome: "left" })).ok === false);
+check("delete requires the typed family name", (await action("deleteFamilyAccounts", { familyId: famC, confirm: famCName.toLowerCase() })).ok === false);
+r = await action("deleteFamilyAccounts", { familyId: famC, confirm: famCName, actor: "Admin" });
+check("admin deletes accounts after tenure — records retained",
+  r.ok && r.result.familyUsername === userC &&
+  !r.db.familyAccountByFamily?.[famC] && !r.db.accountByStudent?.[kidC.app.studentId] &&
+  r.db.invoices.some((i) => i.familyId === famC) && r.db.applications.some((a) => a.studentId === kidC.app.studentId),
+  r.error || "");
+check("a new pupil may register after the old accounts are deleted", (await action("registerFamily", {
+  familyName: famCName, parentName: "Joy", relation: "Mother", phone: cParents[0].phone, email: cParents[0].email, password: `pass${RUN}d!`, terms: true,
+})).ok === true);
+
+// ---- 10) Mail plumbing — failure modes + clean revert ------------------------
+r = await action("saveMailConfig", { host: "127.0.0.1", port: "1", user: "noreply@smoke.test", pass: "dead-port-pass", from: "Smoke <noreply@smoke.test>" });
+check("SMTP settings save from the admin console", r.ok === true && r.result?.status?.configured === true, r.error || "");
 r = await action("verifyMailConfig", {});
-check("connection check reports failure gracefully", r.ok === true && r.result?.ok === false && Boolean(r.result?.error), r.result?.error);
+check("connection check reports failure gracefully", r.ok === true && r.result?.ok === false && Boolean(r.result?.error), r.result?.error || "");
+check("failed connection never leaks the password", !JSON.stringify(r).includes("dead-port-pass"));
 r = await action("clearMailConfig", {});
-check("forgetting saved settings reverts the mailer", r.result?.status?.configured === mailBefore.configured && r.result?.status?.source === mailBefore.source);
+check("forgetting saved settings reverts the mailer", r.result?.status?.configured === mailBaseline.configured && r.result?.status?.source === mailBaseline.source);
 
-// Reset so the demo starts from a clean seed
-await fetch(`${BASE}/api/reset`, { method: "POST" });
-const clean = await state();
-check("demo data reset", clean.invoices.length === 5 && clean.pickups.length === 4 && clean.chats.length === 1);
-
+sinkServer.close();
 console.log(failures ? `\n${failures} check(s) failed.` : "\nAll business rules verified ✔");
 process.exit(failures ? 1 : 0);

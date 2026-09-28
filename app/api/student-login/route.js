@@ -1,29 +1,15 @@
 import { NextResponse } from "next/server";
 import { getDB } from "@/lib/store";
-import { isMailConfigured } from "@/lib/mail";
 
 export const dynamic = "force-dynamic";
 
 // Supervised student sign-in: the parent-created username + password.
 // Students never see fees; every account is supervised by the family.
+// Live posture: every student must use their own password — no shortcuts.
 export async function POST(req) {
   try {
     const { username, password } = await req.json();
     const db = getDB();
-    // Demo shortcut (simulated mode only): once real SMTP is configured this
-    // backdoor closes and every student must use their own password.
-    if (!isMailConfigured() && String(password || "") === "gill2026") {
-      const demoStudentAccount = db.studentAccounts.find((a) => a.status === "active");
-      if (demoStudentAccount) {
-        if (demoStudentAccount.mustReset) {
-          return NextResponse.json(
-            { ok: false, resetRequired: true, error: "Password reset required — ask your parent to open Forgot password; the code goes to their email." },
-            { status: 403 }
-          );
-        }
-        return NextResponse.json({ ok: true, session: studentSession(db, demoStudentAccount), demo: true });
-      }
-    }
     const account = db.studentAccounts.find(
       (a) =>
         a.username.trim().toLowerCase() === String(username || "").trim().toLowerCase() &&
@@ -33,6 +19,12 @@ export async function POST(req) {
       return NextResponse.json(
         { ok: false, error: "That username or password doesn't match. Ask your parent to check Student Accounts." },
         { status: 401 }
+      );
+    }
+    if (account.status === "closed") {
+      return NextResponse.json(
+        { ok: false, error: "This account is closed — the student has completed or left the school. Contact the school office with any questions." },
+        { status: 403 }
       );
     }
     if (account.status !== "active") {
@@ -56,11 +48,11 @@ function studentSession(db, account) {
   return {
     accountId: account.id,
     studentId: student?.id || account.studentId,
-    name: student?.name || "Demo Student",
-    schoolId: student?.schoolId || "S-DEMO",
-    class: student?.class || "Demo Class",
+    name: student?.name || "Student",
+    schoolId: student?.schoolId || "—",
+    class: student?.class || "—",
     campus: student?.campus || "main",
-    supervisedBy: fam?.name || "Demo Family",
+    supervisedBy: fam?.name || "Family",
     perms: account.perms,
   };
 }

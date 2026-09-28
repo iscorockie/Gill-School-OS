@@ -23,9 +23,8 @@ function Setup() {
   const [info, setInfo] = useState(null);
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [channel, setChannel] = useState("sms");
+  const [channel, setChannel] = useState("email");
   const [code, setCode] = useState("");
-  const [demoCode, setDemoCode] = useState("");
   const [sender, setSender] = useState(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -66,7 +65,6 @@ function Setup() {
     try {
       const j = await api("inviteSetup", { password, channel });
       if (!j.ok) throw new Error(j.error);
-      setDemoCode(j.result.demoCode);
       setSender({ channel: j.result.channel, to: j.result.to });
       setStep("verify");
     } catch (err) {
@@ -96,7 +94,6 @@ function Setup() {
     try {
       const j = await api("inviteResend");
       if (!j.ok) throw new Error(j.error);
-      setDemoCode(j.result.demoCode);
       setCode("");
     } catch (err) {
       setError(err.message);
@@ -163,10 +160,8 @@ function Setup() {
               </button>
             </form>
 
-            <div className="demo-hint">
-              <b>Demo</b> — pay the Ssemwanga invoice in Admin &gt; Fees, then use{" "}
-              <span className="mono">INV-SSEM-XXXX</span> from the invite SMS. Already set up?{" "}
-              <a href="/portal/login">Sign in &gt;</a>
+            <div className="small muted" style={{ marginTop: "1rem" }}>
+              Already set up? <a href="/portal/login">Sign in &gt;</a>
             </div>
           </>
         )}
@@ -199,15 +194,13 @@ function Setup() {
 
               <span className="small fw700" style={{ display: "block", marginBottom: "0.5rem" }}>Where should we send your verification code?</span>
               <div className="grid grid-2" style={{ gap: "0.5rem", marginBottom: "1rem" }}>
-                {[
-                  ["sms", "phone", "SMS", info.members[0]?.phone ? mask(info.members[0].phone) : ""],
-                  ["email", "mail", "Email", info.members[0]?.email || info.email || ""],
-                ].map(([id, icon, label, to]) => (
-                  <label key={id} className={`perm ${channel === id ? "" : "off"}`} style={{ cursor: "pointer" }}>
-                    <input type="radio" name="vchannel" checked={channel === id} onChange={() => setChannel(id)} style={{ width: "auto" }} />
-                    <span className="small"><Icon name={icon} size={15} style={{ verticalAlign: "-3px", marginRight: "0.3rem" }} /> {label}{to ? <span className="muted"> · {to}</span> : ""}</span>
-                  </label>
-                ))}
+                <label className={`perm ${channel === "email" ? "" : "off"}`} style={{ cursor: "pointer" }}>
+                  <input type="radio" name="vchannel" checked={channel === "email"} onChange={() => setChannel("email")} style={{ width: "auto" }} />
+                  <span className="small"><Icon name="mail" size={15} style={{ verticalAlign: "-3px", marginRight: "0.3rem" }} /> Email{info.members[0]?.email || info.email ? <span className="muted"> · {info.members[0]?.email || info.email}</span> : ""}</span>
+                </label>
+                <label className="perm off" title="SMS codes aren't available yet" style={{ cursor: "not-allowed", opacity: 0.6 }}>
+                  <span className="small"><Icon name="phone" size={15} style={{ verticalAlign: "-3px", marginRight: "0.3rem" }} /> SMS <span className="muted">· not available yet</span></span>
+                </label>
               </div>
 
               {error && <p className="small" style={{ color: "var(--red)", margin: "0 0 0.7rem" }}>{error}</p>}
@@ -242,13 +235,7 @@ function Setup() {
                 <input value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
                   placeholder="••••••" inputMode="numeric" className="mono" style={{ letterSpacing: "0.5rem", fontSize: "1.1rem" }} />
               </label>
-              {demoCode && (
-                <div className="quote" style={{ background: "#fffbe8", borderColor: "var(--gold-2)", marginBottom: "0.9rem" }}>
-                  <b className="small">Demo gateway</b>
-                  <div className="small">Since delivery is simulated here, your code is <span className="mono">{demoCode}</span>.</div>
-                </div>
-              )}
-              {!demoCode && sender?.channel === "email" && (
+              {sender?.channel === "email" && (
                 <p className="small muted" style={{ marginBottom: "0.9rem" }}>
                   Check your inbox (and spam folder) for the email from Gill School OS.
                 </p>

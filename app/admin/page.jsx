@@ -172,16 +172,12 @@ export default function AdminDashboard() {
       <div className="card" style={{ marginTop: "1.2rem", background: "var(--peri-l)", borderColor: "var(--peri-2)" }}>
         <div className="spread">
           <div>
-            <b>Demo access</b>
-            <p className="small" style={{ margin: "0.2rem 0 0" }}> Parent: <span className="mono">Amina Nansubuga</span> · Bursar: <span className="mono">Mr. Isaac Twesigye</span> ·
-              Admissions: <span className="mono">Mrs. Mary Kyomukama</span> · Student: <span className="mono">jordan.nansubuga / gill123</span>
+            <b>Quick links</b>
+            <p className="small" style={{ margin: "0.2rem 0 0" }}> Everything in this console is live school data. Parents and students create their own accounts — see <span className="mono">docs/first-sign-in.md</span>.
             </p>
           </div>
           <div className="row">
             <Link className="btn secondary sm" href="/">Landing page</Link>
-            <button className="btn ghost sm" onClick={() => fetch("/api/reset", { method: "POST" }).then(() => location.reload())}>
-              <Icon name="refresh" size={14} /> Reset demo data
-            </button>
           </div>
         </div>
       </div>

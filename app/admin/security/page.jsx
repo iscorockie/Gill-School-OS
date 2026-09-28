@@ -7,7 +7,7 @@ const legacy = (a) => a.authStrength === "legacy"; // derived server-side; passw
 
 // Head of School console: launch-day password safety. One click flags every
 // active account so each holder re-verifies with an emailed code on next
-// sign-in — rotating all seeded/demo passwords at once.
+// sign-in — everyone sets a fresh password of their own.
 export default function SecurityPage() {
   const { db, act } = useApp();
   const [confirm, setConfirm] = useState(false);

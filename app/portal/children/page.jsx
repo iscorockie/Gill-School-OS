@@ -108,7 +108,7 @@ function KidPanel({ db, kid }) {
             </Field>
           </div>
           <div style={{ flex: 1 }}>
-            <Field label="Upload (demo — stored in the platform vault)">
+            <Field label="Upload (stored in the platform vault)">
               <input type="file" onChange={(e) => setFile(e.target.files?.[0] || "")} />
             </Field>
           </div>

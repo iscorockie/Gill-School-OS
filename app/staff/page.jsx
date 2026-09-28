@@ -7,11 +7,6 @@ import { useStaff } from "@/components/StaffSession.jsx";
 // Staff sign-in: school webmail address (@gill.ac.ug) + portal password.
 // Accounts are issued by the Head of School (Admin → Staff Accounts); the
 // emailed invite sets the first password.
-const DEMO = [
-  { email: "a.hassan@gill.ac.ug", label: "Teacher · Ms. Aisha Hassan" },
-  { email: "i.twesigye@gill.ac.ug", label: "Bursar · Mr. Isaac Twesigye" },
-  { email: "m.kyomukama@gill.ac.ug", label: "Admissions · Mrs. Mary Kyomukama" },
-];
 
 export default function StaffPortalPage() {
   const router = useRouter();
@@ -41,12 +36,6 @@ export default function StaffPortalPage() {
     } finally {
       setBusy(false);
     }
-  }
-
-  function fillDemo(addr) {
-    setEmail(addr);
-    setPassword("gill2026");
-    setError("");
   }
 
   return (
@@ -109,17 +98,6 @@ export default function StaffPortalPage() {
         <div className="staff-security-note">
           <Icon name="lock" size={17} />
           <span><b>School-managed access</b> · Accounts are issued by the Head of School — there is no self-registration.</span>
-        </div>
-
-        <div className="demo-hint" style={{ marginTop: "1rem" }}>
-          <b>Demo</b> — pick a profile, password <span className="mono">gill2026</span>
-          <div style={{ marginTop: "0.5rem", display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
-            {DEMO.map((d) => (
-              <button key={d.email} type="button" className="btn secondary sm" onClick={() => fillDemo(d.email)}>
-                {d.label}
-              </button>
-            ))}
-          </div>
         </div>
       </section>
     </main>

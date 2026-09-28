@@ -41,11 +41,6 @@ function ParentLogin() {
     }
   }
 
-  function demo() {
-    setUsername("nansubuga.family");
-    setPassword("gill2026");
-  }
-
   return (
     <div className="auth-wrap">
       <div className="auth-card">
@@ -75,7 +70,7 @@ function ParentLogin() {
         <form onSubmit={submit}>
           <label style={{ display: "block", marginBottom: "0.85rem" }}>
             <span className="small" style={{ fontWeight: 700, display: "block", marginBottom: "0.3rem" }}>Family username or email</span>
-            <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="any email works with demo password" autoComplete="username" />
+            <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="family username or parent email" autoComplete="username" />
           </label>
           <label style={{ display: "block", marginBottom: "1rem" }}>
             <span className="small" style={{ fontWeight: 700, display: "block", marginBottom: "0.3rem" }}>Family password</span>
@@ -103,13 +98,6 @@ function ParentLogin() {
             {busy ? "Signing in…" : "Sign in"}
           </button>
         </form>
-
-        <div className="demo-hint">
-          <b>Demo family</b> — any email or username · password <span className="mono">gill2026</span>.
-          <div style={{ marginTop: "0.5rem" }}>
-            <button className="btn secondary sm" onClick={demo}>Fill demo details</button>
-          </div>
-        </div>
 
         <div className="card" style={{ marginTop: "1.1rem", background: "var(--peri-l)", borderColor: "var(--peri-2)", boxShadow: "none", padding: "0.7rem 0.9rem" }}>
           <b className="small">New family?</b>

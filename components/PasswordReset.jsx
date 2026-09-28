@@ -4,7 +4,7 @@ import Icon from "@/components/icons.jsx";
 
 // Shared email password-reset card used by the staff, parent and student
 // portals. Step 1: identifier → emailed 6-digit code. Step 2: code + new
-// password. In demo (simulated-mail) mode the code is shown on screen.
+// password. The code is delivered by email only — never shown on screen.
 export default function PasswordReset({
   portal,
   title,
@@ -22,7 +22,6 @@ export default function PasswordReset({
   const [pw, setPw] = useState("");
   const [confirm, setConfirm] = useState("");
   const [to, setTo] = useState("");
-  const [demoCode, setDemoCode] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -39,7 +38,6 @@ export default function PasswordReset({
       const j = await r.json();
       if (!j.ok) throw new Error(j.error || "Could not send the code.");
       setTo(j.result.to);
-      setDemoCode(j.result.demoCode || "");
       setStep("reset");
     } catch (err) {
       setError(err.message);
@@ -110,16 +108,10 @@ export default function PasswordReset({
               <div className="row" style={{ gap: "0.6rem" }}>
                 <Icon name="mail" size={19} style={{ color: "var(--maroon)" }} />
                 <p className="small muted" style={{ margin: 0 }}>
-                  Code sent to <b>{to}</b> · expires in 15 minutes{demoCode ? "" : ". Check your inbox (and spam folder)."}
+                  Code sent to <b>{to}</b> · expires in 15 minutes. Check your inbox (and spam folder).
                 </p>
               </div>
             </div>
-            {demoCode && (
-              <div className="quote" style={{ background: "#fffbe8", borderColor: "var(--gold-2)", marginBottom: "0.9rem" }}>
-                <b className="small">Demo mail</b>
-                <div className="small">Email is simulated here, so your code is <span className="mono">{demoCode}</span>.</div>
-              </div>
-            )}
             <label style={{ display: "block", marginBottom: "0.85rem" }}>
               <span className="small" style={{ fontWeight: 700, display: "block", marginBottom: "0.3rem" }}>6-digit code</span>
               <input value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="••••••" inputMode="numeric" className="mono" style={{ letterSpacing: "0.5rem", fontSize: "1.1rem" }} />

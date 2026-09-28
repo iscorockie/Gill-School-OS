@@ -54,12 +54,12 @@ export default function PickupsPage() {
                 if (!collector) return alert("Enter a collector first");
                 setBusy(true);
                 try {
-                  await act("checkout", { studentId, collector, timeOut: "17:07" }, "Demo: simulated 5:07 pm checkout — UGX 20,000 auto-billed and SMS sent to the family.");
+                  await act("checkout", { studentId, collector, timeOut: "17:07" }, "Back-dated 5:07 pm checkout logged — UGX 20,000 auto-billed and SMS sent to the family.");
                   setCollector("");
                 } catch (err) { alert(err.message); }
                 setBusy(false);
               }}
-            > Demo: simulate 5:07 pm checkout
+            > Record a late checkout (5:07 pm)
             </button>
           </form>
           <div className="quote" style={{ marginTop: "0.9rem" }}>
