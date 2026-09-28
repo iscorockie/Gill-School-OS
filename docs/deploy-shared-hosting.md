@@ -86,6 +86,10 @@ Environment Variables → **Add** each of these:
 > `DATA_DIR` keeps the live database **outside** the app folder, so re-uploading
 > the app can never wipe school data. Create that folder once in File Manager.
 
+> **There is no demo dataset or demo mode.** The product ships live-only:
+> real accounts, live email, codes delivered by email and never shown on
+> screen. A fresh database is seeded at first boot (`docs/first-sign-in.md`).
+
 Click **Create**, but don't start the app yet.
 
 ## Step 5 — install, build, start (5 min)
@@ -101,25 +105,76 @@ npm run build
 
 Back in **Applications → List Applications** (or the app row): **Start**.
 Open `http://portal.gill.ac.ug` — the portal landing page should load. First
-boot seeds demo data automatically.
+boot seeds the live database (school configuration + staff setup links printed
+to the app log — `docs/first-sign-in.md`).
 
 ## Step 6 — SSL (2 min)
 
 1. Panel → **SSL** → issue a free certificate (AutoSSL / Let's Encrypt) covering
    `portal.gill.ac.ug`. (DNS from Step 2 must already resolve, or validation fails.)
 2. Open `https://portal.gill.ac.ug` — padlock, no warnings.
+3. Then **Force HTTPS ON** for the subdomain (Webuzo → Domain → Manage Domains).
+
+### "Your connection isn't private" (`NET::ERR_CERT_AUTHORITY_INVALID`)
+
+The browser is being shown a certificate it can't trace to a trusted CA — on
+this panel that almost always means `portal.gill.ac.ug` is still on Webuzo's
+**default self-signed certificate** instead of the one issued in Step 6 (same
+issue the webmail port has: the fallback cert names the hosting company's
+hostname, not yours). **Never advise anyone to click through the warning or
+install a certificate by hand** — fix it on the server instead:
+
+1. Webuzo → **SSL** (or SSL/TLS → Manage SSL) → issue/renew the free
+   certificate for `portal.gill.ac.ug` (AutoSSL or Let's Encrypt).
+   - The certificate must list `portal.gill.ac.ug` among its names.
+   - If AutoSSL reports "issued" but the browser still warns, the site vhost is
+     not using the certificate yet — Webuzo → Domain → Manage Domains →
+     `portal.gill.ac.ug` → SSL ON / select the certificate, or ask CrystalCloud
+     support to attach it (see the message below).
+2. The **full chain** must be installed (the panel usually does this). A missing
+   intermediate certificate looks exactly like `ERR_CERT_AUTHORITY_INVALID`.
+3. Verify from a phone on mobile data (not the school Wi-Fi, to rule out a
+   proxy): `https://portal.gill.ac.ug/api/state` should return JSON with a
+   padlock, and `https://portal.gill.ac.ug/login` should land on the Parent
+   Portal sign-in.
+4. Only after the padlock shows, turn **Force HTTPS ON**.
+
+If AutoSSL claims success but the warning persists, send CrystalCloud support:
+
+> Please install the issued SSL certificate (with the intermediate/CA bundle)
+> for `portal.gill.ac.ug` on its web vhost — browsers currently show
+> `NET::ERR_CERT_AUTHORITY_INVALID`, so the site is serving the default
+> self-signed certificate instead of ours.
+
+Meanwhile, parents who hit the warning should **wait for the fix — not enter
+their password on a page with a certificate warning, and not click
+"Advanced → Proceed"**. Sign-in URLs (all under `https://portal.gill.ac.ug`):
+
+| Who | URL |
+|---|---|
+| Parents | `/portal/login` — the short link `/login` redirects there |
+| Students | `/student/login` |
+| Admin / Bursar / Admissions | `/admin` |
+| Staff | `/staff` |
 
 ## Step 7 — go-live checklist (launch day)
 
-- [ ] Sign in at `/admin` (`f.ssekandi@gill.ac.ug` / `gill2026`).
+- [ ] Factory-reset any old database with demo records: stop the app, delete
+      `DATA_DIR/db.json`, start — the console prints fresh one-time staff
+      setup links (`docs/first-sign-in.md`).
+- [ ] Sign in at `/admin` as the Head of School via your printed
+      `/staff/setup?invite=…` link (choose the portal password there).
 - [ ] **Admin → Staff Accounts → Send test email** to yourself — confirms SMTP.
-- [ ] **Admin → Security → Force password reset for everyone** — rotates all
-      demo passwords; every holder re-verifies by email.
-- [ ] Invite any real staff missing from the seed (must match their Webuzo mailbox).
+- [ ] Share each remaining staff member their setup link (visible in Staff
+      Accounts), or let them use **Forgot password** once SMTP works.
+- [ ] **Admin → Security → Force password reset for everyone** — if any
+      account was ever created outside the setup-link flow.
+- [ ] Confirm DNS is complete (`docs/dns.md`) and the SSL padlock shows (Step 6)
+      from a phone on mobile data.
 - [ ] Panel → **Backuply** (or Backup): schedule backups including `portal-data`
       (or `portal/data/db.json` if you skipped `DATA_DIR`).
-- [ ] Keep the demo families for training, or tell us when you want a clean
-      production seed + real-data import before admitting families.
+- [ ] Families self-register at `/register` — live mode contains no demo
+      families; admit real applicants through the normal flow.
 
 ## If the site shows a "50X error" (Webuzo page)
 

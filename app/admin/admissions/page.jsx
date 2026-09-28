@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useApp, Badge, Modal, Field, fmtDate } from "@/components/ui.jsx";
+import { SchoolEmailControl } from "@/components/IssueSchoolEmail.jsx";
 
 export default function AdmissionsPage() {
   const { db, act } = useApp();
@@ -9,6 +10,10 @@ export default function AdmissionsPage() {
   const [class_, setClass] = useState("Primary 1 (Cambridge)");
   const [notes, setNotes] = useState("Teacher recommends progression. Parents confirmed intake.");
   const [busy, setBusy] = useState(false);
+  const [retireFor, setRetireFor] = useState(null); // { studentId, name, outcome }
+  const [retireNote, setRetireNote] = useState("");
+  const [delFam, setDelFam] = useState(null); // familyId
+  const [delConfirm, setDelConfirm] = useState("");
 
   if (!db) return <div className="card">Loading…</div>;
   const transition = db.transitions.find((t) => t.id === trId);
@@ -41,6 +46,7 @@ export default function AdmissionsPage() {
         <button className={tab === "onboarding" ? "on" : ""} onClick={() => setTab("onboarding")}>Auto onboarding</button>
         <button className={tab === "applicants" ? "on" : ""} onClick={() => setTab("applicants")}>New applicants</button>
         <button className={tab === "accounts" ? "on" : ""} onClick={() => setTab("accounts")}>Student portal accounts</button>
+        <button className={tab === "leavers" ? "on" : ""} onClick={() => setTab("leavers")}>Leavers & alumni</button>
       </div>
 
       {tab === "transitions" && (
@@ -183,6 +189,9 @@ export default function AdmissionsPage() {
                           }}
                         >Re-send invite SMS</button>
                       </div>
+                      <div style={{ marginTop: "0.5rem" }}>
+                        <SchoolEmailControl db={db} familyId={fam.id} actor="Admissions — Mrs. Mary Kyomukama" />
+                      </div>
                     </div>
                   ) : (
                     <div className="small muted" style={{ maxWidth: 240 }}>
@@ -231,6 +240,11 @@ export default function AdmissionsPage() {
                       <a className="btn ghost sm" href="/admin/fees" title="Open fees to record payment">Collect fees</a>
                     )}
                   </div>
+                  {fam && app.status !== "in_progress" && (
+                    <div style={{ marginTop: "0.5rem" }}>
+                      <SchoolEmailControl db={db} familyId={fam.id} actor="Admissions — Mrs. Mary Kyomukama" />
+                    </div>
+                  )}
                 </div>
               </div>
             );
@@ -275,6 +289,69 @@ export default function AdmissionsPage() {
         </div>
       )}
 
+      {tab === "leavers" && (
+        <div className="card">
+          <div className="spread" style={{ marginBottom: "0.6rem" }}>
+            <div>
+              <h3 style={{ margin: 0 }}>Leavers & alumni — account lifecycle</h3>
+              <p className="small muted" style={{ margin: "0.25rem 0 0" }}>
+                Accounts are created <b>once</b> (the family at first registration, one supervised account per student) and stay open for the
+                student's entire time at the school — <b>an outstanding balance never locks anyone out of the OS</b>. When a student leaves or
+                completes their academic years their accounts close; you then <b>delete the accounts</b> here — invoices, receipts and academic
+                records are always retained.
+              </p>
+            </div>
+            <Badge tone="blue">Admin action</Badge>
+          </div>
+          <table>
+            <thead><tr><th>Student</th><th>Family</th><th>Tenure</th><th>Accounts</th><th style={{ textAlign: "right" }}>Actions</th></tr></thead>
+            <tbody>
+              {db.families.flatMap((f) => f.children.map((c) => ({ c, f }))).map(({ c, f }) => {
+                const sa = db.accountByStudent?.[c.id];
+                const fa = db.familyAccountByFamily?.[f.id];
+                const done = !!c.retirement;
+                const allDone = f.children.every((x) => x.retirement);
+                return (
+                  <tr key={c.id}>
+                    <td><b style={c.campus === "preschool" ? { fontFamily: "var(--fpd)" } : undefined}>{c.name}</b><div className="small muted">{c.schoolId} · {c.class}</div></td>
+                    <td className="small">{f.name} family</td>
+                    <td>
+                      {done ? (
+                        <Badge tone={c.retirement.outcome === "completed" ? "green" : "gray"}>
+                          {c.retirement.outcome === "completed" ? "✓ completed academic years" : "left the school"} · {String(c.retirement.at).slice(0, 10)}
+                        </Badge>
+                      ) : (
+                        <Badge tone="blue">enrolled</Badge>
+                      )}
+                    </td>
+                    <td className="small">
+                      {fa ? <div>family login <span className="mono">@{fa.username}</span> <Badge tone={fa.status === "closed" ? "gray" : "green"}>{fa.status}</Badge></div> : <div className="muted">family login deleted</div>}
+                      {sa ? <div>student <span className="mono">@{sa.username}</span> <Badge tone={sa.status === "closed" ? "gray" : "green"}>{sa.status}</Badge></div> : <div className="muted">no student account</div>}
+                    </td>
+                    <td style={{ textAlign: "right" }}>
+                      {!done ? (
+                        <div className="row" style={{ justifyContent: "flex-end", gap: "0.4rem" }}>
+                          <button className="btn secondary sm" onClick={() => { setRetireFor({ studentId: c.id, name: c.name, outcome: "completed" }); setRetireNote(""); }} title="Student finished their academic years">Mark completed</button>
+                          <button className="btn ghost sm" onClick={() => { setRetireFor({ studentId: c.id, name: c.name, outcome: "left" }); setRetireNote(""); }} title="Student departed the school">Mark left</button>
+                        </div>
+                      ) : fa ? (
+                        allDone ? (
+                          <button className="btn sm" style={{ background: "var(--red, #b3261e)" }} onClick={() => { setDelFam(f.id); setDelConfirm(""); }}>Delete accounts</button>
+                        ) : (
+                          <span className="small muted" style={{ display: "inline-block", maxWidth: 220 }}>accounts stay open while siblings are still at school</span>
+                        )
+                      ) : (
+                        <Badge tone="gray">accounts deleted · records kept</Badge>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
       {transition && (
         <Modal title={`Migrate ${db.studentIndex[transition.studentId]?.name} > Main School`} onClose={() => setTrId(null)}>
           <div className="quote" style={{ marginBottom: "0.9rem" }}>
@@ -294,6 +371,82 @@ export default function AdmissionsPage() {
           </div>
           <button className="btn" style={{ width: "100%", marginTop: "0.9rem" }} disabled={busy} onClick={doEnroll}>
             {busy ? "Migrating…" : "Enrol & migrate records"}
+          </button>
+        </Modal>
+      )}
+
+      {retireFor && (
+        <Modal title={`${retireFor.outcome === "completed" ? "Mark completed" : "Mark left"} — ${retireFor.name}`} onClose={() => setRetireFor(null)}>
+          <div className="quote" style={{ marginBottom: "0.9rem" }}>
+            {retireFor.outcome === "completed"
+              ? `${retireFor.name} has finished their academic years at Gill.`
+              : `${retireFor.name} is leaving the school.`}
+            <div className="small muted" style={{ marginTop: "0.35rem" }}>
+              Their student portal account closes immediately. If every child in the family is done, the family login closes too —
+              you can then delete the accounts from this screen. Invoices, receipts and academic records are retained either way.
+            </div>
+          </div>
+          <Field label="Note (optional — kept on the record)">
+            <textarea rows={3} value={retireNote} onChange={(e) => setRetireNote(e.target.value)} placeholder="e.g. Graduated Year 6 · transferred to boarding school in Entebbe" />
+          </Field>
+          <button
+            className="btn"
+            style={{ width: "100%", marginTop: "0.9rem" }}
+            disabled={busy}
+            onClick={async () => {
+              setBusy(true);
+              try {
+                await act(
+                  "retireStudent",
+                  { studentId: retireFor.studentId, outcome: retireFor.outcome, note: retireNote, actor: "Admissions — Mrs. Mary Kyomukama" },
+                  `${retireFor.name} marked ${retireFor.outcome === "completed" ? "completed" : "left"} — accounts closed, records retained.`
+                );
+                setRetireFor(null);
+              } catch (e) {
+                alert(e.message);
+              } finally {
+                setBusy(false);
+              }
+            }}
+          >
+            {busy ? "Saving…" : "Confirm & close accounts"}
+          </button>
+        </Modal>
+      )}
+
+      {delFam && (
+        <Modal title={`Delete accounts — ${db.families.find((f) => f.id === delFam)?.name} family`} onClose={() => setDelFam(null)}>
+          <div className="quote" style={{ background: "#fdecea", borderColor: "var(--red, #b3261e)", marginBottom: "0.9rem" }}>
+            <b>This deletes the login accounts — not the records.</b>
+            <div className="small muted" style={{ marginTop: "0.35rem" }}>
+              The family login (and any personalised school mailbox record) and all student portal accounts for this family are removed.
+              Invoices, receipts, applications and academic records stay with the school office.
+            </div>
+          </div>
+          <Field label={`Type the family name to confirm (${db.families.find((f) => f.id === delFam)?.name})`}>
+            <input value={delConfirm} onChange={(e) => setDelConfirm(e.target.value)} spellCheck={false} />
+          </Field>
+          <button
+            className="btn"
+            style={{ width: "100%", marginTop: "0.9rem", background: "var(--red, #b3261e)" }}
+            disabled={busy || delConfirm.trim() !== db.families.find((f) => f.id === delFam)?.name}
+            onClick={async () => {
+              setBusy(true);
+              try {
+                await act(
+                  "deleteFamilyAccounts",
+                  { familyId: delFam, confirm: delConfirm.trim(), actor: "Admissions — Mrs. Mary Kyomukama" },
+                  "Accounts deleted — financial & academic records retained."
+                );
+                setDelFam(null);
+              } catch (e) {
+                alert(e.message);
+              } finally {
+                setBusy(false);
+              }
+            }}
+          >
+            {busy ? "Deleting…" : "Permanently delete accounts"}
           </button>
         </Modal>
       )}

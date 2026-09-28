@@ -69,7 +69,7 @@ export default function StaffAccountsPage() {
   }
 
   async function forgetSmtp() {
-    if (!confirm("Remove the saved SMTP settings? Email falls back to the server environment, or to simulated demo mode.")) return;
+    if (!confirm("Remove the saved SMTP settings? Email falls back to the server environment, or to simulated mode (development only).")) return;
     try {
       const r = await act("clearMailConfig", {});
       setSaveMsg({ ok: true, text: r.message });
@@ -145,7 +145,7 @@ export default function StaffAccountsPage() {
           <h3 style={{ margin: 0 }}><Icon name="mail" size={18} /> School email (SMTP) status</h3>
           <div className="row" style={{ gap: "0.4rem" }}>
             {!mail ? <Badge tone="gray">checking…</Badge>
-              : !mail.configured ? <Badge tone="gold">simulated demo mode</Badge>
+              : !mail.configured ? <Badge tone="gold">not configured — simulated mode</Badge>
               : mail.verified === false ? <Badge tone="red">configured, but not delivering</Badge>
               : <Badge tone="green">live — {mail.host}{mail.verified ? " · verified" : ""}</Badge>}
             {mail?.configured && (
@@ -285,9 +285,9 @@ export default function StaffAccountsPage() {
             </div>
             <button className="btn" disabled={busy}>{busy ? "Sending invite…" : "Send email invite"}</button>
           </form>
-          {invite?.simulated && invite?.inviteToken && (
+          {invite?.setupLink && (
             <div className="quote" style={{ background: "#fffbe8", borderColor: "var(--gold-2)", marginTop: "0.9rem" }}>
-              <b className="small">Demo mail — no real email was sent.</b>
+              <b className="small">No real email was sent{invite.mailError ? ` — ${invite.mailError}` : ""}.</b>
               <div className="small" style={{ marginTop: "0.3rem" }}>
                 Invite code: <span className="mono">{invite.inviteToken}</span>
               </div>
@@ -295,7 +295,7 @@ export default function StaffAccountsPage() {
                 Setup link: <span className="mono" style={{ wordBreak: "break-all" }}>{invite.setupLink}</span>
               </div>
               <div className="small muted" style={{ marginTop: "0.3rem" }}>
-                Open <a href={`/staff/setup?invite=${invite.inviteToken}`}>/staff/setup</a> with this code to finish the demo setup.
+                Open <a href={`/staff/setup?invite=${invite.inviteToken}`}>/staff/setup</a> with this code to finish setting up.
                 Connect SMTP (see docs/email-setup.md) to send real invites.
               </div>
             </div>

@@ -50,7 +50,7 @@ export default function AdminResourcesPage() {
             ))}
           </tbody>
         </table>
-        <p className="small muted" style={{ marginTop: "0.6rem" }}> Uploads are scanned for virus/malware and stored in object storage (S3-compatible) in production; this demo keeps metadata only.
+        <p className="small muted" style={{ marginTop: "0.6rem" }}> Uploads are scanned for virus/malware and stored in object storage (S3-compatible) in production; the portal keeps metadata only.
         </p>
       </div>
 

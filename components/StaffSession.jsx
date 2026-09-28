@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 
 const KEY = "gill_staff_session";
 
-// Lightweight staff identity for the demo: signed in from /staff, shown
+// Lightweight staff identity for the console: signed in from /staff, shown
 // across the administration workspace.
 export function useStaff() {
   const [staff, setStaff] = useState(null);

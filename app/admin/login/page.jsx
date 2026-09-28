@@ -40,12 +40,6 @@ export default function AdminLoginPage() {
     }
   }
 
-  function demo() {
-    setEmail("f.ssekandi@gill.ac.ug");
-    setPassword("gill2026");
-    setError("");
-  }
-
   return (
     <div className="auth-wrap">
       <div className="auth-card">
@@ -102,13 +96,6 @@ export default function AdminLoginPage() {
             {busy ? "Checking…" : "Sign in to the OS console"}
           </button>
         </form>
-
-        <div className="demo-hint" style={{ marginTop: "1rem" }}>
-          <b>Demo</b> — <span className="mono">f.ssekandi@gill.ac.ug</span> · password <span className="mono">gill2026</span>
-          <div style={{ marginTop: "0.5rem" }}>
-            <button className="btn secondary sm" onClick={demo}>Fill demo details</button>
-          </div>
-        </div>
 
         <div className="row" style={{ justifyContent: "space-between", marginTop: "1.1rem" }}>
           <a href="/staff/forgot" className="small">Forgot password?</a>

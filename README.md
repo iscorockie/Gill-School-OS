@@ -2,7 +2,7 @@
 
 A unified campus management platform for **Gill International School** and **Gill Pre-School** — Najjera, Kampala (Cambridge curriculum). One platform for parents, teachers, admissions, the bursar, and the gate.
 
-The landing page (`/`) sells the platform; the **Parent Portal** (`/portal`) and **Admin Console** (`/admin`) are fully working demo apps driven by one state store.
+The landing page (`/`) sells the platform; the **Parent Portal** (`/portal`) and **Admin Console** (`/admin`) are fully working apps driven by one state store.
 
 ## Quick start
 
@@ -18,24 +18,25 @@ npm run build
 node server.js     # production launcher (PORT/HOSTNAME/DATA_DIR aware)
 ```
 
-First run seeds the demo database (`data/db.json` is generated and git-ignored). Use **↺ Reset demo data** on the admin dashboard to restore the seed at any time.
+**Live only** — there is no demo dataset anywhere in the product. First run seeds a production database (`data/db.json`, git-ignored) with school configuration and the staff roster as invite-style accounts (no passwords); the one-time setup links are printed to the server console. Bootstrap, sign-in URLs and factory-reset: **`docs/first-sign-in.md`**. DNS status: **`docs/dns.md`**.
 
-Smoke test (app must be running):
+Smoke test (app must be running; the test builds its own data through the real registration → application → tuition flows and captures verification codes from a local SMTP sink):
 
 ```bash
-node scripts/smoke-test.mjs
+npm run dev                 # or: node server.js
+node scripts/smoke-test.mjs # end-to-end business-rule checks
 ```
 
-## Demo identities
+## Sign-in URLs (once deployed at `https://portal.gill.ac.ug`)
 
-| Role | User | Where |
-|---|---|---|
-| Parent | Amina Nansubuga (children in **both** campuses) | `/portal` |
-| Head of School | Mr. Francis Ssekandi | `/admin` |
-| Bursar | Mr. Isaac Twesigye | `/admin/fees` |
-| Admissions | Mrs. Mary Kyomukama | `/admin/admissions` |
-| Gate / Front office | Mr. Peter Othieno | `/admin/pickups` |
-| Teachers | Ms. Aisha Hassan · Mr. Brian Mugisha · Ms. Sharon Namukasa | `/admin/academics` |
+| Who | URL |
+|---|---|
+| Parents | `/portal/login` — the short link `/login` redirects there |
+| Students | `/student/login` |
+| Admin / Bursar / Admissions | `/admin` |
+| Staff | `/staff` |
+
+The staff roster: Head of School **Mr. Francis Ssekandi** (`/admin`), Bursar **Mr. Isaac Twesigye** (`/admin/fees`), Admissions **Mrs. Mary Kyomukama** (`/admin/admissions`), Gate **Mr. Peter Othieno** (`/admin/pickups`), Teachers **Ms. Aisha Hassan · Mr. Brian Mugisha · Ms. Sharon Namukasa** (`/admin/academics`) — each signs in with their `@gill.ac.ug` webmail address and a portal password they set via their one-time setup link.
 
 ## Feature map (per your brief)
 
@@ -50,7 +51,8 @@ node scripts/smoke-test.mjs
 - **Digital resource & e-library** — past papers, worksheets, e-books, *The Gill Insider* (`/portal/resources`, `/admin/resources`).
 
 ### Administrators
-- **Late-pickup auto-billing** — gate checkout after 5:00 pm adds UGX 20,000 to the family invoice, sends a polite SMS and logs an audit entry. The console includes a "simulate 5:07 pm" button for demos (`/admin/pickups`).
+- **Gated personalised parent emails** — families use a normal email on the OS from day one; only after they've applied and tuition is completed does the Bursar/Admin issue their personalised `@gill.ac.ug` mailbox, which then works on both the Parent OS and Webuzo webmail (`/admin/fees` → School emails).
+- **Late-pickup auto-billing** — gate checkout after 5:00 pm adds UGX 20,000 to the family invoice, sends a polite SMS and logs an audit entry. The gate console can record a back-dated late checkout (`/admin/pickups`).
 - **Mobile Money & reconciliation** — MTN MoMo, Airtel Money, Visa; instant receipt + ledger clearance (`/portal/fees`, `/admin/fees`).
 - **Pre-orders** — uniform/book packs pre-paid before term (`/portal/orders`).
 
@@ -70,7 +72,16 @@ To go to production: swap `lib/store.js` for Postgres (the `reconcile` logic bec
 
 ## Production email (Webuzo webmail)
 
-Staff sign in with their `@gill.ac.ug` webmail addresses, and all three portals send real email (staff invites, verification codes, password resets, fee receipts) through your Webuzo SMTP. Without configuration the portal runs in simulated-mail demo mode. Full walkthrough: **`docs/email-setup.md`** (copy `.env.example` → `.env`, set `SMTP_*`, invite staff from Admin → Staff Accounts).
+Staff sign in with their `@gill.ac.ug` webmail addresses, and all three portals send real email (staff invites, verification codes, password resets, fee receipts) through your Webuzo SMTP. **Live mode requires SMTP** for anything that delivers a code or credential — codes are emailed, never shown on screen. Full walkthrough: **`docs/email-setup.md`** (copy `.env.example` → `.env`, set `SMTP_*`, invite staff from Admin → Staff Accounts).
+
+**Parent access is two-tier by design** — school mailboxes are never handed out at random: a normal (personal) email is enough for the Parent OS from registration, while the personalised `@gill.ac.ug` mailbox (Webuzo webmail + OS sign-in) is issued by the **Bursar/Admin only after the family has applied for their child and tuition is completed** (Admin → Fees → School emails). The parents receive their mailbox credentials by email, and the same address works on both the Parent OS and Webuzo webmail.
+
+## Account lifecycle (one-time accounts, tenure access)
+
+- **One-time creation** — the family account is created once, the first time a parent registers (`/register`), and each student gets exactly one supervised portal account. Re-registering with the same email/phone points to the existing login instead of minting a duplicate.
+- **Tenure access** — once created, the OS stays accessible for the student's entire time at the school. An outstanding balance (e.g. next term's fees) **never** locks anyone out of the Parent or Student OS: fee collection and portal access are fully decoupled after admission.
+- **End of tenure** — when a student leaves the school or completes their academic years, Admissions marks them in **Admissions → Leavers & alumni**: their student account closes, and the family login closes once every child is done.
+- **Admin deletion** — afterwards the admin deletes the accounts from the same screen (typed confirmation). Invoices, receipts, applications and academic records are always retained; if a new pupil joins later, a fresh account is created at registration.
 
 ## Deploying on shared hosting
 

@@ -47,11 +47,6 @@ function StudentLogin() {
     }
   }
 
-  function demo() {
-    setUsername("jordan.nansubuga");
-    setPassword("gill2026");
-  }
-
   return (
     <div className="auth-wrap">
       <div className="auth-card">
@@ -70,7 +65,7 @@ function StudentLogin() {
         <form onSubmit={submit}>
           <label style={{ display: "block", marginBottom: "0.85rem" }}>
             <span className="small" style={{ fontWeight: 700, display: "block", marginBottom: "0.3rem" }}>Username</span>
-            <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="any username works with demo password" autoComplete="username" />
+            <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="your username" autoComplete="username" />
           </label>
           <label style={{ display: "block", marginBottom: "1rem" }}>
             <span className="small" style={{ fontWeight: 700, display: "block", marginBottom: "0.3rem" }}>Password</span>
@@ -97,12 +92,8 @@ function StudentLogin() {
           </button>
         </form>
 
-        <div className="demo-hint">
-          <b>Demo account</b> — any username · password <span className="mono">gill2026</span>.
-          <div style={{ marginTop: "0.5rem" }}>
-            <button className="btn secondary sm" onClick={demo}>Fill demo details</button>
-          </div>
-          <p style={{ marginTop: "0.55rem", marginBottom: 0 }}> Parents create and manage student accounts from <b>Parent Portal &gt; Student Accounts</b>.
+        <div className="card" style={{ marginTop: "1rem", background: "var(--peri-l)", borderColor: "var(--peri-2)", boxShadow: "none", padding: "0.7rem 0.9rem" }}>
+          <p className="small" style={{ margin: 0 }}> Parents create and manage student accounts from <b>Parent Portal &gt; Student Accounts</b>.
           </p>
         </div>
 

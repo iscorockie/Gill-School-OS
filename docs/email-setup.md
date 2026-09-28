@@ -123,28 +123,61 @@ Either way, the status card turns green (`live — mail.gill.ac.ug · verified`)
 once the server accepts the login — and shows the exact SMTP error if not.
 Press **Send test email** for the end-to-end proof.
 
-> Without a mailbox password the portal still works fully in **simulated-mail
-> demo mode**: emails are logged (Admin → Communications → Delivery log) and
-> codes are shown on screen so nothing is ever blocked. Note that the demo
-> sign-in shortcuts (any email + `gill2026`) close automatically as soon as
-> real mail is configured.
+> **Codes and mailbox credentials are delivered by email only** and require
+> SMTP below — they are **never shown on screen**. Until the mailbox password
+> is set, those actions return a clear "configure SMTP first" error.
 
 ## Part 3 — issue the staff logins (Head of School)
 
-1. Sign in at `/admin` (demo: `f.ssekandi@gill.ac.ug` / `gill2026`).
-2. Open **Staff Accounts** → invite each person with their `@gill.ac.ug`
-   address. They receive an email, set their own portal password, and sign in
-   at `/staff`.
-3. Seeded demo staff already have the password `gill2026` — ask everyone to
-   use **Forgot password** on `/staff` once, so each mailbox holds its own
-   private password.
+1. Sign in at `/admin` as the Head of School using the one-time setup link
+   printed to the server console at first boot (`docs/first-sign-in.md`) — it
+   opens `/staff/setup?invite=…` where you choose the portal password.
+2. Open **Staff Accounts** → share each remaining person their setup link
+   (shown in the console), or invite them by their `@gill.ac.ug` address so
+   they receive an email and set their own portal password at `/staff`.
+3. Everyone else: **Forgot password** on `/staff` once SMTP is live — the code
+   goes to their own school webmail, so each mailbox holds its own private
+   password.
 
-## Part 4 — parents & students
+## Part 4 — parents, students & personalised family mailboxes
 
-- **Parents** keep their shared family login, but can now also sign in with
-  their own email address, and reset the family password from
-  `/portal/forgot` (code goes to the parent email on file). Make sure the
-  admission form captures at least one parent email.
+Parent access works in **two tiers** — school mailboxes are never handed out
+at random:
+
+### Tier 1 — a normal email is enough for the OS
+
+Any parent can register at `/register` with a personal address (Gmail, Yahoo,
+…). That address signs the family into the **Parent OS** from day one:
+application tracking while the file is with Admissions, then the full portal
+once admission is verified and tuition is cleared. No school mailbox exists
+yet — so there is nothing to log into on Webuzo.
+
+### Tier 2 — the personalised `@gill.ac.ug` mailbox (OS **and** Webuzo)
+
+Only **after the family has applied for their child AND tuition is
+completed**, the Bursar (**Admin → Fees → School emails**) or Admissions /
+Admin (**Admin → Admissions → New applicants** or **Auto onboarding**) can
+issue the family's personalised school email:
+
+1. Create the mailbox in Webuzo → **Email Accounts** (like staff), **or**
+   connect the optional Webuzo API (`WEBUZO_API_URL` + `WEBUZO_API_TOKEN`)
+   so the console creates it automatically when you press the button.
+2. Press **Send personalised email** — the button stays locked until the
+   gate passes (applied + tuition completed), and the parents receive an
+   email with the address, the webmail password and both login links.
+3. The issued address now works on **both**:
+   - **Webuzo webmail** (`WEBMAIL_URL`, default `webmail.gill.ac.ug:2003`) —
+     address + webmail password.
+   - **Parent OS** — the same address + the family's usual portal password
+     (the shared family username keeps working too). The two passwords stay
+     separate: resetting one never locks the other.
+
+The parents' normal email keeps working on the OS as well; the personalised
+mailbox is an upgrade, not a replacement. Re-sending the notice (without the
+password) is one click from the same screens.
+
+### Students
+
 - **Students** keep their supervised usernames; `/student/forgot` emails the
   reset code to the **parent**, who completes the reset with the child.
 
@@ -160,7 +193,15 @@ Press **Send test email** for the end-to-end proof.
       opens `/staff/setup`, password sets, sign-in works.
 - [ ] `/staff/forgot` with your own school email → code arrives in webmail.
 - [ ] `/portal/forgot` with a parent email → code arrives.
-- [ ] Pay a demo invoice → parent email receives the receipt.
+- [ ] Submit an application at `/apply` → parent email receives the
+      "Application received" reply (the expected response after applying).
+- [ ] With tuition still open, **Admin → Fees → School emails** shows
+      *Send personalised email* locked — it unlocks only after the family
+      has applied **and** tuition is completed.
+- [ ] Settle tuition → issue the personalised email → parents receive the
+      mailbox email; the address signs into the **Parent OS** (portal
+      password) and **Webuzo webmail** (webmail password).
+- [ ] Pay an invoice → parent email receives the receipt.
 - [ ] Admin → Communications → Delivery log shows `Webuzo SMTP … (live)`.
 
 ## Troubleshooting
@@ -171,14 +212,18 @@ Press **Send test email** for the end-to-end proof.
 | Emails arrive in spam | Finish Part 1 step 4 (SPF/DKIM/DMARC). Also avoid sending the first real broadcast to hundreds of parents at once — warm up with staff/family mail first. |
 | Staff invite email never arrives, no failure logged | Check the mailbox exists in Webuzo and the address was typed correctly; look in spam. Re-send from Staff Accounts. |
 | `Staff accounts must use the school domain` | The invite address isn't `@gill.ac.ug`. Create the mailbox in Webuzo first. |
-| Codes shown on screen instead of emailed | No mailbox password is reaching the app (simulated mode). Set `SMTP_PASS` (panel env or `.env`), or save it from **Admin → Staff Accounts →  SMTP settings** — see Part 2. |
+| Codes shown on screen instead of emailed | Impossible in this build — codes are never rendered in the browser. If the email isn't configured the action errors with "configure SMTP first". Set `SMTP_PASS` (panel env or `.env`), or save it from **Admin → Staff Accounts →  SMTP settings** — see Part 2. |
 
 ## Security notes
 
 - Portal passwords are hashed (scrypt) from the moment they are set through
-  an invite or a reset. Seeded demo passwords are plaintext `gill2026` and
-  should be replaced via Forgot password before going live with real data.
+  an invite or a reset. Live-mode staff accounts start with **no password at
+  all** (invite-style setup links, single-use) — nothing seeded is guessable.
 - Student passwords stay parent-readable by design (supervised accounts with
   no fee access) — parents manage them in Parent Portal → Student Accounts.
 - Invite links are single-use; reset codes expire in 15 minutes and lock
   after 5 wrong attempts.
+- Personalised family mailboxes are **never** auto-created or given out at
+  registration — only the Bursar/Admin can issue one, only after the family
+  has applied and tuition is completed, and the webmail password is shown
+  once at issuance (re-sends never include it; rotate it in Webuzo if lost).

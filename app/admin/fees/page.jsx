@@ -1,6 +1,7 @@
 "use client";
 import { useMemo, useState } from "react";
 import { useApp, Badge, Modal, Field, fmtUGX } from "@/components/ui.jsx";
+import { familyMailEligibility, SchoolEmailControl } from "@/components/IssueSchoolEmail.jsx";
 import { AreaChart, GroupedBars, Donut, HBarList, Sparkline, CHART_COLORS } from "@/components/charts.jsx";
 
 function monthLabel(dateStr) {
@@ -137,6 +138,7 @@ export default function AdminFeesPage() {
         <button className={tab === "ledger" ? "on" : ""} onClick={() => setTab("ledger")}>Fee ledger</button>
         <button className={tab === "payments" ? "on" : ""} onClick={() => setTab("payments")}>Payments & receipts</button>
         <button className={tab === "audit" ? "on" : ""} onClick={() => setTab("audit")}>Audit trail</button>
+        <button className={tab === "emails" ? "on" : ""} onClick={() => setTab("emails")}>School emails</button>
       </div>
 
       {/* ---------------- ANALYTICS ---------------- */}
@@ -366,6 +368,55 @@ export default function AdminFeesPage() {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {tab === "emails" && (
+        <div className="card">
+          <div className="spread" style={{ marginBottom: "0.6rem" }}>
+            <div>
+              <h3 style={{ margin: 0 }}>Personalised family emails — Webuzo mailboxes</h3>
+              <p className="small muted" style={{ margin: "0.25rem 0 0" }}>
+                Never handed out at random: a normal email is enough for the Parent OS, but the personalised <b>@gill.ac.ug</b> mailbox
+                is issued <b>only after the family has applied for their child AND tuition is completed</b>. The issued address then
+                works on <b>both</b> the Parent OS and Webuzo webmail.
+              </p>
+            </div>
+            <Badge tone="blue">Bursar action</Badge>
+          </div>
+          <table>
+            <thead><tr><th>Family</th><th>Application</th><th>Tuition</th><th>Personalised email</th></tr></thead>
+            <tbody>
+              {db.families.map((f) => {
+                const g = familyMailEligibility(db, f.id);
+                return (
+                  <tr key={f.id}>
+                    <td>
+                      <b>{f.name}</b>
+                      <div className="small muted">{f.children.map((c) => c.name.split(" ")[0]).join(", ") || "no children yet"}</div>
+                    </td>
+                    <td>
+                      <Badge tone={g.appliedOK ? "green" : "gold"}>{g.appliedOK ? "✓ applied" : "not applied"}</Badge>
+                    </td>
+                    <td>
+                      {g.tuitionOK ? (
+                        <Badge tone="green">✓ cleared</Badge>
+                      ) : (
+                        <Badge tone="gold">{g.outstanding ? `${fmtUGX(g.outstanding)} due` : "not billed"}</Badge>
+                      )}
+                    </td>
+                    <td>
+                      <SchoolEmailControl db={db} familyId={f.id} actor="Bursar — Mr. Isaac Twesigye" />
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+          <p className="small muted" style={{ marginTop: "0.6rem" }}>
+            The parents receive an email with the mailbox address, the webmail password and both login links.
+            Webuzo webmail uses the webmail password; the Parent OS accepts the same address with the family's usual portal password.
+          </p>
         </div>
       )}
 
