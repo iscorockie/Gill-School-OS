@@ -130,12 +130,14 @@ const mailBaseline = await (await fetch(`${BASE}/api/mail-status?verify=0`)).jso
 const roster = ["f.ssekandi@gill.ac.ug", "i.twesigye@gill.ac.ug", "m.kyomukama@gill.ac.ug", "a.hassan@gill.ac.ug", "b.mugisha@gill.ac.ug", "s.namukasa@gill.ac.ug", "p.othieno@gill.ac.ug"];
 check("staff roster present as accounts", roster.every((e) => (s.staffAccounts || []).some((a) => a.email === e)));
 const adminAcc = (s.staffAccounts || []).find((a) => a.email === "f.ssekandi@gill.ac.ug");
+let bossPw = null;
 if (adminAcc?.inviteToken && !adminAcc.passwordSet) {
   const look = await action("staffInviteLookup", { token: adminAcc.inviteToken });
   check("staff invite link resolves (no SMTP needed)", look.ok && look.result.email === "f.ssekandi@gill.ac.ug");
   const setup = await action("staffInviteSetup", { token: adminAcc.inviteToken, password: `Boss${RUN}!` });
+  bossPw = `Boss${RUN}!`;
   check("Head of School sets a password via the one-time link", setup.ok && !!setup.result.session);
-  const staffLogin = await post("/api/staff-login", { email: "f.ssekandi@gill.ac.ug", password: `Boss${RUN}!` });
+  const staffLogin = await post("/api/staff-login", { email: "f.ssekandi@gill.ac.ug", password: bossPw });
   check("staff sign-in with the new password", staffLogin.ok);
 } else {
   console.log("SKIP  staff bootstrap (already set up on this database)");
@@ -181,6 +183,33 @@ check("both parents SMS'd on submission", s.deliveries.filter((d) => d.ref === k
 check("docs land in vault as pending review", s.documents.filter((d) => d.studentId === kid1.app.studentId).length === 3 && s.documents.filter((d) => d.studentId === kid1.app.studentId).every((d) => d.status === "pending review"));
 check("admissions notified of new application", s.messages.some((m) => m.to === "u-admissions" && m.subject.includes("New application received")));
 check("register page serves, old-school style", ((await (await fetch(`${BASE}/register`)).text()).includes("Join Our Community")));
+
+// ---- 2b) SHARED EMAIL SIGN-IN (from main): /login + /api/login ---------------
+// Routes staff/admin and parents by email using REAL credentials from this run
+// — there is never a magic/demo password in the live product.
+const loginPost = async (body) => {
+  const res = await fetch(`${BASE}/api/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  return { status: res.status, body: await res.json() };
+};
+const sharedAdminLogin = bossPw ? await loginPost({ email: "f.ssekandi@gill.ac.ug", password: bossPw }) : null;
+if (sharedAdminLogin) {
+  check("shared login routes admin email to /admin", sharedAdminLogin.body.ok === true && sharedAdminLogin.body.destination === "/admin");
+} else {
+  console.log("SKIP  shared admin login (staff password set in an earlier run)");
+}
+const sharedParentLogin = await loginPost({ email: aParents[0].email, password: `pass${RUN}a!` });
+check("shared login routes parent email to the family portal", sharedParentLogin.body.ok === true && sharedParentLogin.body.kind === "parent" && !!sharedParentLogin.body.session?.familyId);
+const sharedWrongPw = await loginPost({ email: aParents[0].email, password: "gill2026" });
+check("shared login rejects the old magic password with 401", sharedWrongPw.status === 401 && sharedWrongPw.body.ok === false);
+const sharedNoEmail = await loginPost({ email: "not-an-email", password: "whatever" });
+check("shared login requires an email-format identifier", sharedNoEmail.status === 400);
+const parentLoginShortcut = await post("/api/parent-login", { username: userA, password: "gill2026" });
+check("no magic password on the family login route", parentLoginShortcut.ok === false);
+check("/login serves the shared sign-in page", (await fetch(`${BASE}/login`)).status === 200);
 
 // ---- 3) Verification → activation → supervised student accounts --------------
 await verifyAllDocs(kid1.app.studentId);

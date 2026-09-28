@@ -67,6 +67,7 @@ The staff roster: Head of School **Mr. Francis Ssekandi** (`/admin`), Bursar **M
 - **JSON file store** (`lib/store.js`) with an idempotent `reconcile()` that derives sibling discounts, invoice totals, balances, student indices and dashboard stats on every read — the same engine a real SQL/Postgres schema would use.
 - **Action dispatcher** — every mutation goes through `POST /api/action` (`lib/actions.js`); all side effects (SMS/email simulation, audit trail, notifications) are logged in-state.
 - **ICS endpoint** (`/api/ics`) generates a live subscribe-able calendar.
+- **Shared email sign-in** (`/login`) routes parent, staff and administrator accounts to their OS workspace; students continue to sign in with their parent-managed username at `/student/login`.
 
 To go to production: swap `lib/store.js` for Postgres (the `reconcile` logic becomes views/triggers), connect a real SMS aggregator (MTN/Airtel Uganda) and payment gateway (MTN MoMo API, Flutterwave/Paystack for cards), and move document uploads to object storage with virus scanning.
 

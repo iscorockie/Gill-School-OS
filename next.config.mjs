@@ -9,9 +9,9 @@ const nextConfig = {
   allowedDevOrigins: ["*.e2b.app"],
   async redirects() {
     return [
-      // The "direct URL" parents share for signing in — portal.gill.ac.ug/login
-      // must land on the Parent Portal sign-in, not a 404.
-      { source: "/login", destination: "/portal/login", permanent: true },
+      // "portal.gill.ac.ug/login" is the shared sign-in page (a real route — do
+      // not redirect it away). These Parent-Portal direct URLs parents share
+      // must land on the family sign-in, not a 404.
       { source: "/parent", destination: "/portal/login", permanent: true },
       { source: "/parent/login", destination: "/portal/login", permanent: true },
     ];
